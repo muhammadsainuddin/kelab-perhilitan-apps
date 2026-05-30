@@ -3,8 +3,8 @@
     
     <div class="px-1 flex justify-between items-center">
       <div>
-        <h2 class="text-xl font-bold text-[#08151D] uppercase tracking-wide">Pengurusan Profil</h2>
-        <p class="text-xs text-[#567778] font-medium mt-0.5">Kemaskini maklumat penempatan, data waris, dan tetapan keselamatan.</p>
+        <h2 class="text-xl font-bold text-[#08151D] uppercase tracking-wide">Profil Saya</h2>
+        <p class="text-xs text-[#567778] font-medium mt-0.5">Urus maklumat peribadi, waris dan keselamatan akaun.</p>
       </div>
     </div>
 
@@ -21,44 +21,92 @@
         
         <div class="flex-1 min-w-0">
           <h3 class="text-sm font-black text-[#08151D] uppercase leading-tight truncate">{{ profil.nama_penuh || 'Nama Kakitangan' }}</h3>
-          <p class="text-xs text-[#567778] mt-0.5 truncate">{{ profil.penempatan || 'Sila Kemaskini Penempatan' }}</p>
+          <p class="text-xs text-[#567778] mt-0.5 truncate font-medium">{{ profil.penempatan || 'Sila Kemaskini Penempatan' }}</p>
         </div>
       </div>
 
-      <div class="grid grid-cols-2 gap-3 pt-2 text-xs border-t border-gray-100">
+      <div class="grid grid-cols-3 gap-3 pt-4 text-xs border-t border-gray-100">
         <div>
-          <span class="text-[9px] text-[#567778] font-bold uppercase tracking-wider block">Gred SSPA</span>
-          <span class="font-bold text-[#08151D] uppercase">{{ profil.gred_sspa || '-' }}</span>
+          <span class="text-[9px] text-[#567778] font-bold uppercase tracking-wider block mb-0.5">Gred SSPA</span>
+          <span class="font-bold text-[#08151D] uppercase bg-gray-50 px-2 py-0.5 rounded border border-gray-100">{{ profil.gred_sspa || '-' }}</span>
         </div>
         <div>
-          <span class="text-[9px] text-[#567778] font-bold uppercase tracking-wider block">Yuran Bulanan (DB)</span>
-          <span class="font-bold text-[#08151D] font-mono">RM {{ parseFloat(profil.yuran_kelab_bulanan || 0).toFixed(2) }}</span>
+          <span class="text-[9px] text-[#567778] font-bold uppercase tracking-wider block mb-0.5">Saiz Baju</span>
+          <span class="font-bold text-[#08151D] uppercase bg-gray-50 px-2 py-0.5 rounded border border-gray-100">{{ profil.saiz_baju || '-' }}</span>
+        </div>
+        <div>
+          <span class="text-[9px] text-[#567778] font-bold uppercase tracking-wider block mb-0.5">Yuran (DB)</span>
+          <span class="font-bold text-[#08151D] font-mono bg-gray-50 px-2 py-0.5 rounded border border-gray-100">RM {{ parseFloat(profil.yuran_kelab_bulanan || 0).toFixed(2) }}</span>
         </div>
       </div>
     </div>
 
     <div class="bg-white rounded-[24px] border border-gray-200/60 p-4 shadow-sm flex gap-3">
-      <button @click="bukaModalEdit" class="flex-1 py-3 bg-[#08151D]/5 hover:bg-[#08151D]/10 text-[#08151D] font-bold text-xs rounded-xl transition-all">
+      <button @click="bukaModalEdit" class="flex-1 py-3.5 bg-[#08151D]/5 hover:bg-[#08151D]/10 text-[#08151D] font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-2">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
         Kemas Kini Data
       </button>
-      <button @click="bukaModalBerhenti" class="flex-1 py-3 bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-xs rounded-xl transition-all"
+      <button @click="bukaModalBerhenti" class="flex-1 py-3.5 bg-amber-50 hover:bg-amber-100 text-amber-700 font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-2 border border-amber-200/50"
               :disabled="profil.status_ahli === 'tidak aktif'"
               :class="{'opacity-50 cursor-not-allowed': profil.status_ahli === 'tidak aktif'}">
-        {{ profil.status_ahli === 'tidak aktif' ? 'Tidak Aktif' : 'Mohon Berhenti' }}
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>
+        {{ profil.status_ahli === 'tidak aktif' ? 'Telah Berhenti' : 'Mohon Berhenti' }}
       </button>
     </div>
 
     <div class="bg-white rounded-[24px] p-5 shadow-sm border border-gray-200/60 space-y-3">
-      <h4 class="text-xs font-black text-[#08151D] uppercase tracking-wider border-b pb-2">Maklumat Waris & Khairat</h4>
-      <div class="space-y-2 text-xs">
-        <p class="text-[#567778] font-medium">Nama Waris: <strong class="text-[#08151D] uppercase">{{ profil.nama_waris || 'Belum dikemaskini' }}</strong></p>
-        <p class="text-[#567778] font-medium">No. Telefon: <strong class="text-[#08151D] font-mono">{{ profil.no_tel_waris || '-' }}</strong></p>
-        <p class="text-[#567778] font-medium">Akaun Bank: <strong class="text-[#08151D] uppercase">{{ profil.bank_waris || 'N/A' }} ({{ profil.no_acc_waris || '-' }})</strong></p>
+      <div class="flex items-center gap-2 border-b border-gray-100 pb-2">
+        <svg class="w-4 h-4 text-[#87BCB5]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+        <h4 class="text-[11px] font-black text-[#08151D] uppercase tracking-wider">Maklumat Perbankan Ahli</h4>
+      </div>
+      <div class="grid grid-cols-2 gap-4 text-xs pt-1">
+        <div>
+          <p class="text-[#567778] font-medium mb-0.5">Nama Bank</p>
+          <p class="font-bold text-[#08151D] uppercase">{{ profil.bank_ahli || 'Belum Diisi' }}</p>
+        </div>
+        <div>
+          <p class="text-[#567778] font-medium mb-0.5">No. Akaun Bank</p>
+          <p class="font-bold text-[#08151D] font-mono">{{ profil.no_acc_bank || 'Belum Diisi' }}</p>
+        </div>
       </div>
     </div>
 
-    <button @click="logKeluar" class="w-full py-3.5 border-2 border-rose-500 text-rose-500 font-bold text-xs rounded-xl hover:bg-rose-500 hover:text-white transition-all">
-      Log Keluar Sistem
+    <div class="bg-white rounded-[24px] p-5 shadow-sm border border-gray-200/60 space-y-3">
+      <div class="flex items-center gap-2 border-b border-gray-100 pb-2">
+        <svg class="w-4 h-4 text-rose-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+        <h4 class="text-[11px] font-black text-[#08151D] uppercase tracking-wider">Maklumat Waris / Khairat</h4>
+      </div>
+      <div class="space-y-4 text-xs pt-1">
+        <div class="grid grid-cols-2 gap-4">
+          <div class="col-span-2 sm:col-span-1">
+            <p class="text-[#567778] font-medium mb-0.5">Nama Penuh Waris</p>
+            <p class="font-bold text-[#08151D] uppercase">{{ profil.nama_waris || 'Belum Diisi' }}</p>
+          </div>
+          <div>
+            <p class="text-[#567778] font-medium mb-0.5">No. Telefon Waris</p>
+            <p class="font-bold text-[#08151D] font-mono">{{ profil.no_tel_waris || 'Belum Diisi' }}</p>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <p class="text-[#567778] font-medium mb-0.5">Nama Bank Waris</p>
+            <p class="font-bold text-[#08151D] uppercase">{{ profil.bank_waris || 'Belum Diisi' }}</p>
+          </div>
+          <div>
+            <p class="text-[#567778] font-medium mb-0.5">No. Akaun Bank Waris</p>
+            <p class="font-bold text-[#08151D] font-mono">{{ profil.no_acc_waris || 'Belum Diisi' }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button @click="logKeluar" class="w-full group relative flex justify-center items-center gap-3 py-4 bg-rose-50 border border-rose-200 hover:border-rose-600 text-rose-600 hover:text-white font-black text-xs uppercase tracking-widest rounded-2xl transition-all duration-300 shadow-sm overflow-hidden mt-2">
+      <div class="absolute inset-0 w-0 bg-rose-600 transition-all duration-500 ease-out group-hover:w-full z-0"></div>
+      
+      <svg class="w-5 h-5 z-10 transition-transform duration-300 group-hover:-translate-x-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+      </svg>
+      <span class="z-10 relative drop-shadow-sm">Log Keluar Sistem</span>
     </button>
 
     <Teleport to="body">
@@ -73,6 +121,7 @@
           </div>
           
           <form @submit.prevent="simpanProfil" class="space-y-5">
+            
             <div class="space-y-3">
               <h4 class="text-[10px] font-black text-[#87BCB5] uppercase tracking-wider mb-2">1. Peribadi & Pekerjaan</h4>
               
@@ -104,7 +153,7 @@
                 </div>
                 <div class="space-y-1">
                   <label class="text-[10px] text-[#567778] font-bold uppercase ml-1">No. Akaun Bank (Ahli)</label>
-                  <input v-model="form.no_acc_bank" type="text" class="w-full bg-gray-50 border border-gray-200 text-xs font-mono font-bold rounded-xl p-3 outline-none focus:border-[#08151D] focus:ring-2 focus:ring-[#87BCB5]/20" />
+                  <input v-model="form.no_acc_bank" type="text" placeholder="Cth: 16401010101" class="w-full bg-gray-50 border border-gray-200 text-xs font-mono font-bold rounded-xl p-3 outline-none focus:border-[#08151D] focus:ring-2 focus:ring-[#87BCB5]/20" />
                 </div>
               </div>
             </div>

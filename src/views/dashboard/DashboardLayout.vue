@@ -6,7 +6,7 @@
       class="bg-[#08151D] flex-shrink-0 z-40 absolute top-0 left-0 w-full transition-transform duration-300 ease-in-out border-b border-[#567778]/20"
       :class="showHeader ? 'translate-y-0' : '-translate-y-full'"
     >
-      <div class="max-w-lg mx-auto px-6 pt-10 pb-4">
+      <div class="max-w-lg mx-auto px-6 pt-5 pb-4">
         <div class="flex items-center gap-3">
           <div class="w-11 h-11 bg-white/5 rounded-2xl flex items-center justify-center border border-white/10 shadow-inner shrink-0 p-1.5">
             <img src="/logo.png" alt="Logo" class="w-full h-full object-contain drop-shadow-sm" />
