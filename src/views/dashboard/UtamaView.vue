@@ -26,6 +26,11 @@
             <h3 class="text-sm font-black mt-0.5 text-[#D0D7D7]">Kelab PERHILITAN</h3>
           </div>
         </div>
+        <!-- Badge Status Keahlian -->
+        <span class="text-[8px] font-black uppercase tracking-wider px-2 py-1 rounded-full border"
+              :class="isAhliAktif ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30' : 'bg-rose-500/20 text-rose-300 border-rose-500/30'">
+          {{ isAhliAktif ? '● Aktif' : '● Tertunggak' }}
+        </span>
       </div>
       <div class="relative z-10 mt-8 flex items-center gap-4">
         <div class="w-14 h-14 rounded-2xl overflow-hidden bg-white/10 border border-white/20 backdrop-blur-md flex items-center justify-center text-xl font-black shadow-inner shrink-0">
@@ -37,7 +42,9 @@
             {{ profil.nama_penuh || 'Memuatkan...' }}
           </h2>
           <div class="mt-1 flex items-center gap-2">
-            <p class="text-[10px] font-mono font-bold text-[#87BCB5] bg-[#08151D]/50 px-2 py-0.5 rounded-md border border-white/10">ID: {{ profil.no_ahli || 'PENDING' }}</p>
+            <p class="text-[10px] font-mono font-bold text-[#87BCB5] bg-[#08151D]/50 px-2 py-0.5 rounded-md border border-white/10">
+              ID: {{ profil.no_ahli || 'PENDING' }}
+            </p>
           </div>
         </div>
       </div>
@@ -79,6 +86,20 @@
       </div>
     </div>
 
+    <!-- Banner Amaran Yuran Tertunggak -->
+    <div v-if="!isAhliAktif" class="bg-rose-50 border border-rose-200 rounded-[24px] p-4 flex items-start gap-3">
+      <div class="w-9 h-9 rounded-xl bg-rose-100 flex items-center justify-center shrink-0">
+        <svg class="w-5 h-5 text-rose-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+      </div>
+      <div class="flex-1">
+        <p class="text-xs font-black text-rose-800 uppercase tracking-wide">Yuran Tahunan Belum Dijelaskan</p>
+        <p class="text-[10px] text-rose-700 mt-0.5 leading-relaxed">Akses modul Bantuan Kebajikan dan pendaftaran Aktiviti disekat sehingga yuran diselesaikan.</p>
+        <button @click="$router.push('/dashboard/yuran')" class="mt-2 text-[10px] font-black text-rose-700 underline underline-offset-2">
+          Bayar Sekarang →
+        </button>
+      </div>
+    </div>
+
     <div class="bg-[#08151D] text-white p-6 rounded-[32px] shadow-lg flex items-center justify-between border border-[#567778]/30 mt-4">
        <div>
          <h3 class="text-sm font-black uppercase tracking-widest text-[#87BCB5]">Kejohanan Sukan</h3>
@@ -100,23 +121,16 @@ import api from '../../services/api';
 const router = useRouter();
 const profil = ref({});
 
-const isAhliAktif = computed(() => {
-  return profil.value.is_paid || profil.value.pilihan_potongan === 'Potongan Gaji / Jabatan';
-});
+// FIX: Guna is_paid sahaja — dikira oleh backend, satu sumber kebenaran
+const isAhliAktif = computed(() => !!profil.value.is_paid);
 
 const firstName = computed(() => {
   if (!profil.value.nama_penuh) return 'Ahli';
   return profil.value.nama_penuh.split(' ')[0];
 });
 
-const getGreeting = () => {
-  const hour = new Date().getHours();
-  return hour < 12 ? 'Selamat Pagi' : hour < 18 ? 'Selamat Petang' : 'Selamat Malam';
-};
-
 const fetchProfil = async () => {
   try {
-    // FIX: URL ditukar dari /ahli/profil kepada /user/profil
     const res = await api.get('/user/profil'); 
     profil.value = res.data.data;
   } catch (e) { 
