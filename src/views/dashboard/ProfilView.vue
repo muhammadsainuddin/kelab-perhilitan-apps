@@ -41,6 +41,29 @@
       </div>
     </div>
 
+    <!-- Ringkasan Perbelanjaan FPX -->
+    <div class="rounded-[24px] p-5 shadow-sm border border-[#0F4C3A]/20 bg-gradient-to-br from-[#0F4C3A] to-[#08151D] text-white relative overflow-hidden">
+      <div class="absolute -right-8 -top-8 w-28 h-28 bg-white/10 rounded-full blur-2xl"></div>
+      <div class="relative z-10">
+        <div class="flex items-center justify-between">
+          <p class="text-[10px] font-bold text-white/70 uppercase tracking-widest">Jumlah Perbelanjaan (FPX)</p>
+          <svg class="w-4 h-4 text-[#87BCB5]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+        </div>
+        <h3 class="text-3xl font-black mt-1 tabular-nums">{{ fmtRM(jumlahPerbelanjaan) }}</h3>
+        <p class="text-[10px] text-white/60 mt-1">{{ txBerjaya.length }} transaksi berjaya keseluruhan</p>
+        <div class="grid grid-cols-2 gap-3 mt-4 pt-4 border-t border-white/20">
+          <div>
+            <p class="text-[9px] text-white/60 font-bold uppercase tracking-wider">Yuran Keahlian</p>
+            <p class="text-sm font-black text-white tabular-nums mt-0.5">{{ fmtRM(jumlahYuran) }}</p>
+          </div>
+          <div>
+            <p class="text-[9px] text-white/60 font-bold uppercase tracking-wider">Belian Kedai</p>
+            <p class="text-sm font-black text-white tabular-nums mt-0.5">{{ fmtRM(jumlahKedai) }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="bg-white rounded-[24px] border border-gray-200/60 p-4 shadow-sm flex gap-3">
       <button @click="bukaModalEdit" class="flex-1 py-3.5 bg-[#08151D]/5 hover:bg-[#08151D]/10 text-[#08151D] font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-2">
         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
@@ -116,6 +139,23 @@
       </svg>
       <span class="z-10 relative drop-shadow-sm">Log Keluar Sistem</span>
     </button>
+
+    <!-- KREDIT PEMBANGUN -->
+    <footer class="pt-4 flex flex-col items-center gap-1.5 text-center select-none">
+      <p class="text-[10px] font-bold tracking-wide text-[#567778]">
+        Develop by <span class="text-[#08151D] font-black">Muhammad.S</span>
+      </p>
+      <div class="flex items-center gap-1.5 text-[9px] font-semibold uppercase tracking-[0.18em] text-[#567778]">
+        <span>Backend powered by</span>
+        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#08151D] text-[#87BCB5] font-black">
+          <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21s-7-4.35-7-10a7 7 0 1114 0c0 5.65-7 10-7 10z"/><circle cx="12" cy="11" r="2.2"/></svg>
+          AiGeo
+        </span>
+      </div>
+      <p class="text-[8px] text-[#567778]/70 font-medium tracking-wide max-w-[260px] leading-relaxed">
+        AiGeo — Kepintaran Geospatial dikuasakan AI.
+      </p>
+    </footer>
 
     <Teleport to="body">
       <div v-if="modalEdit" class="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
@@ -302,6 +342,10 @@
                         :class="tx.status === 'BERJAYA' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : (tx.status === 'PENDING' ? 'bg-amber-50 text-amber-700 border-amber-100' : 'bg-rose-50 text-rose-700 border-rose-100')">
                     {{ tx.status }}
                   </span>
+                  <button v-if="tx.status === 'BERJAYA'" @click="lihatResit(tx)"
+                    class="block ml-auto mt-1.5 text-[9px] font-black uppercase tracking-wide text-[#0F4C3A] bg-[#87BCB5]/20 hover:bg-[#87BCB5]/40 border border-[#87BCB5]/40 px-2 py-1 rounded-md transition-colors">
+                    Lihat Resit
+                  </button>
                 </div>
               </div>
             </div>
@@ -314,10 +358,11 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import api from '../../services/api';
 import { useAuthStore } from '../../stores/auth';
+import { cetakResitTransaksi } from '../../config/kelab';
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -337,6 +382,26 @@ const formBerhenti = ref({ sebab_utama: '', ulasan: '' });
 const modalTransaksi = ref(false);
 const sejarahSemua = ref([]);
 const loadingTransaksi = ref(false);
+
+// Ringkasan perbelanjaan (FPX berjaya sahaja)
+const txBerjaya = computed(() => sejarahSemua.value.filter(t => t.status === 'BERJAYA'));
+const adalahKedai = (t) => /kedai|pesanan|pembelian/i.test(t.keterangan || '');
+const jumlahPerbelanjaan = computed(() => txBerjaya.value.reduce((a, t) => a + parseFloat(t.amaun || 0), 0));
+const jumlahYuran = computed(() => txBerjaya.value.filter(t => !adalahKedai(t)).reduce((a, t) => a + parseFloat(t.amaun || 0), 0));
+const jumlahKedai = computed(() => txBerjaya.value.filter(t => adalahKedai(t)).reduce((a, t) => a + parseFloat(t.amaun || 0), 0));
+const fmtRM = (v) => 'RM ' + parseFloat(v || 0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
+const lihatResit = (tx) => cetakResitTransaksi(tx, profil.value);
+
+// Muat sejarah transaksi (untuk ringkasan + modal)
+const muatSejarahSemua = async () => {
+  loadingTransaksi.value = true;
+  try {
+    const { data } = await api.get('/bayaran/sejarah-semua');
+    if (data.success) sejarahSemua.value = data.data;
+  } catch (e) { console.error('Gagal muat transaksi', e); }
+  finally { loadingTransaksi.value = false; }
+};
 
 // 1. Tarik Profil Kakitangan
 const fetchProfil = async () => {
@@ -376,15 +441,7 @@ const onFileChange = async (e) => {
 
 const bukaModalTransaksi = async () => {
   modalTransaksi.value = true;
-  loadingTransaksi.value = true;
-  try {
-    const { data } = await api.get('/bayaran/sejarah-semua');
-    if (data.success) sejarahSemua.value = data.data;
-  } catch (e) {
-    console.error("Gagal muat transaksi", e);
-  } finally {
-    loadingTransaksi.value = false;
-  }
+  if (sejarahSemua.value.length === 0) await muatSejarahSemua();
 };
 
 const bukaModalEdit = () => {
@@ -473,6 +530,7 @@ const logKeluar = () => {
 onMounted(() => {
   fetchProfil();
   fetchSenaraiPTJ();
+  muatSejarahSemua();
 });
 </script>
 

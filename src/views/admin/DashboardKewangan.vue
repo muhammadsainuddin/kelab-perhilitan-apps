@@ -12,6 +12,22 @@
           <option v-for="y in senaraITahun" :key="y" :value="y">Tahun {{ y }}</option>
         </select>
         
+        <button @click="cetakPenyataTahunan" :disabled="menjanaPenyata"
+          class="flex items-center gap-2 bg-[#0F4C3A] hover:bg-[#155d47] text-white font-semibold text-sm px-4 py-2.5 rounded-xl transition-all shadow-md disabled:opacity-60">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          </svg>
+          {{ menjanaPenyata ? 'Menjana...' : 'Penyata Tahunan' }}
+        </button>
+
+        <button @click="bukaSumbangan"
+          class="flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-white font-semibold text-sm px-4 py-2.5 rounded-xl transition-all shadow-md">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+          </svg>
+          Kutipan Sumbangan
+        </button>
+
         <button @click="eksportCSV"
           class="flex items-center gap-2 bg-white hover:bg-gray-50 text-gray-700 font-semibold text-sm px-4 py-2.5 rounded-xl transition-all border border-gray-300 shadow-sm">
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -253,6 +269,113 @@
       </Transition>
     </Teleport>
 
+    <!-- ===================== MODAL KUTIPAN SUMBANGAN ===================== -->
+    <Teleport to="body">
+      <Transition name="modal">
+        <div v-if="showModalSumbangan"
+          class="fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm flex items-center justify-center px-4"
+          @click.self="showModalSumbangan = false">
+          <div class="bg-white border border-gray-200 rounded-3xl w-full max-w-3xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
+
+            <div class="flex justify-between items-start px-7 py-5 border-b border-gray-100 bg-amber-50/50">
+              <div>
+                <h3 class="text-gray-900 font-bold text-xl">Kutipan Sumbangan {{ tahunPilihan }}</h3>
+                <p class="text-gray-500 text-xs mt-1">Rekod & senarai penyumbang kelab. Sumbangan dikira sebagai pemasukan dalam buku tunai.</p>
+              </div>
+              <button @click="showModalSumbangan = false" class="text-gray-400 hover:text-red-500 bg-white hover:bg-red-50 p-1.5 rounded-full transition-all border border-gray-200">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+              </button>
+            </div>
+
+            <!-- Ringkasan + Aksi -->
+            <div class="px-7 py-4 border-b border-gray-100 flex flex-wrap items-center justify-between gap-3">
+              <div class="bg-amber-50 border border-amber-200 rounded-xl px-4 py-2">
+                <span class="text-[10px] font-bold text-amber-700 uppercase tracking-wider">Jumlah Kutipan</span>
+                <p class="text-lg font-black text-amber-700 leading-tight">{{ fmt(jumlahSumbangan) }}</p>
+              </div>
+              <div class="flex flex-wrap gap-2">
+                <button @click="showFormSumbangan = !showFormSumbangan"
+                  class="flex items-center gap-1.5 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold px-3 py-2 rounded-xl shadow-sm">
+                  <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                  Tambah Manual
+                </button>
+                <label class="flex items-center gap-1.5 bg-white hover:bg-gray-50 text-gray-700 text-xs font-bold px-3 py-2 rounded-xl border border-gray-300 shadow-sm cursor-pointer">
+                  <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+                  Import CSV
+                  <input type="file" accept=".csv,text/csv" class="hidden" @change="handleCsvSumbangan"/>
+                </label>
+                <button @click="cetakSumbangan" :disabled="senaraiSumbangan.length===0"
+                  class="flex items-center gap-1.5 bg-[#0F4C3A] hover:bg-[#155d47] text-white text-xs font-bold px-3 py-2 rounded-xl shadow-sm disabled:opacity-50">
+                  <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2z"/></svg>
+                  Cetak Laporan
+                </button>
+              </div>
+            </div>
+
+            <!-- Borang Tambah Manual -->
+            <div v-if="showFormSumbangan" class="px-7 py-4 border-b border-gray-100 bg-gray-50/60">
+              <div class="grid grid-cols-1 sm:grid-cols-12 gap-2 items-end">
+                <div class="sm:col-span-4">
+                  <label class="text-gray-500 text-[10px] font-bold uppercase tracking-wider mb-1 block">Nama Penyumbang *</label>
+                  <input v-model="formSumbangan.nama_penyumbang" type="text" placeholder="Nama / Syarikat"
+                    class="w-full bg-white border border-gray-300 text-gray-900 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-amber-500"/>
+                </div>
+                <div class="sm:col-span-2">
+                  <label class="text-gray-500 text-[10px] font-bold uppercase tracking-wider mb-1 block">Amaun (RM) *</label>
+                  <input v-model="formSumbangan.amaun" type="number" min="0.01" step="0.01" placeholder="0.00"
+                    class="w-full bg-white border border-gray-300 text-gray-900 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-amber-500"/>
+                </div>
+                <div class="sm:col-span-3">
+                  <label class="text-gray-500 text-[10px] font-bold uppercase tracking-wider mb-1 block">Program / Tujuan</label>
+                  <input v-model="formSumbangan.program" type="text" placeholder="Cth: Tabung Kebajikan"
+                    class="w-full bg-white border border-gray-300 text-gray-900 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-amber-500"/>
+                </div>
+                <div class="sm:col-span-2">
+                  <label class="text-gray-500 text-[10px] font-bold uppercase tracking-wider mb-1 block">Tarikh</label>
+                  <input v-model="formSumbangan.tarikh" type="date"
+                    class="w-full bg-white border border-gray-300 text-gray-900 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-amber-500"/>
+                </div>
+                <div class="sm:col-span-1">
+                  <button @click="simpanSumbangan" :disabled="savingSumbangan"
+                    class="w-full bg-amber-500 hover:bg-amber-600 text-white rounded-lg px-2 py-2 text-sm font-bold disabled:opacity-60">+</button>
+                </div>
+              </div>
+              <p class="text-[10px] text-gray-400 mt-2">Format CSV: <code class="bg-gray-200 px-1 rounded">nama, amaun, program, tarikh</code> (baris pertama tajuk akan dilangkau automatik). Tarikh: YYYY-MM-DD.
+                <a href="/templat-sumbangan.csv" download class="text-amber-600 font-bold underline ml-1">Muat turun templat CSV</a>
+              </p>
+            </div>
+
+            <!-- Senarai -->
+            <div class="flex-1 overflow-y-auto">
+              <table class="w-full text-sm text-left">
+                <thead class="bg-gray-50 text-gray-500 text-xs uppercase tracking-wider border-b border-gray-200 sticky top-0">
+                  <tr>
+                    <th class="px-6 py-3 font-bold">#</th>
+                    <th class="px-4 py-3 font-bold">Nama Penyumbang</th>
+                    <th class="px-4 py-3 font-bold">Program</th>
+                    <th class="px-4 py-3 font-bold">Tarikh</th>
+                    <th class="px-6 py-3 font-bold text-right">Amaun (RM)</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                  <tr v-if="loadingSumbangan"><td colspan="5" class="px-6 py-10 text-center text-gray-400">Memuatkan...</td></tr>
+                  <tr v-else-if="senaraiSumbangan.length===0"><td colspan="5" class="px-6 py-12 text-center text-gray-400">Tiada rekod sumbangan untuk tahun {{ tahunPilihan }}.</td></tr>
+                  <tr v-for="(s, i) in senaraiSumbangan" :key="s.id" class="hover:bg-amber-50/40">
+                    <td class="px-6 py-2.5 text-gray-400 text-xs">{{ i + 1 }}</td>
+                    <td class="px-4 py-2.5 font-semibold text-gray-900">{{ s.nama_penyumbang }}</td>
+                    <td class="px-4 py-2.5 text-gray-600 text-xs">{{ s.program || '—' }}</td>
+                    <td class="px-4 py-2.5 text-gray-500 text-xs whitespace-nowrap">{{ s.tarikh }}</td>
+                    <td class="px-6 py-2.5 text-right font-black text-amber-600 tabular-nums">{{ fmt(s.amaun) }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
+
   </div>
 </template>
 
@@ -260,8 +383,17 @@
 import { ref, computed, onMounted, nextTick } from 'vue';
 import { Chart, registerables } from 'chart.js';
 import api from '../../services/api';
+import { headerResitHTML, footerResitHTML } from '../../config/kelab';
 
 Chart.register(...registerables);
+
+// Label kategori mesra pengguna untuk penyata
+const LABEL_KATEGORI = {
+  YURAN: 'Yuran Keahlian', KEDAI: 'Jualan Kedai / Merchandise', SUMBANGAN: 'Sumbangan & Derma',
+  KEBAJIKAN: 'Bantuan Kebajikan Ahli', ACARA: 'Kos Acara / Sukan', BELIAN_BARANG: 'Pembelian Barang / Aset',
+  PERKHIDMATAN: 'Pembayaran Perkhidmatan', LAIN: 'Lain-lain',
+};
+const labelKat = (k) => LABEL_KATEGORI[k] || k;
 
 // ── State ──
 const loading          = ref(true);
@@ -281,6 +413,16 @@ let chartInstance      = null;
 let debounceTimer      = null;
 
 const formKeluar = ref({ kategori: 'KEBAJIKAN', amaun: '', rujukan: '', nota: '', no_kp_pihak: '', penerima_bayaran: '' });
+
+// ── State Penyata & Sumbangan ──
+const menjanaPenyata     = ref(false);
+const showModalSumbangan = ref(false);
+const showFormSumbangan  = ref(false);
+const senaraiSumbangan   = ref([]);
+const jumlahSumbangan    = ref(0);
+const loadingSumbangan   = ref(false);
+const savingSumbangan    = ref(false);
+const formSumbangan      = ref({ nama_penyumbang: '', amaun: '', program: '', tarikh: '' });
 
 const senaraITahun = computed(() => {
   const y = new Date().getFullYear();
@@ -404,6 +546,178 @@ const simpanKeluar = async () => {
 };
 
 const eksportCSV = () => { window.open(`${import.meta.env.VITE_API_URL}/admin/kewangan/eksport?tahun=${tahunPilihan.value}`, '_blank'); };
+
+// ============================================================
+// PENYATA KEWANGAN TAHUNAN (cetak)
+// ============================================================
+const cetakPenyataTahunan = async () => {
+  menjanaPenyata.value = true;
+  try {
+    const { data } = await api.get(`/admin/kewangan/penyata-tahunan?tahun=${tahunPilihan.value}`);
+    if (!data.success) throw new Error();
+    const d = data.data;
+    const tarikhCetak = new Date().toLocaleDateString('ms-MY', { day:'numeric', month:'long', year:'numeric' });
+    const rm = (v) => 'RM ' + parseFloat(v||0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
+    const barisPendapatan = d.pendapatan.length
+      ? d.pendapatan.map(r => `<tr><td>${labelKat(r.kategori)}</td><td style="text-align:center">${r.bil}</td><td style="text-align:right">${rm(r.jumlah)}</td></tr>`).join('')
+      : `<tr><td colspan="3" style="text-align:center;color:#999">Tiada rekod pendapatan.</td></tr>`;
+    const barisPerbelanjaan = d.perbelanjaan.length
+      ? d.perbelanjaan.map(r => `<tr><td>${labelKat(r.kategori)}</td><td style="text-align:center">${r.bil}</td><td style="text-align:right">${rm(r.jumlah)}</td></tr>`).join('')
+      : `<tr><td colspan="3" style="text-align:center;color:#999">Tiada rekod perbelanjaan.</td></tr>`;
+
+    const w = window.open('', '_blank', 'width=850,height=700');
+    w.document.write(`<html><head><title>Penyata Kewangan ${d.tahun}</title><style>
+      body{font-family:Arial;padding:34px;color:#222;max-width:720px;margin:auto}
+      table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:6px}
+      th{background:#0F4C3A;color:#fff;padding:7px 10px;text-align:left;font-size:11px;text-transform:uppercase}
+      td{padding:6px 10px;border-bottom:1px solid #eee}
+      h2.sek{font-size:13px;color:#0F4C3A;margin:22px 0 8px;border-bottom:2px solid #0F4C3A;padding-bottom:4px}
+      tr.jum td{font-weight:bold;background:#f0f7f4;border-top:2px solid #0F4C3A}
+      .ringkas{margin-top:24px;border:2px solid #0F4C3A;border-radius:10px;overflow:hidden}
+      .ringkas .r{display:flex;justify-content:space-between;padding:9px 16px;font-size:13px;border-bottom:1px solid #eee}
+      .ringkas .r:last-child{border-bottom:none}
+      .ringkas .akhir{background:#0F4C3A;color:#fff;font-weight:bold;font-size:15px}
+      .pos{color:#0F4C3A;font-weight:bold}.neg{color:#b91c1c;font-weight:bold}
+    </style></head><body>
+    ${headerResitHTML(`Penyata Kewangan Tahunan &bull; Tahun ${d.tahun} &bull; Dicetak: ${tarikhCetak}`)}
+    <h2 class="sek">A. PENDAPATAN / PERUNTUKAN MASUK</h2>
+    <table><thead><tr><th>Kategori</th><th style="text-align:center">Bil. Transaksi</th><th style="text-align:right">Jumlah (RM)</th></tr></thead>
+    <tbody>${barisPendapatan}<tr class="jum"><td>JUMLAH PENDAPATAN</td><td></td><td style="text-align:right">${rm(d.jumlah_pendapatan)}</td></tr></tbody></table>
+    <h2 class="sek">B. PERBELANJAAN</h2>
+    <table><thead><tr><th>Kategori</th><th style="text-align:center">Bil. Transaksi</th><th style="text-align:right">Jumlah (RM)</th></tr></thead>
+    <tbody>${barisPerbelanjaan}<tr class="jum"><td>JUMLAH PERBELANJAAN</td><td></td><td style="text-align:right">${rm(d.jumlah_perbelanjaan)}</td></tr></tbody></table>
+    <div class="ringkas">
+      <div class="r"><span>Baki Bawa Ke Hadapan (sebelum ${d.tahun})</span><span>${rm(d.baki_bawa)}</span></div>
+      <div class="r"><span>Jumlah Pendapatan ${d.tahun}</span><span class="pos">${rm(d.jumlah_pendapatan)}</span></div>
+      <div class="r"><span>Jumlah Perbelanjaan ${d.tahun}</span><span class="neg">${rm(d.jumlah_perbelanjaan)}</span></div>
+      <div class="r"><span>Lebihan / (Kurangan) Tahun Semasa</span><span class="${d.lebihan_kurangan>=0?'pos':'neg'}">${rm(d.lebihan_kurangan)}</span></div>
+      <div class="r akhir"><span>BAKI AKHIR TERKUMPUL</span><span>${rm(d.baki_akhir)}</span></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;margin-top:46px;font-size:11px;color:#444">
+      <div style="text-align:center">________________________<br/>Disediakan oleh (Bendahari)</div>
+      <div style="text-align:center">________________________<br/>Disahkan oleh (Pengerusi)</div>
+    </div>
+    ${footerResitHTML()}
+    </body></html>`);
+    w.document.close();
+    setTimeout(() => w.print(), 400);
+  } catch (e) {
+    alert('Gagal menjana penyata tahunan.');
+  } finally {
+    menjanaPenyata.value = false;
+  }
+};
+
+// ============================================================
+// KUTIPAN SUMBANGAN
+// ============================================================
+const bukaSumbangan = async () => {
+  showModalSumbangan.value = true;
+  await muatSumbangan();
+};
+
+const muatSumbangan = async () => {
+  loadingSumbangan.value = true;
+  try {
+    const { data } = await api.get(`/admin/kewangan/sumbangan?tahun=${tahunPilihan.value}`);
+    if (data.success) { senaraiSumbangan.value = data.data; jumlahSumbangan.value = data.jumlah; }
+  } catch (e) { console.error(e); }
+  finally { loadingSumbangan.value = false; }
+};
+
+const simpanSumbangan = async () => {
+  if (!formSumbangan.value.nama_penyumbang || !formSumbangan.value.amaun || parseFloat(formSumbangan.value.amaun) <= 0) {
+    return alert('Sila isi nama penyumbang dan amaun yang sah.');
+  }
+  savingSumbangan.value = true;
+  try {
+    const { data } = await api.post('/admin/kewangan/sumbangan', formSumbangan.value);
+    if (data.success) {
+      formSumbangan.value = { nama_penyumbang: '', amaun: '', program: '', tarikh: '' };
+      await muatSumbangan();
+      await muatData();
+      await muatTransaksi();
+    }
+  } catch (e) { alert(e.response?.data?.message || 'Gagal menyimpan sumbangan.'); }
+  finally { savingSumbangan.value = false; }
+};
+
+// Penghurai CSV ringkas (sokong medan dalam petikan)
+const huraiBarisCSV = (baris) => {
+  const hasil = []; let semasa = ''; let dalamPetik = false;
+  for (let i = 0; i < baris.length; i++) {
+    const ch = baris[i];
+    if (ch === '"') {
+      if (dalamPetik && baris[i + 1] === '"') { semasa += '"'; i++; }
+      else dalamPetik = !dalamPetik;
+    } else if (ch === ',' && !dalamPetik) { hasil.push(semasa); semasa = ''; }
+    else semasa += ch;
+  }
+  hasil.push(semasa);
+  return hasil.map(s => s.trim());
+};
+
+const handleCsvSumbangan = async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  try {
+    const teks = await file.text();
+    const baris = teks.split(/\r?\n/).filter(b => b.trim() !== '');
+    if (baris.length === 0) return alert('Fail CSV kosong.');
+
+    // Langkau baris tajuk jika lajur pertama bukan nombor pada lajur amaun
+    const pertama = huraiBarisCSV(baris[0]).map(s => s.toLowerCase());
+    const adaTajuk = pertama.some(c => ['nama','penyumbang','amaun','jumlah','program','tarikh'].includes(c));
+    const mula = adaTajuk ? 1 : 0;
+
+    const senarai = [];
+    for (let i = mula; i < baris.length; i++) {
+      const k = huraiBarisCSV(baris[i]);
+      const nama = k[0] || '';
+      const amaun = parseFloat((k[1] || '').replace(/[^0-9.]/g, ''));
+      if (!nama || !amaun) continue;
+      senarai.push({ nama_penyumbang: nama, amaun, program: k[2] || null, tarikh: k[3] || null });
+    }
+    if (senarai.length === 0) return alert('Tiada data sah dijumpai dalam CSV. Pastikan format: nama, amaun, program, tarikh.');
+    if (!confirm(`${senarai.length} rekod sumbangan dikesan. Teruskan import?`)) return;
+
+    const { data } = await api.post('/admin/kewangan/sumbangan/import', { senarai });
+    if (data.success) {
+      alert(data.message);
+      await muatSumbangan();
+      await muatData();
+      await muatTransaksi();
+    }
+  } catch (err) {
+    alert(err.response?.data?.message || 'Gagal memproses fail CSV.');
+  } finally {
+    e.target.value = ''; // reset input
+  }
+};
+
+const cetakSumbangan = () => {
+  const tarikhCetak = new Date().toLocaleDateString('ms-MY', { day:'numeric', month:'long', year:'numeric' });
+  const rm = (v) => 'RM ' + parseFloat(v||0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  const baris = senaraiSumbangan.value
+    .map((s, i) => `<tr><td style="text-align:center">${i+1}</td><td>${s.nama_penyumbang}</td><td>${s.program||'—'}</td><td>${s.tarikh}</td><td style="text-align:right">${rm(s.amaun)}</td></tr>`)
+    .join('');
+  const w = window.open('', '_blank', 'width=850,height=700');
+  w.document.write(`<html><head><title>Laporan Kutipan Sumbangan ${tahunPilihan.value}</title><style>
+    body{font-family:Arial;padding:34px;color:#222;max-width:720px;margin:auto}
+    table{width:100%;border-collapse:collapse;font-size:12px}
+    th{background:#0F4C3A;color:#fff;padding:7px 10px;text-align:left;font-size:11px;text-transform:uppercase}
+    td{padding:6px 10px;border-bottom:1px solid #eee}
+    tr.jum td{font-weight:bold;background:#f0f7f4;border-top:2px solid #0F4C3A;font-size:13px}
+  </style></head><body>
+  ${headerResitHTML(`Laporan Kutipan Sumbangan &bull; Tahun ${tahunPilihan.value} &bull; Dicetak: ${tarikhCetak}`)}
+  <table><thead><tr><th style="width:36px;text-align:center">#</th><th>Nama Penyumbang</th><th>Program / Tujuan</th><th>Tarikh</th><th style="text-align:right">Amaun (RM)</th></tr></thead>
+  <tbody>${baris}<tr class="jum"><td colspan="4">JUMLAH KESELURUHAN KUTIPAN (${senaraiSumbangan.value.length} penyumbang)</td><td style="text-align:right">${rm(jumlahSumbangan.value)}</td></tr></tbody></table>
+  ${footerResitHTML()}
+  </body></html>`);
+  w.document.close();
+  setTimeout(() => w.print(), 400);
+};
 
 onMounted(() => {
   muatSenaraiAhli();

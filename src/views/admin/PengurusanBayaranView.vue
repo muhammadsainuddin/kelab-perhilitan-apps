@@ -120,8 +120,11 @@
                 <div class="w-12 h-12 rounded-xl bg-[#0F4C3A] flex items-center justify-center mx-auto mb-2">
                   <svg class="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                 </div>
-                <h4 class="text-gray-900 font-bold text-base">KELAB KAKITANGAN PERHILITAN</h4>
-                <p class="text-gray-400 text-xs">Resit Rasmi Pembayaran</p>
+                <h4 class="text-gray-900 font-bold text-sm leading-snug">{{ KELAB.nama }}</h4>
+                <p class="text-gray-500 text-[10px] mt-1">No. Pendaftaran: {{ KELAB.noPertubuhan }}</p>
+                <p class="text-gray-400 text-[10px] leading-snug mt-0.5">{{ KELAB.alamat }}</p>
+                <p class="text-gray-400 text-[10px] mt-0.5">E-mel: {{ KELAB.emel }}</p>
+                <p class="text-[#0F4C3A] text-xs font-bold mt-2">Resit Rasmi Pembayaran</p>
               </div>
 
               <!-- Status -->
@@ -195,6 +198,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import api from '../../services/api';
+import { KELAB, headerResitHTML, footerResitHTML } from '../../config/kelab';
 
 const semuaResit    = ref([]);
 const loading       = ref(true);
@@ -287,10 +291,7 @@ const cetakResit = () => {
       .status-badge { display: inline-block; padding: 3px 12px; border-radius: 20px; font-size: 11px; font-weight: bold; background: #d1fae5; color: #065f46; }
       .footer { text-align: center; margin-top: 30px; font-size: 10px; color: #aaa; }
     </style></head><body>
-    <div class="header">
-      <h1>KELAB KAKITANGAN PERHILITAN</h1>
-      <p>Resit Rasmi Pembayaran &bull; Dicetak: ${tarikhCetak}</p>
-    </div>
+    ${headerResitHTML(`Resit Rasmi Pembayaran &bull; Dicetak: ${tarikhCetak}`)}
     <div class="section">
       <div class="section-title">Maklumat Ahli</div>
       <div class="row"><span class="label">Nama</span><span class="value">${pilihan.value?.nama_penuh||'—'}</span></div>
@@ -306,9 +307,7 @@ const cetakResit = () => {
       <div class="row"><span class="label">Status</span><span class="status-badge">${pilihan.value?.status||'—'}</span></div>
       <div class="row total-row"><span class="label" style="font-weight:bold">JUMLAH BAYARAN</span><span class="value">RM ${parseFloat(pilihan.value?.amaun||0).toFixed(2)}</span></div>
     </div>
-    <div class="footer">
-      Resit ini adalah dijana secara automatik oleh sistem. Sah tanpa tandatangan.
-    </div>
+    ${footerResitHTML()}
     </body></html>
   `);
   w.document.close();

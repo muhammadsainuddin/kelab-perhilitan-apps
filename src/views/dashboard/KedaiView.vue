@@ -186,8 +186,13 @@
               </div>
             </div>
             
-            <div class="px-6 py-4 border-t border-gray-100 flex justify-end">
-              <button @click="tutupTempahan" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3 rounded-xl text-xs transition-colors">Tutup Tetingkap</button>
+            <div class="px-6 py-4 border-t border-gray-100 flex gap-2">
+              <button v-if="['DIBAYAR','DIPROSES','SELESAI'].includes(pilihanTempahan?.status_pesanan) || pilihanTempahan?.is_percuma"
+                @click="simpanResitPesanan" class="flex-1 bg-[#08151D] hover:bg-[#0F4C3A] text-[#87BCB5] font-bold py-3 rounded-xl text-xs transition-colors flex items-center justify-center gap-2">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                Simpan PDF / Resit
+              </button>
+              <button @click="tutupTempahan" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3 rounded-xl text-xs transition-colors">Tutup</button>
             </div>
           </div>
         </div>
@@ -256,12 +261,12 @@
                 <p class="text-xs text-gray-700 leading-relaxed whitespace-pre-wrap">{{ pilihan?.deskripsi }}</p>
               </div>
 
-              <div v-if="pilihan?.is_variasi && !pilihan?.is_percuma" class="pt-2 border-t border-gray-100">
-                <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block">Pilih Pakej / Variasi *</label>
+              <div v-if="pilihan?.is_variasi" class="pt-2 border-t border-gray-100">
+                <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 block">{{ pilihan?.is_percuma ? 'Pilih Saiz *' : 'Pilih Pakej / Variasi *' }}</label>
                 <select v-model="variasiDipilih" class="w-full bg-gray-50 border border-gray-300 text-gray-900 font-bold rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#0F4C3A] focus:ring-2 focus:ring-[#0F4C3A]/20 transition-all appearance-none">
-                  <option :value="null" disabled>-- Pilih Variasi --</option>
+                  <option :value="null" disabled>-- {{ pilihan?.is_percuma ? 'Pilih Saiz' : 'Pilih Variasi' }} --</option>
                   <option v-for="(v, idx) in parseVariasi(pilihan.variasi_data)" :key="idx" :value="v" :disabled="v.stok <= 0">
-                    {{ v.nama }} — RM {{ parseFloat(v.harga).toFixed(2) }} ({{ v.stok > 0 ? `Baki: ${v.stok}` : 'Habis' }})
+                    {{ v.nama }}<template v-if="!pilihan?.is_percuma"> — RM {{ parseFloat(v.harga).toFixed(2) }}</template> ({{ v.stok > 0 ? `Baki: ${v.stok}` : 'Habis' }})
                   </option>
                 </select>
               </div>
@@ -329,6 +334,7 @@
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import api from '../../services/api';
+import { cetakResitPesananKedai } from '../../config/kelab';
 
 const router = useRouter();
 const apiBase = (import.meta.env.VITE_API_URL || 'http://localhost:5001/api').replace('/api','');
@@ -475,6 +481,10 @@ const bukaTempahan = (pesanan) => {
 const tutupTempahan = () => {
   showTempahan.value = false;
   pilihanTempahan.value = null;
+};
+
+const simpanResitPesanan = () => {
+  if (pilihanTempahan.value) cetakResitPesananKedai(pilihanTempahan.value, profil.value);
 };
 
 const slidePrev = () => { slideAktif.value = (slideAktif.value - 1 + senaraiGambar.value.length) % senaraiGambar.value.length; };

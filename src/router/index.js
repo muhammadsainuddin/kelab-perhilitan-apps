@@ -36,7 +36,7 @@ const routes = [
     meta: { requiresGuest: true }
   },
   {
-    path: '/reset-password',
+    path: '/reset-password/:token',
     name: 'ResetPassword',
     component: () => import('../views/ResetPasswordView.vue'),
     meta: { requiresGuest: true }
@@ -112,6 +112,11 @@ const routes = [
         path: 'bayaran',
         name: 'AdminBayaran',
         component: () => import('../views/admin/PengurusanBayaranView.vue')
+      },
+      {
+        path: 'profil',
+        name: 'AdminProfil',
+        component: () => import('../views/admin/ProfilAdminView.vue')
       }
     ]
   },

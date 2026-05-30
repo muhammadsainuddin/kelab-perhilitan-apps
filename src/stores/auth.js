@@ -1,10 +1,20 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 
+// Baca data user dari localStorage dengan selamat (elak crash jika data rosak)
+const bacaUserData = () => {
+  try {
+    return JSON.parse(localStorage.getItem('user_data')) || null;
+  } catch {
+    localStorage.removeItem('user_data');
+    return null;
+  }
+};
+
 export const useAuthStore = defineStore('auth', () => {
   // State
   const token = ref(localStorage.getItem('jwt_token') || null);
-  const user = ref(JSON.parse(localStorage.getItem('user_data')) || null);
+  const user = ref(bacaUserData());
 
   // Getters (Adakah user sudah log masuk?)
   const isAuthenticated = () => !!token.value;

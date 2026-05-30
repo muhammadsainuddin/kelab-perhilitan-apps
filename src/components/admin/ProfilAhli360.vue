@@ -173,6 +173,7 @@
 <script setup>
 import { ref, computed, watch } from 'vue';
 import api from '../../services/api';
+import { headerResitHTML, footerResitHTML } from '../../config/kelab';
 
 const props = defineProps({ show: Boolean, ahliBase: Object });
 const emit = defineEmits(['close', 'edit']);
@@ -254,8 +255,7 @@ const cetakResit = (tx) => {
     <html><head><title>Resit ${tx.billCode}</title>
     <style>body{font-family:Arial;padding:30px;color:#333} h1{color:#0F4C3A;font-size:18px;text-align:center} .row{display:flex;justify-content:space-between;margin:8px 0;font-size:12px}</style>
     </head><body>
-    <h1>KELAB KAKITANGAN PERHILITAN</h1>
-    <p style="text-align:center;font-size:11px;color:#888;margin-top:-10px;margin-bottom:20px">Resit Transaksi Pembayaran</p>
+    ${headerResitHTML('Resit Transaksi Pembayaran')}
     <div style="background:#f9f9f9;padding:15px;border-radius:8px">
       <div class="row"><span style="color:#888">Nama Pembayar:</span><strong>${ahliLengkap.value?.nama_pegawai}</strong></div>
       <div class="row"><span style="color:#888">No KP:</span><strong>${ahliLengkap.value?.no_kp}</strong></div>
@@ -265,7 +265,7 @@ const cetakResit = (tx) => {
       <div class="row"><span style="color:#888">Keterangan:</span><strong>${tx.keterangan}</strong></div>
       <div class="row" style="margin-top:15px;font-size:16px"><span style="color:#888">JUMLAH (RM):</span><strong style="color:#0F4C3A">${parseFloat(tx.amaun).toFixed(2)}</strong></div>
     </div>
-    <p style="text-align:center;margin-top:40px;font-size:10px;color:#888">Cetakan berkomputer tidak memerlukan tandatangan.</p>
+    ${footerResitHTML()}
     </body></html>
   `);
   w.document.close();

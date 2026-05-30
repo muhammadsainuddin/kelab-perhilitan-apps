@@ -65,6 +65,25 @@
         </div>
       </nav>
 
+      <!-- KREDIT PEMBANGUN -->
+      <Transition name="fade-text">
+        <div v-if="sidebarOpen" class="px-5 py-3 border-t border-white/10 text-center select-none">
+          <p class="text-[10px] font-bold tracking-wide text-[#567778]">
+            Develop by <span class="text-[#87BCB5] font-black">Muhammad.S</span>
+          </p>
+          <div class="flex items-center justify-center gap-1.5 mt-1 text-[8px] font-semibold uppercase tracking-[0.16em] text-[#567778]">
+            <span>Backend by</span>
+            <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-white/5 border border-white/10 text-[#87BCB5] font-black">
+              <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21s-7-4.35-7-10a7 7 0 1114 0c0 5.65-7 10-7 10z"/><circle cx="12" cy="11" r="2.2"/></svg>
+              AiGeo
+            </span>
+          </div>
+          <p class="text-[7px] text-[#567778]/70 font-medium tracking-wide mt-1 leading-relaxed">
+            AiGeo — Kepintaran Geospatial dikuasakan AI
+          </p>
+        </div>
+      </Transition>
+
       <button @click="sidebarOpen = !sidebarOpen"
         class="hidden md:flex items-center justify-center p-4 border-t border-white/10 text-[#567778] hover:text-white hover:bg-white/5 transition-colors">
         <svg :class="['w-5 h-5 transition-transform duration-500', sidebarOpen ? '' : 'rotate-180']" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -95,11 +114,6 @@
         </div>
 
         <div class="flex items-center gap-4">
-          <button @click="router.push('/dashboard')" title="Kembali ke Paparan Ahli" class="hidden sm:flex items-center gap-2 text-xs font-bold text-gray-600 hover:text-[#0F4C3A] bg-gray-100 hover:bg-emerald-50 px-3 py-2 rounded-xl transition-colors border border-gray-200">
-            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
-            Paparan Ahli
-          </button>
-
           <div class="relative" ref="dropdownRef">
             <button @click="dropdownOpen = !dropdownOpen"
               class="flex items-center gap-2 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-2xl px-2 py-1.5 transition-all shadow-sm">
@@ -174,11 +188,12 @@ const pageTitles = {
   '/admin':            { title: 'Dashboard Induk',      sub: 'Ringkasan menyeluruh status sistem' },
   '/admin/dashboard':  { title: 'Dashboard Induk',      sub: 'Ringkasan menyeluruh status sistem' },
   '/admin/ahli':       { title: 'Pengurusan Ahli',      sub: 'Urus pendaftaran dan rekod keahlian' },
-  '/admin/kewangan':   { title: 'Laporan Kewangan',     sub: 'Pemantauan aliran tunai dan buku tunai' },
+  '/admin/kewangan':   { title: 'Laporan Perbelanjaan',  sub: 'Pemantauan aliran tunai dan buku kewangan' },
   '/admin/kedai':      { title: 'Kedai Kelab (Merch)',  sub: 'Urus inventori dan tempahan ahli' },
   '/admin/kebajikan':  { title: 'Bantuan Kebajikan',    sub: 'Semakan dan kelulusan sumbangan ahli' },
   '/admin/aktiviti':   { title: 'Acara & Sukan',        sub: 'Urus hebahan dan peserta program' },
   '/admin/bayaran':    { title: 'Sejarah Bayaran FPX',  sub: 'Pemantauan transaksi dan resit pembayaran' },
+  '/admin/profil':     { title: 'Profil Pentadbir',     sub: 'Urus maklumat peribadi dan keselamatan akaun' },
 };
 const pageTitle    = computed(() => pageTitles[route.path]?.title ?? 'Pentadbiran');
 const pageSubtitle = computed(() => pageTitles[route.path]?.sub   ?? '');
@@ -196,7 +211,7 @@ const menuGroups = [
     items: [
       { name: 'ahli',     to: '/admin/ahli',     label: 'Rekod Ahli',    icon: 'users' },
       { name: 'bayaran',  to: '/admin/bayaran',  label: 'Resit Bayaran', icon: 'payment' },
-      { name: 'kewangan', to: '/admin/kewangan', label: 'Buku Tunai',    icon: 'chart' },
+      { name: 'kewangan', to: '/admin/kewangan', label: 'Perbelanjaan', icon: 'chart' },
     ]
   },
   {

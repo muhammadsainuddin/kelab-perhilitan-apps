@@ -1,6 +1,9 @@
 <template>
-  <div class="min-h-screen bg-[#D0D7D7] relative h-screen shadow-2xl flex flex-col overflow-y-auto font-sans selection:bg-[#87BCB5] selection:text-[#08151D]">
-    
+  <div class="font-sans min-h-screen selection:bg-[#87BCB5] selection:text-[#08151D]">
+
+  <!-- ============== PAPARAN TELEFON ============== -->
+  <div class="md:hidden min-h-screen bg-[#D0D7D7] relative h-screen shadow-2xl flex flex-col overflow-y-auto">
+
     <div class="relative bg-[#08151D] pt-10 pb-12 px-8 z-10 curve-bottom flex-shrink-0 shadow-xl">
       <button @click="router.push('/login')" class="text-[#567778] mb-4 hover:text-[#87BCB5] transition-colors">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
@@ -113,12 +116,95 @@
       <div class="pb-10"></div>
     </div>
   </div>
+
+  <!-- ============== PAPARAN PC ============== -->
+  <div class="hidden md:flex min-h-screen">
+    <AuthBrandPanel
+      eyebrow="Pengaktifan Akaun"
+      description="Aktifkan akaun keahlian anda untuk mengakses yuran, kebajikan, aktiviti, dan kedai kelab secara dalam talian.">
+      <template #heading>Aktifkan<br><span class="text-[#87BCB5]">Keahlian</span><br>Anda</template>
+    </AuthBrandPanel>
+
+    <div class="w-1/2 bg-white flex items-center justify-center p-12 overflow-y-auto">
+      <div class="w-full max-w-md">
+        <div class="mb-8">
+          <button @click="router.push('/login')" class="text-gray-400 hover:text-[#0F4C3A] transition-colors mb-5 flex items-center gap-1 text-xs font-bold">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+            Kembali Log Masuk
+          </button>
+          <h3 class="text-gray-900 text-3xl font-bold mb-2">Pengaktifan Akaun</h3>
+          <p class="text-gray-500 text-sm">Sahkan No. KP anda untuk mengaktifkan profil keahlian.</p>
+        </div>
+
+        <transition name="fade" mode="out-in">
+          <div v-if="errorMessage" class="bg-red-50 border border-red-200 text-red-600 p-3 text-xs rounded-xl shadow-sm mb-5">{{ errorMessage }}</div>
+          <div v-else-if="successMessage" class="bg-green-50 border border-green-200 text-green-700 p-3 text-xs rounded-xl shadow-sm mb-5">{{ successMessage }}</div>
+        </transition>
+
+        <form @submit.prevent="handleRegister" class="space-y-4">
+          <div>
+            <label class="block text-gray-600 text-[11px] font-bold uppercase tracking-widest mb-2">No. Kad Pengenalan</label>
+            <input v-model="form.no_kp" type="text" required placeholder="Tanpa sengkang (-)"
+              class="w-full bg-gray-50 border border-gray-200 text-gray-900 rounded-xl px-4 py-3.5 text-sm placeholder-gray-400 focus:outline-none focus:bg-white focus:border-[#0F4C3A] focus:ring-2 focus:ring-[#0F4C3A]/20 transition-all"/>
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-gray-600 text-[11px] font-bold uppercase tracking-widest mb-2">No. Telefon</label>
+              <input v-model="form.no_tel" type="text" required placeholder="0123456789"
+                class="w-full bg-gray-50 border border-gray-200 text-gray-900 rounded-xl px-4 py-3.5 text-sm placeholder-gray-400 focus:outline-none focus:bg-white focus:border-[#0F4C3A] focus:ring-2 focus:ring-[#0F4C3A]/20 transition-all"/>
+            </div>
+            <div>
+              <label class="block text-gray-600 text-[11px] font-bold uppercase tracking-widest mb-2">E-mel</label>
+              <input v-model="form.email" type="email" required placeholder="email@perhilitan.gov.my"
+                class="w-full bg-gray-50 border border-gray-200 text-gray-900 rounded-xl px-4 py-3.5 text-sm placeholder-gray-400 focus:outline-none focus:bg-white focus:border-[#0F4C3A] focus:ring-2 focus:ring-[#0F4C3A]/20 transition-all"/>
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-gray-600 text-[11px] font-bold uppercase tracking-widest mb-2">Kata Laluan</label>
+              <input v-model="form.password" type="password" required placeholder="••••••••"
+                class="w-full bg-gray-50 border border-gray-200 text-gray-900 rounded-xl px-4 py-3.5 text-sm placeholder-gray-400 focus:outline-none focus:bg-white focus:border-[#0F4C3A] focus:ring-2 focus:ring-[#0F4C3A]/20 transition-all"/>
+            </div>
+            <div>
+              <label class="block text-gray-600 text-[11px] font-bold uppercase tracking-widest mb-2">Sahkan</label>
+              <input v-model="form.confirmPassword" type="password" required placeholder="••••••••"
+                class="w-full bg-gray-50 border border-gray-200 text-gray-900 rounded-xl px-4 py-3.5 text-sm placeholder-gray-400 focus:outline-none focus:bg-white focus:border-[#0F4C3A] focus:ring-2 focus:ring-[#0F4C3A]/20 transition-all"/>
+            </div>
+          </div>
+          <div class="flex items-start gap-2 pt-1">
+            <input v-model="form.acceptTerms" type="checkbox" required id="terms-pc" class="mt-1 accent-[#0F4C3A]">
+            <label for="terms-pc" class="text-[11px] text-gray-500 leading-relaxed cursor-pointer">
+              Saya bersetuju dengan
+              <button type="button" @click.prevent="router.push('/terms')" class="text-[#0F4C3A] font-bold hover:underline">Terma & Syarat</button>
+              serta Polisi Privasi Kelab.
+            </label>
+          </div>
+          <button type="submit" :disabled="isLoading"
+            class="w-full bg-[#08151D] hover:bg-[#0F4C3A] active:scale-[0.98] text-white font-bold py-4 rounded-xl shadow-lg transition-all disabled:opacity-60">
+            <span v-if="!isLoading">Aktifkan Akaun</span>
+            <span v-else class="flex items-center justify-center gap-2">
+              <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/></svg>
+              Menyemak Rekod...
+            </span>
+          </button>
+        </form>
+
+        <p class="text-center text-xs text-gray-500 font-medium mt-8 border-t border-gray-100 pt-6">
+          Sudah ada akaun?
+          <button @click="router.push('/login')" class="text-[#0F4C3A] font-bold hover:underline ml-1">Log Masuk</button>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  </div>
 </template>
 
 <script setup>
 import { ref, reactive } from 'vue';
 import { useRouter } from 'vue-router';
 import api from '../services/api'; // Pastikan path ini betul mengikut konfigurasi axios anda
+import AuthBrandPanel from '../components/AuthBrandPanel.vue';
 
 const router = useRouter();
 

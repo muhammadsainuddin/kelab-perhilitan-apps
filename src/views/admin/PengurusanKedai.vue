@@ -47,6 +47,8 @@
             <p class="text-gray-900 text-sm font-semibold line-clamp-2">{{ prod.nama_produk }}</p>
             <div v-if="prod.is_percuma">
               <p class="text-amber-600 text-sm font-bold">PERCUMA</p>
+              <p v-if="prod.is_variasi" class="text-gray-400 text-[10px] font-medium">{{ parseVariasi(prod.variasi_data).length }} Saiz</p>
+              <p v-else class="text-gray-400 text-xs">Stok: {{ prod.stok_semasa }}</p>
             </div>
             <div v-else-if="prod.is_variasi">
               <p class="text-blue-600 text-[11px] font-bold mt-1">Variasi Harga/Pakej</p>
@@ -72,10 +74,16 @@
           <button v-for="s in statusPesanan" :key="s.v" @click="filterPesanan=s.v"
             :class="['text-xs font-medium px-3 py-1.5 rounded-lg border transition-colors', filterPesanan===s.v ? 'bg-[#0F4C3A] text-white border-[#0F4C3A]' : 'bg-white text-gray-500 border-gray-200 hover:border-gray-300']">{{ s.l }}</button>
         </div>
-        <button @click="cetakSemua" class="flex items-center gap-1.5 text-xs text-[#0F4C3A] bg-[#0F4C3A]/10 hover:bg-[#0F4C3A]/20 px-3 py-2 rounded-xl border border-[#0F4C3A]/20 font-medium">
-          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
-          Print Senarai
-        </button>
+        <div class="flex gap-2">
+          <button @click="bukaLaporanKilang" class="flex items-center gap-1.5 text-xs text-white bg-[#0F4C3A] hover:bg-[#155d47] px-3 py-2 rounded-xl font-semibold">
+            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            Laporan Pengeluaran (Kilang)
+          </button>
+          <button @click="cetakSemua" class="flex items-center gap-1.5 text-xs text-[#0F4C3A] bg-[#0F4C3A]/10 hover:bg-[#0F4C3A]/20 px-3 py-2 rounded-xl border border-[#0F4C3A]/20 font-medium">
+            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+            Print Senarai
+          </button>
+        </div>
       </div>
       <div class="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
         <div class="overflow-x-auto">
@@ -94,7 +102,7 @@
               <tr v-else-if="pesananTertapis.length===0"><td colspan="7" class="px-4 py-10 text-center text-gray-400">Tiada pesanan.</td></tr>
               <tr v-for="p in pesananTertapis" :key="p.id" class="border-b border-gray-50 hover:bg-gray-50 transition-colors">
                 <td class="px-4 py-3 text-amber-600 font-mono text-xs font-bold">#{{ p.id }}</td>
-                <td class="px-4 py-3"><p class="text-gray-900 font-medium text-sm">{{ p.nama_ahli||'—' }}</p><p class="text-gray-400 text-xs">{{ p.no_kp }}</p></td>
+                <td class="px-4 py-3"><p class="text-gray-900 font-medium text-sm">{{ p.nama_ahli||'—' }}</p><p class="text-gray-400 text-xs">{{ p.no_kp }}</p><p v-if="p.ptj" class="text-gray-400 text-[10px] truncate max-w-[160px]">{{ p.ptj }}</p></td>
                 <td class="px-4 py-3">
                   <div v-for="item in p.items" :key="item.nama_produk" class="text-gray-600 text-xs">
                     {{ item.nama_produk }}<span v-if="item.saiz" class="text-gray-400 font-bold"> ({{ item.saiz }})</span> × {{ item.kuantiti }}
@@ -135,7 +143,7 @@
                 class="w-full bg-gray-50 border border-gray-200 text-gray-900 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#0F4C3A]/20 focus:border-[#0F4C3A]"/>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div class="flex items-center gap-3 bg-amber-50 rounded-xl px-4 py-3 border border-amber-100">
                 <input v-model="formProduk.is_percuma" type="checkbox" id="chkP" class="accent-amber-500 w-4 h-4 cursor-pointer"/>
                 <label for="chkP" class="text-xs text-amber-800 font-bold cursor-pointer">Item PERCUMA</label>
@@ -144,20 +152,23 @@
                 <input v-model="formProduk.is_preorder" type="checkbox" id="chkPre" class="accent-blue-500 w-4 h-4 cursor-pointer"/>
                 <label for="chkPre" class="text-xs text-blue-800 font-bold cursor-pointer">Set Preorder</label>
               </div>
+              <div class="flex items-center gap-3 bg-purple-50 rounded-xl px-4 py-3 border border-purple-100">
+                <input v-model="formProduk.is_variasi" type="checkbox" id="chkVar" class="accent-purple-600 w-4 h-4 cursor-pointer"/>
+                <label for="chkVar" class="text-xs text-purple-800 font-bold cursor-pointer">Ada Saiz/Variasi</label>
+              </div>
             </div>
 
-            <div v-if="!formProduk.is_percuma" class="flex items-center gap-3 bg-purple-50 rounded-xl px-4 py-3 border border-purple-100">
-              <input v-model="formProduk.is_variasi" type="checkbox" id="chkVar" class="accent-purple-600 w-4 h-4 cursor-pointer"/>
-              <label for="chkVar" class="text-xs text-purple-800 font-bold cursor-pointer">Produk ini ada pelbagai variasi (Saiz/Pakej berbeza harga)</label>
-            </div>
+            <p v-if="formProduk.is_percuma" class="text-[11px] text-amber-700 bg-amber-50 border border-amber-100 rounded-xl px-3 py-2 font-medium">
+              ⭐ Item percuma <strong>khas untuk ahli kelab aktif sahaja</strong> — had 1 unit setiap ahli.
+            </p>
 
-            <div v-if="!formProduk.is_variasi && !formProduk.is_percuma" class="grid grid-cols-2 gap-3 bg-gray-50 p-4 rounded-xl border border-gray-200">
-              <div>
+            <div v-if="!formProduk.is_variasi" class="grid grid-cols-2 gap-3 bg-gray-50 p-4 rounded-xl border border-gray-200">
+              <div v-if="!formProduk.is_percuma">
                 <label class="text-gray-500 text-[10px] font-bold uppercase tracking-wider mb-1 block">Harga Jualan (RM) *</label>
                 <input v-model="formProduk.harga" type="number" min="0" step="0.50" placeholder="0.00"
                   class="w-full bg-white border border-gray-200 text-gray-900 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#0F4C3A]"/>
               </div>
-              <div>
+              <div :class="formProduk.is_percuma ? 'col-span-2' : ''">
                 <label class="text-gray-500 text-[10px] font-bold uppercase tracking-wider mb-1 block">Stok Semasa</label>
                 <input v-model="formProduk.stok_semasa" type="number" min="0" placeholder="0"
                   class="w-full bg-white border border-gray-200 text-gray-900 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#0F4C3A]"/>
@@ -166,22 +177,23 @@
                 <label class="text-gray-500 text-[10px] font-bold uppercase tracking-wider mb-1 block">Saiz Tersedia <span class="text-gray-400 normal-case font-medium">(Jika ada, pisah dengan koma)</span></label>
                 <input v-model="formProduk.saiz_tersedia" type="text" placeholder="Cth: S, M, L, XL"
                   class="w-full bg-white border border-gray-200 text-gray-900 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#0F4C3A]"/>
+                <p class="text-[10px] text-gray-400 mt-1 font-medium">Untuk kawalan stok berbeza setiap saiz, tanda "Ada Saiz/Variasi" di atas.</p>
               </div>
             </div>
 
-            <div v-if="formProduk.is_variasi && !formProduk.is_percuma" class="bg-gray-50 p-4 rounded-xl border border-gray-200 space-y-3">
+            <div v-if="formProduk.is_variasi" class="bg-gray-50 p-4 rounded-xl border border-gray-200 space-y-3">
               <div class="flex justify-between items-center mb-2">
-                <label class="text-gray-700 text-xs font-bold uppercase tracking-wider">Senarai Variasi & Pakej</label>
-                <button @click="tambahVariasi" type="button" class="text-[10px] bg-[#0F4C3A] text-white px-3 py-1.5 rounded-lg font-bold hover:bg-[#166b52]">+ Tambah Variasi</button>
+                <label class="text-gray-700 text-xs font-bold uppercase tracking-wider">{{ formProduk.is_percuma ? 'Senarai Saiz & Stok' : 'Senarai Variasi & Pakej' }}</label>
+                <button @click="tambahVariasi" type="button" class="text-[10px] bg-[#0F4C3A] text-white px-3 py-1.5 rounded-lg font-bold hover:bg-[#166b52]">+ Tambah {{ formProduk.is_percuma ? 'Saiz' : 'Variasi' }}</button>
               </div>
 
               <div v-for="(v, index) in formProduk.variasi_data" :key="index" class="flex gap-2 items-center bg-white p-2 rounded-xl border border-gray-200 shadow-sm">
-                <input v-model="v.nama" type="text" placeholder="Cth: 10 Keping / Saiz XL" class="flex-1 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-xs font-bold focus:border-[#0F4C3A] outline-none"/>
-                <input v-model="v.harga" type="number" step="0.50" placeholder="RM" class="w-20 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-xs font-bold focus:border-[#0F4C3A] outline-none text-center"/>
+                <input v-model="v.nama" type="text" :placeholder="formProduk.is_percuma ? 'Cth: Saiz M' : 'Cth: 10 Keping / Saiz XL'" class="flex-1 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-xs font-bold focus:border-[#0F4C3A] outline-none"/>
+                <input v-if="!formProduk.is_percuma" v-model="v.harga" type="number" step="0.50" placeholder="RM" class="w-20 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-xs font-bold focus:border-[#0F4C3A] outline-none text-center"/>
                 <input v-model="v.stok" type="number" placeholder="Stok" class="w-16 bg-gray-50 border border-gray-200 rounded-lg px-2 py-2 text-xs font-bold focus:border-[#0F4C3A] outline-none text-center"/>
                 <button @click="buangVariasi(index)" type="button" class="text-red-500 hover:bg-red-50 p-1.5 rounded-lg"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></button>
               </div>
-              <p v-if="formProduk.variasi_data.length === 0" class="text-[10px] text-rose-500 font-bold italic">Sila tambah sekurang-kurangnya 1 variasi.</p>
+              <p v-if="formProduk.variasi_data.length === 0" class="text-[10px] text-rose-500 font-bold italic">Sila tambah sekurang-kurangnya 1 {{ formProduk.is_percuma ? 'saiz' : 'variasi' }}.</p>
             </div>
 
             <div v-if="formProduk.is_preorder">
@@ -271,12 +283,66 @@
       </div>
     </Transition></Teleport>
 
+    <!-- ===================== MODAL LAPORAN PENGELUARAN (KILANG) ===================== -->
+    <Teleport to="body"><Transition name="modal">
+      <div v-if="showLaporanKilang" class="fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm flex items-center justify-center px-4" @click.self="showLaporanKilang=false">
+        <div class="bg-white rounded-[24px] w-full max-w-lg shadow-2xl overflow-hidden">
+          <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-[#0F4C3A]/5">
+            <div>
+              <h3 class="text-gray-900 font-bold text-lg">Laporan Pengeluaran (Kilang)</h3>
+              <p class="text-gray-500 text-xs mt-0.5">Pilih item & jana ringkasan saiz untuk dihantar ke kilang.</p>
+            </div>
+            <button @click="showLaporanKilang=false" class="text-gray-400 hover:text-red-500 bg-gray-50 p-1.5 rounded-full"><svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+          </div>
+          <div class="p-6 space-y-4">
+            <div>
+              <label class="text-gray-500 text-[10px] font-bold uppercase tracking-wider mb-1.5 block">Pilih Produk *</label>
+              <select v-model="produkPilihanLaporan" class="w-full bg-gray-50 border border-gray-300 text-gray-900 font-semibold rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[#0F4C3A]">
+                <option value="">— Semua Produk (asingkan setiap satu) —</option>
+                <option v-for="nama in senaraiProdukLaporan" :key="nama" :value="nama">{{ nama }}</option>
+              </select>
+              <p class="text-[10px] text-gray-400 mt-1">Pilih satu produk untuk laporan fokus (tidak bercampur).</p>
+            </div>
+
+            <label class="flex items-center gap-3 bg-gray-50 rounded-xl px-4 py-3 border border-gray-200 cursor-pointer">
+              <input v-model="ringkasPTJ" type="checkbox" class="accent-[#0F4C3A] w-4 h-4"/>
+              <span class="text-xs text-gray-700 font-bold">Sertakan ringkasan pembahagian ikut PTJ</span>
+            </label>
+
+            <p class="text-[10px] text-gray-400">Laporan mengambil kira pesanan SAH sahaja (Dibayar / Diproses / Selesai).</p>
+
+            <!-- Rekod Kos Pengeluaran -->
+            <div class="bg-rose-50 border border-rose-100 rounded-xl p-4 space-y-2">
+              <p class="text-[11px] font-bold text-rose-700 uppercase tracking-wider">Rekod Kos Pengeluaran (Pilihan)</p>
+              <p class="text-[10px] text-rose-600">Rekod kos cetakan/kilang sebagai perbelanjaan kelab (kategori Pembelian Barang).</p>
+              <div class="flex gap-2 items-center">
+                <div class="relative flex-1">
+                  <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-xs font-bold">RM</span>
+                  <input v-model="kosPengeluaran" type="number" min="0" step="0.01" placeholder="0.00" class="w-full bg-white border border-rose-200 text-rose-700 font-bold rounded-lg pl-9 pr-3 py-2 text-sm focus:outline-none focus:border-rose-400"/>
+                </div>
+                <button @click="rekodKosPengeluaran" :disabled="merekodKos || !kosPengeluaran"
+                  class="bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold px-4 py-2 rounded-lg disabled:opacity-50 whitespace-nowrap">
+                  {{ merekodKos ? 'Menyimpan...' : 'Rekod Perbelanjaan' }}
+                </button>
+              </div>
+              <p v-if="mesejKos" class="text-[10px] font-bold" :class="mesejKosOk ? 'text-emerald-600' : 'text-rose-600'">{{ mesejKos }}</p>
+            </div>
+          </div>
+          <div class="flex gap-3 px-6 py-4 border-t border-gray-100">
+            <button @click="showLaporanKilang=false" class="flex-1 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 py-3 rounded-xl text-sm font-bold">Tutup</button>
+            <button @click="cetakPengeluaran" class="flex-1 bg-[#0F4C3A] hover:bg-[#155d47] text-white py-3 rounded-xl text-sm font-bold">Cetak Laporan</button>
+          </div>
+        </div>
+      </div>
+    </Transition></Teleport>
+
   </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import api from '../../services/api';
+import { headerResitHTML, footerResitHTML } from '../../config/kelab';
 
 const apiBase = (import.meta.env.VITE_API_URL || 'http://localhost:5001/api').replace('/api','');
 
@@ -287,6 +353,14 @@ const carianProduk = ref(''); const filterPesanan = ref('');
 const showModalProduk = ref(false); const showTempahan = ref(false);
 const savingProduk = ref(false); const gambarFiles = ref([]);
 const pilihanTempahan = ref(null); const ralatProduk = ref('');
+
+// Laporan Pengeluaran (Kilang)
+const showLaporanKilang = ref(false);
+const produkPilihanLaporan = ref('');
+const ringkasPTJ = ref(true);
+const kosPengeluaran = ref('');
+const merekodKos = ref(false);
+const mesejKos = ref(''); const mesejKosOk = ref(false);
 
 // Updated form state format with variation support
 const formProduk = ref({ 
@@ -342,18 +416,25 @@ const simpanProduk=async()=>{
   ralatProduk.value='';
   if(!formProduk.value.nama_produk){ralatProduk.value='Nama produk wajib diisi.';return;}
   if(!formProduk.value.is_percuma && !formProduk.value.is_variasi && (!formProduk.value.harga || parseFloat(formProduk.value.harga)<=0)){ralatProduk.value='Sila isi harga yang sah.';return;}
-  if(!formProduk.value.is_percuma && formProduk.value.is_variasi && formProduk.value.variasi_data.length === 0){ralatProduk.value='Sila tambah variasi produk.';return;}
-  
+  if(formProduk.value.is_variasi && formProduk.value.variasi_data.length === 0){ralatProduk.value='Sila tambah sekurang-kurangnya 1 saiz/variasi.';return;}
+  if(formProduk.value.is_variasi && formProduk.value.variasi_data.some(v=>!v.nama || String(v.nama).trim()==='')){ralatProduk.value='Setiap saiz/variasi mesti ada nama.';return;}
+
   savingProduk.value=true;
   try{
     const fd=new FormData();
     fd.append('nama_produk',formProduk.value.nama_produk);
     fd.append('deskripsi',formProduk.value.deskripsi||'');
-    
+
     // Logik Harga / Stok vs Variasi
     fd.append('is_variasi', formProduk.value.is_variasi ? '1' : '0');
     if (formProduk.value.is_variasi) {
-      fd.append('variasi_data', JSON.stringify(formProduk.value.variasi_data));
+      // Item percuma: paksa harga setiap variasi = 0 (variasi hanya untuk saiz/stok)
+      const variasiBersih = formProduk.value.variasi_data.map(v => ({
+        nama: String(v.nama).trim(),
+        harga: formProduk.value.is_percuma ? 0 : (parseFloat(v.harga) || 0),
+        stok: parseInt(v.stok) || 0
+      }));
+      fd.append('variasi_data', JSON.stringify(variasiBersih));
       fd.append('harga', 0);
       fd.append('stok_semasa', 0);
     } else {
@@ -388,18 +469,167 @@ const tarikhCetak=new Date().toLocaleDateString('ms-MY',{day:'numeric',month:'lo
 const cetakSatu=()=>{
   const p=pilihanTempahan.value;const w=window.open('','_blank','width=600,height=500');
   w.document.write(`<html><head><title>Tempahan #${p?.id}</title><style>body{font-family:Arial;padding:30px;max-width:500px;margin:auto;color:#333}h1{font-size:15px;text-align:center;color:#0F4C3A}p.s{text-align:center;font-size:11px;color:#888;margin-bottom:16px}.sec{background:#f9f9f9;border-radius:6px;padding:12px;margin:8px 0}.r{display:flex;justify-content:space-between;font-size:12px;margin:5px 0}.l{color:#888}.v{font-weight:bold}.t{font-size:14px;font-weight:bold;color:#0F4C3A}hr{border:none;border-top:1px solid #eee;margin:8px 0}</style></head><body>
-  <h1>KELAB KAKITANGAN PERHILITAN</h1><p class="s">Slip Tempahan Kedai &bull; ${tarikhCetak}</p>
+  ${headerResitHTML(`Slip Tempahan Kedai &bull; ${tarikhCetak}`)}
   <div class="sec"><div class="r"><span class="l">No. Tempahan</span><span class="v">#${p?.id}</span></div><div class="r"><span class="l">Ahli</span><span class="v">${p?.nama_ahli||'—'}</span></div><div class="r"><span class="l">No. KP</span><span class="v">${p?.no_kp||'—'}</span></div><div class="r"><span class="l">Tarikh</span><span class="v">${p?.tarikh_pesanan||'—'}</span></div><div class="r"><span class="l">Status</span><span class="v">${p?.status_pesanan||'—'}</span></div></div>
   <div class="sec">${(p?.items||[]).map(i=>`<div class="r"><span>${i.nama_produk}${i.saiz?` (${i.saiz})`:''} × ${i.kuantiti}</span><span class="v">${p?.is_percuma?'PERCUMA':`RM ${parseFloat(i.harga_seunit*i.kuantiti).toFixed(2)}`}</span></div>`).join('')}<hr/><div class="r"><span>Jumlah</span><span class="t">${p?.is_percuma?'PERCUMA':`RM ${parseFloat(p?.jumlah_keseluruhan||0).toFixed(2)}`}</span></div></div>
+  ${footerResitHTML()}
   </body></html>`);w.document.close();setTimeout(()=>w.print(),400);
 };
 const cetakSemua=()=>{
   const list=pesananTertapis.value;const w=window.open('','_blank','width=800,height=600');
   w.document.write(`<html><head><title>Senarai Tempahan</title><style>body{font-family:Arial;padding:30px}h1{font-size:16px;text-align:center;color:#0F4C3A}p.s{text-align:center;font-size:11px;color:#888;margin-bottom:16px}table{width:100%;border-collapse:collapse;font-size:12px}th{background:#f0f0f0;padding:8px;text-align:left;font-size:11px;text-transform:uppercase;color:#555}td{padding:7px 8px;border-bottom:1px solid #eee}</style></head><body>
-  <h1>KELAB KAKITANGAN PERHILITAN</h1><p class="s">Senarai Tempahan Kedai &bull; ${tarikhCetak} &bull; ${list.length} rekod</p>
+  ${headerResitHTML(`Senarai Tempahan Kedai &bull; ${tarikhCetak} &bull; ${list.length} rekod`)}
   <table><thead><tr><th>#</th><th>Ahli</th><th>Produk</th><th>Tarikh</th><th>Jumlah</th><th>Status</th></tr></thead><tbody>
   ${list.map(p=>`<tr><td>#${p.id}</td><td>${p.nama_ahli||'—'}<br/><small style="color:#888">${p.no_kp}</small></td><td>${(p.items||[]).map(i=>`${i.nama_produk}${i.saiz?` (${i.saiz})`:''} ×${i.kuantiti}`).join(', ')}</td><td>${p.tarikh_pesanan||'—'}</td><td>${p.is_percuma?'PERCUMA':`RM ${parseFloat(p.jumlah_keseluruhan||0).toFixed(2)}`}</td><td>${p.status_pesanan}</td></tr>`).join('')}
-  </tbody></table></body></html>`);w.document.close();setTimeout(()=>w.print(),400);
+  </tbody></table>${footerResitHTML()}</body></html>`);w.document.close();setTimeout(()=>w.print(),400);
+};
+
+// Pesanan SAH (dibayar/diproses/selesai) sahaja
+const pesananSah = computed(() =>
+  pesanan.value.filter(p => ['DIBAYAR','DIPROSES','SELESAI'].includes(p.status_pesanan))
+);
+// Senarai unik nama produk dalam pesanan sah (untuk dropdown laporan)
+const senaraiProdukLaporan = computed(() => {
+  const set = new Set();
+  for (const p of pesananSah.value) for (const it of (p.items || [])) set.add(it.nama_produk || 'Tanpa Nama');
+  return [...set].sort();
+});
+
+const bukaLaporanKilang = () => {
+  mesejKos.value = ''; kosPengeluaran.value = '';
+  produkPilihanLaporan.value = '';
+  showLaporanKilang.value = true;
+};
+
+// Rekod kos pengeluaran/kilang sebagai perbelanjaan kelab
+const rekodKosPengeluaran = async () => {
+  const kos = parseFloat(kosPengeluaran.value);
+  if (!kos || kos <= 0) return;
+  merekodKos.value = true; mesejKos.value = '';
+  try {
+    const namaItem = produkPilihanLaporan.value || 'Pelbagai Produk';
+    await api.post('/admin/kewangan/keluar', {
+      kategori: 'BELIAN_BARANG',
+      amaun: kos,
+      penerima_bayaran: `Kos Pengeluaran/Kilang — ${namaItem}`,
+      nota: `Kos pengeluaran tempahan kedai: ${namaItem}`,
+    });
+    mesejKosOk.value = true;
+    mesejKos.value = 'Kos berjaya direkod sebagai perbelanjaan kelab.';
+    kosPengeluaran.value = '';
+  } catch (e) {
+    mesejKosOk.value = false;
+    mesejKos.value = e.response?.data?.message || 'Gagal merekod kos.';
+  } finally { merekodKos.value = false; }
+};
+
+// ── LAPORAN PENGELUARAN (untuk dihantar ke kilang) ──
+// Kumpul pesanan SAH ikut produk → jumlah setiap saiz + senarai nama & PTJ.
+// Boleh fokus satu produk (tidak campur) & ringkasan ikut PTJ.
+const cetakPengeluaran = () => {
+  let sumber = pesananSah.value;
+  if (sumber.length === 0) {
+    alert('Tiada pesanan sah (Dibayar/Diproses/Selesai) untuk dijana laporan.');
+    return;
+  }
+
+  const fokusProduk = produkPilihanLaporan.value; // '' = semua
+
+  // Kumpul ikut produk
+  const produkMap = {}; // nama_produk -> { saizKira:{saiz:qty}, baris:[...], ptjKira:{ptj:{saiz:qty, total}} }
+  for (const p of sumber) {
+    for (const it of (p.items || [])) {
+      const namaProd = it.nama_produk || 'Tanpa Nama';
+      if (fokusProduk && namaProd !== fokusProduk) continue;
+      if (!produkMap[namaProd]) produkMap[namaProd] = { saizKira: {}, baris: [], ptjKira: {} };
+      const saiz = it.saiz || '— (Tiada saiz)';
+      const qty = parseInt(it.kuantiti) || 0;
+      const ptj = p.ptj || '— (Tiada PTJ)';
+      produkMap[namaProd].saizKira[saiz] = (produkMap[namaProd].saizKira[saiz] || 0) + qty;
+      if (!produkMap[namaProd].ptjKira[ptj]) produkMap[namaProd].ptjKira[ptj] = { saiz: {}, total: 0 };
+      produkMap[namaProd].ptjKira[ptj].saiz[saiz] = (produkMap[namaProd].ptjKira[ptj].saiz[saiz] || 0) + qty;
+      produkMap[namaProd].ptjKira[ptj].total += qty;
+      produkMap[namaProd].baris.push({ nama: p.nama_ahli || '—', ptj, no_kp: p.no_kp || '—', saiz, kuantiti: qty });
+    }
+  }
+
+  if (Object.keys(produkMap).length === 0) {
+    alert('Tiada data untuk produk dipilih.');
+    return;
+  }
+
+  const esc = (s) => String(s ?? '').replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+
+  const seksyen = Object.entries(produkMap).map(([nama, d]) => {
+    const totalUnit = Object.values(d.saizKira).reduce((a,b)=>a+b,0);
+    const ringkasan = Object.entries(d.saizKira)
+      .sort((a,b)=>a[0].localeCompare(b[0]))
+      .map(([saiz,qty]) => `<tr><td>${esc(saiz)}</td><td style="text-align:center;font-weight:bold">${qty}</td></tr>`).join('');
+
+    // Ringkasan ikut PTJ (pilihan)
+    let blokPTJ = '';
+    if (ringkasPTJ.value) {
+      const barisPTJ = Object.entries(d.ptjKira)
+        .sort((a,b)=>a[0].localeCompare(b[0]))
+        .map(([ptj,info]) => {
+          const pecah = Object.entries(info.saiz).sort((a,b)=>a[0].localeCompare(b[0]))
+            .map(([s,q])=>`${esc(s)}: ${q}`).join(', ');
+          return `<tr><td>${esc(ptj)}</td><td>${pecah}</td><td style="text-align:center;font-weight:bold">${info.total}</td></tr>`;
+        }).join('');
+      blokPTJ = `
+        <p class="cap" style="margin-top:14px">Ringkasan Pembahagian Ikut PTJ</p>
+        <table class="det"><thead><tr><th>PTJ</th><th>Pecahan Saiz</th><th style="text-align:center">Jumlah</th></tr></thead>
+        <tbody>${barisPTJ}</tbody></table>`;
+    }
+
+    const baris = d.baris
+      .sort((a,b)=> (a.ptj||'').localeCompare(b.ptj||'') || (a.nama||'').localeCompare(b.nama||''))
+      .map((r,i)=>`<tr><td style="text-align:center">${i+1}</td><td>${esc(r.nama)}</td><td>${esc(r.ptj)}</td><td>${esc(r.no_kp)}</td><td style="text-align:center;font-weight:bold">${esc(r.saiz)}</td><td style="text-align:center">${r.kuantiti}</td></tr>`).join('');
+    return `
+      <div class="prod">
+        <h2>${esc(nama)}</h2>
+        <div class="grid">
+          <div>
+            <p class="cap">Ringkasan Saiz (untuk kilang)</p>
+            <table class="sum"><thead><tr><th>Saiz</th><th style="text-align:center">Jumlah</th></tr></thead>
+            <tbody>${ringkasan}<tr class="tot"><td>JUMLAH</td><td style="text-align:center">${totalUnit}</td></tr></tbody></table>
+          </div>
+          <div class="cnt"><p class="cap">Jumlah Tempahan</p><p class="big">${totalUnit}</p><p class="cap2">${d.baris.length} ahli</p></div>
+        </div>
+        ${blokPTJ}
+        <p class="cap" style="margin-top:14px">Senarai Penerima / Pembahagian Saiz</p>
+        <table class="det"><thead><tr><th>#</th><th>Nama</th><th>PTJ</th><th>No. KP</th><th>Saiz</th><th>Kuantiti</th></tr></thead>
+        <tbody>${baris}</tbody></table>
+      </div>`;
+  }).join('');
+
+  const w = window.open('', '_blank', 'width=900,height=700');
+  w.document.write(`<html><head><title>Laporan Pengeluaran</title><style>
+    body{font-family:Arial;padding:30px;color:#222}
+    h1{font-size:17px;text-align:center;color:#0F4C3A;margin:0}
+    p.s{text-align:center;font-size:11px;color:#888;margin:4px 0 20px}
+    .prod{margin-bottom:28px;page-break-inside:avoid}
+    .prod h2{font-size:14px;color:#0F4C3A;border-bottom:2px solid #0F4C3A;padding-bottom:5px;margin-bottom:10px}
+    .grid{display:flex;gap:20px;align-items:flex-start}
+    .grid>div{flex:1}
+    table{width:100%;border-collapse:collapse;font-size:11px}
+    th{background:#0F4C3A;color:#fff;padding:6px 8px;text-align:left;font-size:10px;text-transform:uppercase}
+    td{padding:5px 8px;border-bottom:1px solid #eee}
+    table.sum td{border-bottom:1px solid #ddd}
+    tr.tot td{font-weight:bold;background:#f0f7f4;border-top:2px solid #0F4C3A}
+    .cap{font-size:10px;font-weight:bold;text-transform:uppercase;color:#666;margin:0 0 6px}
+    .cnt{text-align:center;background:#f0f7f4;border-radius:8px;padding:14px}
+    .big{font-size:34px;font-weight:bold;color:#0F4C3A;margin:4px 0}
+    .cap2{font-size:10px;color:#888;margin:0}
+    .det th:first-child,.det td:first-child{width:30px;text-align:center}
+    @media print{.prod{page-break-after:always}}
+  </style></head><body>
+  ${headerResitHTML(`Laporan Pengeluaran / Pembahagian Saiz &bull; ${tarikhCetak} &bull; ${fokusProduk ? esc(fokusProduk) : 'Semua Produk'}`)}
+  ${seksyen}
+  ${footerResitHTML()}
+  </body></html>`);
+  w.document.close();
+  setTimeout(()=>w.print(),400);
 };
 
 onMounted(()=>{muatProduk();muatPesanan();});

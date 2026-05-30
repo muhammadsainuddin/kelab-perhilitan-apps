@@ -89,21 +89,28 @@
       
       <div class="divide-y divide-gray-100">
         <div v-if="sejarahBayaran.length === 0" class="text-center py-8 text-[11px] text-[#567778] font-medium uppercase tracking-wider">Tiada rekod transaksi ditemui.</div>
-        <div v-else v-for="tx in sejarahBayaran" :key="tx.billCode" class="p-4 flex justify-between items-center hover:bg-gray-50/50 transition-colors">
+        <div v-else v-for="tx in sejarahBayaran" :key="tx.billCode" class="p-4 flex justify-between items-center hover:bg-gray-50/50 transition-colors gap-3">
           <div class="flex items-center gap-3 min-w-0">
-            <div class="w-1.5 h-8 rounded-full shrink-0" 
+            <div class="w-1.5 h-8 rounded-full shrink-0"
                  :class="tx.status === 'BERJAYA' ? 'bg-[#87BCB5]' : (tx.status === 'PENDING' ? 'bg-amber-400 animate-pulse' : 'bg-rose-500')"></div>
             <div class="min-w-0">
               <p class="font-bold text-[#08151D] text-[11px] truncate uppercase">{{ tx.keterangan }}</p>
               <span class="text-[9px] text-[#567778] block mt-0.5 font-mono">{{ tx.billCode }} | {{ tx.tarikh }}</span>
             </div>
           </div>
-          <div class="text-right shrink-0">
-            <p class="font-mono font-bold text-[#08151D] text-xs">RM {{ parseFloat(tx.amaun).toFixed(2) }}</p>
-            <span class="text-[8px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded border inline-block mt-1"
-                  :class="tx.status === 'BERJAYA' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : (tx.status === 'PENDING' ? 'bg-amber-50 text-amber-700 border-amber-100' : 'bg-rose-50 text-rose-700 border-rose-100')">
-              {{ tx.status }}
-            </span>
+          <div class="flex items-center gap-3 shrink-0">
+            <div class="text-right">
+              <p class="font-mono font-bold text-[#08151D] text-xs">RM {{ parseFloat(tx.amaun).toFixed(2) }}</p>
+              <span class="text-[8px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded border inline-block mt-1"
+                    :class="tx.status === 'BERJAYA' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : (tx.status === 'PENDING' ? 'bg-amber-50 text-amber-700 border-amber-100' : 'bg-rose-50 text-rose-700 border-rose-100')">
+                {{ tx.status }}
+              </span>
+            </div>
+            <button v-if="tx.status === 'BERJAYA'" @click="lihatResit(tx)"
+              class="shrink-0 text-[9px] font-black uppercase tracking-wide text-[#08151D] bg-[#87BCB5]/20 hover:bg-[#87BCB5]/40 border border-[#87BCB5]/40 px-2.5 py-2 rounded-lg transition-colors flex items-center gap-1">
+              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+              Resit
+            </button>
           </div>
         </div>
       </div>
@@ -115,8 +122,11 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import api from '../../services/api';
+import { cetakResitTransaksi } from '../../config/kelab';
 
 const profil = ref({});
+
+const lihatResit = (tx) => cetakResitTransaksi(tx, profil.value);
 const sejarahBayaran = ref([]);
 const isProcessing = ref(false);
 const tahunSemasa = new Date().getFullYear();
