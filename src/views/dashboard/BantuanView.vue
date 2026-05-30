@@ -65,12 +65,19 @@
               </a>
             </div>
           </div>
-          <span class="text-[8px] font-black uppercase px-2 py-0.5 rounded border shrink-0 mt-0.5"
-                :class="rekod.status_permohonan === 'LULUS' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' 
-                       : rekod.status_permohonan === 'DITOLAK' ? 'bg-rose-50 text-rose-700 border-rose-100'
-                       : 'bg-amber-50 text-amber-700 border-amber-100'">
-            {{ rekod.status_permohonan || 'MENUNGGU' }}
-          </span>
+          <div class="flex flex-col items-end shrink-0 gap-1 mt-0.5">
+            <span class="text-[8px] font-black uppercase px-2 py-0.5 rounded border"
+                  :class="rekod.status_permohonan === 'LULUS' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' 
+                         : rekod.status_permohonan === 'DITOLAK' ? 'bg-rose-50 text-rose-700 border-rose-100'
+                         : 'bg-amber-50 text-amber-700 border-amber-100'">
+              {{ rekod.status_permohonan || 'MENUNGGU' }}
+            </span>
+            
+            <span v-if="rekod.status_permohonan === 'LULUS' && rekod.amaun_lulus" 
+                  class="text-xs font-black text-emerald-600 tabular-nums">
+              RM {{ parseFloat(rekod.amaun_lulus).toFixed(2) }}
+            </span>
+          </div>
         </div>
       </div>
     </div>

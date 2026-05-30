@@ -49,7 +49,7 @@
         <div>
           <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Jumlah Perbelanjaan</p>
           <h3 class="text-xl font-black text-gray-900 mt-0.5">{{ fmt(statistik.jumlah_keluar) }}</h3>
-          <p class="text-[10px] font-medium text-rose-600 mt-1 bg-rose-50 inline-block px-2 py-0.5 rounded">Kebajikan + Acara</p>
+          <p class="text-[10px] font-medium text-rose-600 mt-1 bg-rose-50 inline-block px-2 py-0.5 rounded">Kebajikan + Kos Pengurusan</p>
         </div>
       </div>
 
@@ -105,7 +105,7 @@
               <th class="px-4 py-4 font-bold">Jenis</th>
               <th class="px-4 py-4 font-bold">Kategori</th>
               <th class="px-4 py-4 font-bold">Nota / Rujukan</th>
-              <th class="px-4 py-4 font-bold">Pihak Berkaitan</th>
+              <th class="px-4 py-4 font-bold">Pihak Penerima / Pembayar</th>
               <th class="text-right px-5 py-4 font-bold">Amaun (RM)</th>
             </tr>
           </thead>
@@ -141,7 +141,9 @@
                 <p class="truncate font-semibold">{{ tx.nota || '—' }}</p>
                 <p class="text-[10px] text-gray-500 font-mono mt-0.5">{{ tx.rujukan || 'Tiada Rujukan' }}</p>
               </td>
-              <td class="px-4 py-3 text-gray-600 text-xs font-medium">{{ tx.nama_ahli || '—' }}</td>
+              <td class="px-4 py-3 text-gray-600 text-xs font-medium">
+                {{ tx.nama_ahli || tx.penerima_bayaran || '—' }}
+              </td>
               <td :class="['px-5 py-3 text-right font-black tabular-nums text-base',
                 tx.jenis_aliran === 'MASUK' ? 'text-emerald-600' : 'text-rose-600']">
                 {{ tx.jenis_aliran === 'MASUK' ? '+' : '-' }}{{ fmt(tx.amaun) }}
@@ -169,7 +171,7 @@
         <div v-if="showModalKeluar"
           class="fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm flex items-center justify-center px-4"
           @click.self="showModalKeluar = false">
-          <div class="bg-white border border-gray-200 rounded-3xl p-7 w-full max-w-lg shadow-2xl">
+          <div class="bg-white border border-gray-200 rounded-3xl p-7 w-full max-w-lg shadow-2xl overflow-y-auto max-h-[90vh]">
             
             <div class="flex justify-between items-start mb-5 border-b border-gray-100 pb-4">
               <div>
@@ -183,34 +185,53 @@
             
             <div class="space-y-4">
               <div class="grid grid-cols-2 gap-4">
-                <div>
+                <div class="col-span-2 sm:col-span-1">
                   <label class="text-gray-600 text-xs font-bold uppercase tracking-wider mb-1.5 block">Kategori Belanja</label>
                   <select v-model="formKeluar.kategori"
                     class="w-full bg-gray-50 border border-gray-300 text-gray-900 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#0F4C3A] focus:ring-2 focus:ring-[#0F4C3A]/20 transition-all font-semibold">
-                    <option value="KEBAJIKAN">Bantuan Kebajikan</option>
-                    <option value="ACARA">Kos Acara/Sukan</option>
+                    <option value="KEBAJIKAN">Bantuan Kebajikan (Ahli)</option>
+                    <option value="ACARA">Kos Acara / Sukan Kelab</option>
+                    <option value="BELIAN_BARANG">Pembelian Barang / Aset</option>
+                    <option value="PERKHIDMATAN">Pembayaran Perkhidmatan</option>
                     <option value="LAIN">Lain-lain Pengurusan</option>
                   </select>
                 </div>
-                <div>
-                  <label class="text-gray-600 text-xs font-bold uppercase tracking-wider mb-1.5 block">Amaun Belanja (RM)</label>
+                <div class="col-span-2 sm:col-span-1">
+                  <label class="text-gray-600 text-xs font-bold uppercase tracking-wider mb-1.5 block">Amaun Belanja (RM) *</label>
                   <div class="relative">
                     <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-bold text-sm">RM</span>
-                    <input v-model="formKeluar.amaun" type="number" min="0.01" step="0.01" placeholder="0.00"
+                    <input v-model="formKeluar.amaun" type="number" min="0.01" step="0.01" placeholder="0.00" required
                       class="w-full bg-gray-50 border border-gray-300 text-rose-600 font-black rounded-xl pl-11 pr-4 py-3 text-sm focus:outline-none focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 transition-all"/>
                   </div>
                 </div>
               </div>
 
+              <div v-if="formKeluar.kategori === 'KEBAJIKAN'" class="bg-blue-50 border border-blue-100 p-4 rounded-xl">
+                <label class="text-blue-800 text-xs font-bold uppercase tracking-wider mb-1.5 block">Pilih Ahli Penerima *</label>
+                <select v-model="formKeluar.no_kp_pihak" required
+                  class="w-full bg-white border border-blue-200 text-gray-900 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 font-medium">
+                  <option value="" disabled>-- Pilih Ahli --</option>
+                  <option v-for="ahli in senaraiAhli" :key="ahli.no_kp" :value="ahli.no_kp">
+                    {{ ahli.nama_pegawai }} ({{ ahli.no_kp }})
+                  </option>
+                </select>
+              </div>
+
+              <div v-else class="bg-gray-50 border border-gray-200 p-4 rounded-xl">
+                <label class="text-gray-700 text-xs font-bold uppercase tracking-wider mb-1.5 block">Dibayar Kepada (Vendor/Syarikat) *</label>
+                <input v-model="formKeluar.penerima_bayaran" type="text" placeholder="Cth: Syarikat Katering ABC Sdn Bhd" required
+                  class="w-full bg-white border border-gray-300 text-gray-900 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#0F4C3A] focus:ring-2 focus:ring-[#0F4C3A]/20 transition-all"/>
+              </div>
+
               <div>
-                <label class="text-gray-600 text-xs font-bold uppercase tracking-wider mb-1.5 block">Rujukan / No. Baucer</label>
-                <input v-model="formKeluar.rujukan" type="text" placeholder="Cth: BAUCER-2025-001"
+                <label class="text-gray-600 text-xs font-bold uppercase tracking-wider mb-1.5 block">Rujukan / No. Baucer / Invois</label>
+                <input v-model="formKeluar.rujukan" type="text" placeholder="Cth: INV-2025-001 / BV-001"
                   class="w-full bg-gray-50 border border-gray-300 text-gray-900 font-mono rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#0F4C3A] focus:ring-2 focus:ring-[#0F4C3A]/20 transition-all placeholder-gray-400"/>
               </div>
 
               <div>
-                <label class="text-gray-600 text-xs font-bold uppercase tracking-wider mb-1.5 block">Nota & Keterangan</label>
-                <textarea v-model="formKeluar.nota" rows="3" placeholder="Keterangan terperinci mengenai perbelanjaan ini..."
+                <label class="text-gray-600 text-xs font-bold uppercase tracking-wider mb-1.5 block">Nota & Keterangan Terperinci</label>
+                <textarea v-model="formKeluar.nota" rows="2" placeholder="Catatan perbelanjaan..."
                   class="w-full bg-gray-50 border border-gray-300 text-gray-900 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#0F4C3A] focus:ring-2 focus:ring-[#0F4C3A]/20 transition-all placeholder-gray-400 resize-none"></textarea>
               </div>
             </div>
@@ -247,6 +268,7 @@ const loading          = ref(true);
 const transaksiLoading = ref(true);
 const statistik        = ref({ jumlah_masuk: 0, jumlah_keluar: 0, baki: 0, bulanan: [] });
 const transaksi        = ref([]);
+const senaraiAhli      = ref([]);
 const meta             = ref({ total: 0, page: 1, limit: 20 });
 const tahunPilihan     = ref(new Date().getFullYear());
 const filterJenis      = ref('');
@@ -258,7 +280,7 @@ const savingKeluar     = ref(false);
 let chartInstance      = null;
 let debounceTimer      = null;
 
-const formKeluar = ref({ kategori: 'KEBAJIKAN', amaun: '', rujukan: '', nota: '' });
+const formKeluar = ref({ kategori: 'KEBAJIKAN', amaun: '', rujukan: '', nota: '', no_kp_pihak: '', penerima_bayaran: '' });
 
 const senaraITahun = computed(() => {
   const y = new Date().getFullYear();
@@ -266,8 +288,15 @@ const senaraITahun = computed(() => {
 });
 const totalPages = computed(() => Math.ceil(meta.value.total / meta.value.limit) || 1);
 
-// ── Format RM ──
 const fmt = (v) => `RM ${parseFloat(v || 0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`;
+
+// ── Tarik Senarai Kakitangan (Untuk Dropdown Kebajikan) ──
+const muatSenaraiAhli = async () => {
+  try {
+    const { data } = await api.get('/admin/semua-ahli');
+    if (data.success) senaraiAhli.value = data.data;
+  } catch (e) { console.error("Gagal muat senarai ahli", e); }
+};
 
 // ── Muatkan Statistik & Carta ──
 const muatData = async () => {
@@ -283,7 +312,7 @@ const muatData = async () => {
   finally { loading.value = false; }
 };
 
-// ── Carta Bar Chart.js (Dikemaskini untuk Light Mode) ──
+// ── Carta Bar Chart.js ──
 const renderChart = (bulanan) => {
   if (chartInstance) chartInstance.destroy();
   const labels = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Ogos','Sep','Okt','Nov','Dis'];
@@ -295,7 +324,7 @@ const renderChart = (bulanan) => {
         {
           label: 'Pemasukan (+)',
           data: bulanan.map(b => b.masuk),
-          backgroundColor: '#059669', // Emerald 600
+          backgroundColor: '#059669',
           borderRadius: 4,
           barPercentage: 0.6,
           categoryPercentage: 0.8
@@ -303,7 +332,7 @@ const renderChart = (bulanan) => {
         {
           label: 'Perbelanjaan (-)',
           data: bulanan.map(b => b.keluar),
-          backgroundColor: '#e11d48', // Rose 600
+          backgroundColor: '#e11d48',
           borderRadius: 4,
           barPercentage: 0.6,
           categoryPercentage: 0.8
@@ -314,31 +343,12 @@ const renderChart = (bulanan) => {
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
-        legend: { 
-          labels: { 
-            color: '#4b5563', // Gray 600
-            font: { family: "'Inter', sans-serif", size: 12, weight: 'bold' },
-            usePointStyle: true,
-            boxWidth: 8
-          } 
-        },
-        tooltip: {
-          backgroundColor: '#1f2937',
-          titleFont: { family: "'Inter', sans-serif", size: 13 },
-          bodyFont: { family: "'Inter', sans-serif", size: 13, weight: 'bold' },
-          padding: 12,
-          callbacks: { label: ctx => ` RM ${ctx.parsed.y.toFixed(2)}` }
-        }
+        legend: { labels: { color: '#4b5563', font: { family: "'Inter', sans-serif", size: 12, weight: 'bold' }, usePointStyle: true, boxWidth: 8 } },
+        tooltip: { backgroundColor: '#1f2937', titleFont: { family: "'Inter', sans-serif", size: 13 }, bodyFont: { family: "'Inter', sans-serif", size: 13, weight: 'bold' }, padding: 12, callbacks: { label: ctx => ` RM ${ctx.parsed.y.toFixed(2)}` } }
       },
       scales: {
-        x: { 
-          ticks: { color: '#6b7280', font: { family: "'Inter', sans-serif" } }, 
-          grid: { display: false } 
-        },
-        y: { 
-          ticks: { color: '#6b7280', font: { family: "'Inter', sans-serif" }, callback: v => 'RM ' + v }, 
-          grid: { color: '#f3f4f6', drawBorder: false } 
-        },
+        x: { ticks: { color: '#6b7280', font: { family: "'Inter', sans-serif" } }, grid: { display: false } },
+        y: { ticks: { color: '#6b7280', font: { family: "'Inter', sans-serif" }, callback: v => 'RM ' + v }, grid: { color: '#f3f4f6', drawBorder: false } },
       },
     },
   });
@@ -374,12 +384,15 @@ const debounceSearch = () => {
 // ── Simpan Rekod Keluar ──
 const simpanKeluar = async () => {
   if (!formKeluar.value.amaun || parseFloat(formKeluar.value.amaun) <= 0) return;
+  if (formKeluar.value.kategori === 'KEBAJIKAN' && !formKeluar.value.no_kp_pihak) return alert('Sila pilih Ahli Kelab');
+  if (formKeluar.value.kategori !== 'KEBAJIKAN' && !formKeluar.value.penerima_bayaran) return alert('Sila masukkan nama Vendor / Penerima');
+
   savingKeluar.value = true;
   try {
     const { data } = await api.post('/admin/kewangan/keluar', formKeluar.value);
     if (data.success) {
       showModalKeluar.value = false;
-      formKeluar.value = { kategori: 'KEBAJIKAN', amaun: '', rujukan: '', nota: '' };
+      formKeluar.value = { kategori: 'KEBAJIKAN', amaun: '', rujukan: '', nota: '', no_kp_pihak: '', penerima_bayaran: '' };
       await muatData();
       await muatTransaksi();
       alert("Rekod perbelanjaan berjaya disimpan.");
@@ -390,12 +403,10 @@ const simpanKeluar = async () => {
   finally { savingKeluar.value = false; }
 };
 
-// ── Eksport CSV ──
-const eksportCSV = () => {
-  window.open(`${import.meta.env.VITE_API_URL}/admin/kewangan/eksport?tahun=${tahunPilihan.value}`, '_blank');
-};
+const eksportCSV = () => { window.open(`${import.meta.env.VITE_API_URL}/admin/kewangan/eksport?tahun=${tahunPilihan.value}`, '_blank'); };
 
 onMounted(() => {
+  muatSenaraiAhli();
   muatData();
   muatTransaksi();
 });

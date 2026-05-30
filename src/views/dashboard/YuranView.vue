@@ -151,7 +151,8 @@ const fetchProfil = async () => {
 
 const fetchSejarah = async () => {
   try {
-    const res = await api.get('/bayaran/sejarah');
+    // Ubah URL di bawah:
+    const res = await api.get('/bayaran/sejarah-yuran');
     sejarahBayaran.value = res.data.data || [];
     if (hasPendingTx.value) mulakanAutoPolling();
     else hentikanAutoPolling();

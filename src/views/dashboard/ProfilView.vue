@@ -100,6 +100,14 @@
       </div>
     </div>
 
+    <div class="bg-white rounded-[24px] border border-gray-200/60 p-4 shadow-sm flex flex-col gap-3">
+      <button @click="bukaModalTransaksi" class="w-full py-3.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-2 border border-emerald-200/50">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        Sejarah Transaksi FPX (Keseluruhan)
+      </button>
+
+    </div>
+
     <button @click="logKeluar" class="w-full group relative flex justify-center items-center gap-3 py-4 bg-rose-50 border border-rose-200 hover:border-rose-600 text-rose-600 hover:text-white font-black text-xs uppercase tracking-widest rounded-2xl transition-all duration-300 shadow-sm overflow-hidden mt-2">
       <div class="absolute inset-0 w-0 bg-rose-600 transition-all duration-500 ease-out group-hover:w-full z-0"></div>
       
@@ -263,6 +271,45 @@
       </div>
     </Teleport>
 
+    <Teleport to="body">
+      <div v-if="modalTransaksi" class="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" @click.self="modalTransaksi = false">
+        <div class="bg-white rounded-[32px] w-full max-w-lg shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
+          
+          <div class="flex justify-between items-center px-6 py-5 border-b border-gray-100">
+            <h3 class="text-sm font-black text-[#08151D] uppercase">Sejarah Transaksi FPX</h3>
+            <button @click="modalTransaksi = false" class="text-gray-400 hover:text-rose-500 bg-gray-50 hover:bg-rose-50 p-1.5 rounded-full transition-all">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+          </div>
+          
+          <div class="flex-1 overflow-y-auto custom-scrollbar p-6 bg-gray-50/50">
+            <div v-if="loadingTransaksi" class="text-center py-10 text-xs font-bold text-gray-500">Memuatkan rekod...</div>
+            <div v-else-if="sejarahSemua.length === 0" class="text-center py-10 text-xs font-bold text-gray-500">Tiada transaksi direkodkan.</div>
+            
+            <div v-else class="space-y-3">
+              <div v-for="tx in sejarahSemua" :key="tx.billCode" class="bg-white p-4 rounded-2xl border border-gray-200 shadow-sm flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full shrink-0 flex items-center justify-center border" 
+                     :class="tx.status === 'BERJAYA' ? 'bg-emerald-50 border-emerald-200 text-emerald-600' : (tx.status === 'PENDING' ? 'bg-amber-50 border-amber-200 text-amber-600' : 'bg-rose-50 border-rose-200 text-rose-600')">
+                  <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <p class="font-bold text-gray-900 text-xs truncate uppercase">{{ tx.keterangan }}</p>
+                  <span class="text-[9px] text-gray-500 block mt-0.5 font-mono">{{ tx.billCode }} | {{ tx.tarikh }}</span>
+                </div>
+                <div class="text-right shrink-0">
+                  <p class="font-black text-[#08151D] text-sm tabular-nums">RM {{ parseFloat(tx.amaun).toFixed(2) }}</p>
+                  <span class="text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded border inline-block mt-1"
+                        :class="tx.status === 'BERJAYA' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : (tx.status === 'PENDING' ? 'bg-amber-50 text-amber-700 border-amber-100' : 'bg-rose-50 text-rose-700 border-rose-100')">
+                    {{ tx.status }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Teleport>
+
   </div>
 </template>
 
@@ -286,6 +333,10 @@ const loading = ref(false);
 const form = ref({ penempatan_id: '', saiz_baju: '', no_tel: '', email: '', nama_waris: '', no_tel_waris: '', no_acc_waris: '', bank_waris: '', no_acc_bank: '', bank_ahli: '' });
 const pwdForm = ref({ oldPassword: '', newPassword: '', confirmPassword: '' });
 const formBerhenti = ref({ sebab_utama: '', ulasan: '' });
+
+const modalTransaksi = ref(false);
+const sejarahSemua = ref([]);
+const loadingTransaksi = ref(false);
 
 // 1. Tarik Profil Kakitangan
 const fetchProfil = async () => {
@@ -320,6 +371,19 @@ const onFileChange = async (e) => {
     alert("Gambar profil anda berjaya dikemas kini!");
   } catch (error) {
     alert("Gagal memuat naik gambar profil.");
+  }
+};
+
+const bukaModalTransaksi = async () => {
+  modalTransaksi.value = true;
+  loadingTransaksi.value = true;
+  try {
+    const { data } = await api.get('/bayaran/sejarah-semua');
+    if (data.success) sejarahSemua.value = data.data;
+  } catch (e) {
+    console.error("Gagal muat transaksi", e);
+  } finally {
+    loadingTransaksi.value = false;
   }
 };
 
