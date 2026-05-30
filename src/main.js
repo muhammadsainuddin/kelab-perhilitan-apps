@@ -3,6 +3,7 @@ import { createPinia } from 'pinia'
 import router from './router' // Import router yang kita buat
 import './style.css' // Pastikan fail ini mengandungi import Tailwind CSS
 import App from './App.vue'
+import './assets/theme.css'
 
 // 1. Cipta instance aplikasi Vue
 const app = createApp(App)

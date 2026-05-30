@@ -1,0 +1,53 @@
+/* =====================================================================
+   TEMA WARNA RASMI — KELAB PERHILITAN
+   Palet 4: Teal Hutan + Aksen Amber
+   Letak di: src/assets/theme.css
+   Import dalam main.js:  import './assets/theme.css'
+   ===================================================================== */
+
+:root {
+  /* --- Teal Hutan (Asas / Gelap) --- */
+  --kp-dark:        #08151D;   /* Latar gelap utama (header, tab bar, butang) */
+  --kp-dark-soft:   #0E303D;   /* Permukaan gelap sekunder (kad gelap) */
+  --kp-slate:       #567778;   /* Teks pudar / ikon tidak aktif */
+  --kp-teal:        #87BCB5;   /* Aksen teal (teks atas gelap, ikon aktif) */
+  --kp-teal-soft:   #A9D2CC;   /* Teal lebih cerah (hover) */
+  --kp-mist:        #D0D7D7;   /* Latar terang halaman */
+  --kp-mist-soft:   #E8ECEC;   /* Latar terang lebih lembut */
+
+  /* --- Aksen Amber (Tindakan Penting) --- */
+  --kp-amber:       #FBBF24;   /* Butang utama (Yuran), CTA, penonjolan */
+  --kp-amber-deep:  #D9A21B;   /* Amber gelap (hover, teks atas amber cerah) */
+  --kp-amber-soft:  #FEF3C7;   /* Latar amber lembut (notis, badge) */
+  --kp-amber-text:  #92660C;   /* Teks atas latar amber lembut */
+
+  /* --- Semantik --- */
+  --kp-success:     #10B981;
+  --kp-success-soft:#D1FAE5;
+  --kp-danger:      #E24B4A;
+  --kp-danger-soft: #FCEBEB;
+  --kp-warning:     #F59E0B;
+
+  /* --- Putih & Neutral --- */
+  --kp-white:       #FFFFFF;
+  --kp-card:        #FFFFFF;
+  --kp-border:      #E2E8E8;
+
+  /* --- Bayang (depth halus) --- */
+  --kp-shadow-sm:   0 1px 3px rgba(8, 21, 29, 0.06);
+  --kp-shadow-md:   0 4px 16px rgba(8, 21, 29, 0.08);
+  --kp-shadow-lg:   0 12px 32px rgba(8, 21, 29, 0.12);
+  --kp-shadow-tab:  0 -8px 24px rgba(8, 21, 29, 0.12);
+
+  /* --- Jejari sudut --- */
+  --kp-radius-sm:   12px;
+  --kp-radius-md:   20px;
+  --kp-radius-lg:   28px;
+  --kp-radius-xl:   34px;
+}
+
+/* Kelas utiliti pantas (pilihan — boleh guna terus dalam template) */
+.kp-bg-dark    { background-color: var(--kp-dark); }
+.kp-bg-mist    { background-color: var(--kp-mist); }
+.kp-text-teal  { color: var(--kp-teal); }
+.kp-text-amber { color: var(--kp-amber); }

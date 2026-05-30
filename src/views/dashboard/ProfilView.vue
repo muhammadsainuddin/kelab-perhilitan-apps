@@ -61,127 +61,158 @@
       Log Keluar Sistem
     </button>
 
-    <div v-if="modalEdit" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-      <div class="bg-white rounded-3xl w-full max-w-md p-6 space-y-4 max-h-[85vh] overflow-y-auto custom-scrollbar shadow-2xl">
-        <h3 class="text-sm font-black text-[#08151D] uppercase border-b pb-2">Kemas Kini Maklumat</h3>
-        
-        <div class="space-y-4 text-xs">
-          <div class="space-y-3">
-            <h4 class="text-[10px] font-black text-[#87BCB5] uppercase tracking-wider">1. Peribadi & Pekerjaan</h4>
+    <Teleport to="body">
+      <div v-if="modalEdit" class="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+        <div class="bg-white rounded-[32px] w-full max-w-md p-6 shadow-2xl animate-pop-in max-h-[90vh] overflow-y-auto custom-scrollbar">
+          
+          <div class="flex justify-between items-center border-b border-gray-100 pb-3 mb-4">
+            <h3 class="text-sm font-black text-[#08151D] uppercase">Kemas Kini Maklumat</h3>
+            <button @click="modalEdit = false" class="text-gray-400 hover:text-rose-500 bg-gray-50 hover:bg-rose-50 p-1.5 rounded-full transition-all">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+          </div>
+          
+          <form @submit.prevent="simpanProfil" class="space-y-5">
+            <div class="space-y-3">
+              <h4 class="text-[10px] font-black text-[#87BCB5] uppercase tracking-wider mb-2">1. Peribadi & Pekerjaan</h4>
+              
+              <div class="space-y-1">
+                <label class="text-[10px] text-[#567778] font-bold uppercase ml-1">Cawangan Penempatan (PTJ)</label>
+                <select v-model="form.penempatan_id" class="w-full bg-gray-50 border border-gray-200 text-xs font-bold rounded-xl p-3 outline-none focus:border-[#08151D] focus:ring-2 focus:ring-[#87BCB5]/20">
+                  <option value="" disabled>-- Pilih Lokasi Tugas --</option>
+                  <option v-for="ptj in senaraiPTJ" :key="ptj.id" :value="ptj.id">{{ ptj.nama_penempatan }}</option>
+                </select>
+              </div>
+              
+              <div class="grid grid-cols-2 gap-3">
+                <div class="space-y-1">
+                  <label class="text-[10px] text-[#567778] font-bold uppercase ml-1">No. Telefon</label>
+                  <input v-model="form.no_tel" type="text" class="w-full bg-gray-50 border border-gray-200 text-xs font-bold rounded-xl p-3 outline-none focus:border-[#08151D] focus:ring-2 focus:ring-[#87BCB5]/20" />
+                </div>
+                <div class="space-y-1">
+                  <label class="text-[10px] text-[#567778] font-bold uppercase ml-1">Saiz Baju</label>
+                  <select v-model="form.saiz_baju" class="w-full bg-gray-50 border border-gray-200 text-xs font-bold rounded-xl p-3 outline-none focus:border-[#08151D] focus:ring-2 focus:ring-[#87BCB5]/20">
+                    <option v-for="s in ['XS','S','M','L','XL','2XL','3XL','4XL','5XL']" :key="s" :value="s">{{ s }}</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-2 gap-3">
+                <div class="space-y-1">
+                  <label class="text-[10px] text-[#567778] font-bold uppercase ml-1">Nama Bank (Ahli)</label>
+                  <input v-model="form.bank_ahli" type="text" placeholder="Cth: Maybank" class="w-full bg-gray-50 border border-gray-200 text-xs font-bold rounded-xl p-3 outline-none uppercase focus:border-[#08151D] focus:ring-2 focus:ring-[#87BCB5]/20" />
+                </div>
+                <div class="space-y-1">
+                  <label class="text-[10px] text-[#567778] font-bold uppercase ml-1">No. Akaun Bank (Ahli)</label>
+                  <input v-model="form.no_acc_bank" type="text" class="w-full bg-gray-50 border border-gray-200 text-xs font-mono font-bold rounded-xl p-3 outline-none focus:border-[#08151D] focus:ring-2 focus:ring-[#87BCB5]/20" />
+                </div>
+              </div>
+            </div>
+
+            <div class="space-y-3 pt-2">
+              <h4 class="text-[10px] font-black text-[#87BCB5] uppercase tracking-wider mb-2">2. Maklumat Waris</h4>
+              <div class="space-y-1">
+                <label class="text-[10px] text-[#567778] font-bold uppercase ml-1">Nama Penuh Waris</label>
+                <input v-model="form.nama_waris" type="text" class="w-full bg-gray-50 border border-gray-200 text-xs font-bold rounded-xl p-3 uppercase outline-none focus:border-[#08151D] focus:ring-2 focus:ring-[#87BCB5]/20" />
+              </div>
+              <div class="grid grid-cols-2 gap-3">
+                <div class="space-y-1">
+                  <label class="text-[10px] text-[#567778] font-bold uppercase ml-1">Tel Waris</label>
+                  <input v-model="form.no_tel_waris" type="text" class="w-full bg-gray-50 border border-gray-200 text-xs font-bold rounded-xl p-3 outline-none focus:border-[#08151D] focus:ring-2 focus:ring-[#87BCB5]/20" />
+                </div>
+                <div class="space-y-1">
+                  <label class="text-[10px] text-[#567778] font-bold uppercase ml-1">Hubungan</label>
+                  <select v-model="form.hubungan_waris" class="w-full bg-gray-50 border border-gray-200 text-xs font-bold rounded-xl p-3 outline-none focus:border-[#08151D] focus:ring-2 focus:ring-[#87BCB5]/20">
+                    <option value="Suami / Isteri">Suami / Isteri</option>
+                    <option value="Ibu / Bapa">Ibu / Bapa</option>
+                    <option value="Adik Beradik">Adik Beradik</option>
+                    <option value="Anak">Anak</option>
+                  </select>
+                </div>
+              </div>
+              <div class="grid grid-cols-2 gap-3">
+                <div class="space-y-1">
+                  <label class="text-[10px] text-[#567778] font-bold uppercase ml-1">Nama Bank Waris</label>
+                  <input v-model="form.bank_waris" type="text" placeholder="Cth: CIMB" class="w-full bg-gray-50 border border-gray-200 text-xs font-bold rounded-xl p-3 uppercase outline-none focus:border-[#08151D] focus:ring-2 focus:ring-[#87BCB5]/20" />
+                </div>
+                <div class="space-y-1">
+                  <label class="text-[10px] text-[#567778] font-bold uppercase ml-1">No. Akaun Bank Waris</label>
+                  <input v-model="form.no_acc_waris" type="text" class="w-full bg-gray-50 border border-gray-200 text-xs font-mono font-bold rounded-xl p-3 outline-none focus:border-[#08151D] focus:ring-2 focus:ring-[#87BCB5]/20" />
+                </div>
+              </div>
+            </div>
             
+            <div class="space-y-3 bg-gray-50/50 p-4 rounded-2xl border border-gray-200/80 mt-4">
+              <h4 class="text-[10px] font-black text-rose-500 uppercase tracking-wider mb-2">3. Tukar Kata Laluan (Opsyenal)</h4>
+              <div class="space-y-3">
+                <div class="space-y-1">
+                  <label class="text-[10px] text-[#567778] font-bold uppercase ml-1">Kata Laluan Semasa</label>
+                  <input v-model="pwdForm.oldPassword" type="password" placeholder="Wajib diisi jika ingin tukar" class="w-full bg-white border border-gray-200 text-xs font-bold rounded-xl p-3 outline-none focus:border-[#08151D] focus:ring-2 focus:ring-[#87BCB5]/20" />
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                  <div class="space-y-1">
+                    <label class="text-[10px] text-[#567778] font-bold uppercase ml-1">Kata Laluan Baru</label>
+                    <input v-model="pwdForm.newPassword" type="password" placeholder="Kata laluan baru" class="w-full bg-white border border-gray-200 text-xs font-bold rounded-xl p-3 outline-none focus:border-[#08151D] focus:ring-2 focus:ring-[#87BCB5]/20" />
+                  </div>
+                  <div class="space-y-1">
+                    <label class="text-[10px] text-[#567778] font-bold uppercase ml-1">Sahkan Kata Laluan</label>
+                    <input v-model="pwdForm.confirmPassword" type="password" placeholder="Sahkan kata laluan" class="w-full bg-white border border-gray-200 text-xs font-bold rounded-xl p-3 outline-none focus:border-[#08151D] focus:ring-2 focus:ring-[#87BCB5]/20" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="pt-4 mt-2 flex justify-end gap-2 border-t border-gray-100">
+              <button type="button" @click="modalEdit = false" class="text-xs font-bold text-gray-500 px-4 py-2 hover:bg-gray-100 rounded-xl transition-colors">Batal</button>
+              <button type="submit" :disabled="loading" class="py-3 px-5 bg-[#08151D] text-[#87BCB5] font-bold text-xs rounded-xl shadow-md transition-all active:scale-[0.98] disabled:opacity-70 flex items-center gap-2">
+                <span v-if="loading" class="w-3 h-3 rounded-full border-2 border-[#87BCB5] border-t-transparent animate-spin"></span>
+                {{ loading ? 'Menyimpan...' : 'Simpan Data' }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </Teleport>
+
+    <Teleport to="body">
+      <div v-if="modalBerhenti" class="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+        <div class="bg-white rounded-[32px] w-full max-w-md p-6 shadow-2xl animate-pop-in">
+          
+          <div class="flex justify-between items-center border-b border-gray-100 pb-3 mb-4">
+            <h3 class="text-sm font-black text-rose-700 uppercase">Penamatan Keahlian</h3>
+            <button @click="modalBerhenti = false" class="text-gray-400 hover:text-rose-500 bg-gray-50 hover:bg-rose-50 p-1.5 rounded-full transition-all">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+          </div>
+          
+          <form @submit.prevent="hantarBerhenti" class="space-y-4">
             <div class="space-y-1">
-              <label class="text-[10px] text-[#567778] font-bold uppercase">Cawangan Penempatan (PTJ)</label>
-              <select v-model="form.penempatan_id" class="w-full bg-gray-50 border rounded-xl px-3 py-2.5 outline-none font-bold text-gray-700">
-                <option value="" disabled>-- Pilih Lokasi Tugas --</option>
-                <option v-for="ptj in senaraiPTJ" :key="ptj.id" :value="ptj.id">{{ ptj.nama_penempatan }}</option>
+              <label class="text-[10px] text-[#567778] font-bold uppercase ml-1">Alasan Utama Berhenti</label>
+              <select v-model="formBerhenti.sebab_utama" required class="w-full bg-gray-50 border border-gray-200 text-xs font-bold rounded-xl p-3 outline-none focus:border-rose-700 focus:ring-2 focus:ring-rose-500/20">
+                <option value="" disabled>-- Pilih Alasan --</option>
+                <option value="Berhenti Kerja (Resignation)">Berhenti Kerja (Resignation)</option>
+                <option value="Bersara (Wajib / Pilihan)">Bersara (Wajib / Pilihan)</option>
+                <option value="Berpindah Jabatan / Kementerian">Berpindah Jabatan / Kementerian</option>
+                <option value="Lain-lain Alasan">Lain-lain Alasan</option>
               </select>
             </div>
             
-            <div class="grid grid-cols-2 gap-2">
-              <div class="space-y-1">
-                <label class="text-[10px] text-[#567778] font-bold uppercase">No. Telefon</label>
-                <input v-model="form.no_tel" type="text" class="w-full bg-gray-50 border rounded-xl px-3 py-2 outline-none" />
-              </div>
-              <div class="space-y-1">
-                <label class="text-[10px] text-[#567778] font-bold uppercase">Saiz Baju</label>
-                <select v-model="form.saiz_baju" class="w-full bg-gray-50 border rounded-xl px-3 py-2 outline-none font-bold text-gray-700">
-                  <option v-for="s in ['XS','S','M','L','XL','2XL','3XL','4XL','5XL']" :key="s" :value="s">{{ s }}</option>
-                </select>
-              </div>
-            </div>
-
-            <div class="grid grid-cols-2 gap-2">
-              <div class="space-y-1">
-                <label class="text-[10px] text-[#567778] font-bold uppercase">Nama Bank (Ahli)</label>
-                <input v-model="form.bank_ahli" type="text" placeholder="Cth: Maybank" class="w-full bg-gray-50 border rounded-xl px-3 py-2 outline-none uppercase" />
-              </div>
-              <div class="space-y-1">
-                <label class="text-[10px] text-[#567778] font-bold uppercase">No. Akaun Bank (Ahli)</label>
-                <input v-model="form.no_acc_bank" type="text" class="w-full bg-gray-50 border rounded-xl px-3 py-2 outline-none font-mono" />
-              </div>
-            </div>
-          </div>
-
-          <div class="space-y-3">
-            <h4 class="text-[10px] font-black text-[#87BCB5] uppercase tracking-wider">2. Maklumat Waris</h4>
             <div class="space-y-1">
-              <label class="text-[10px] text-[#567778] font-bold uppercase">Nama Penuh Waris</label>
-              <input v-model="form.nama_waris" type="text" class="w-full bg-gray-50 border rounded-xl px-3 py-2 uppercase outline-none" />
+              <label class="text-[10px] text-[#567778] font-bold uppercase ml-1">Ulasan / Catatan Tambahan</label>
+              <textarea v-model="formBerhenti.ulasan" rows="3" required placeholder="Nyatakan tarikh berkuatkuasa dan butiran lanjut..." class="w-full bg-gray-50 border border-gray-200 text-xs font-bold rounded-xl p-3 outline-none resize-none focus:border-rose-700 focus:ring-2 focus:ring-rose-500/20"></textarea>
             </div>
-            <div class="grid grid-cols-2 gap-2">
-              <div class="space-y-1">
-                <label class="text-[10px] text-[#567778] font-bold uppercase">Tel Waris</label>
-                <input v-model="form.no_tel_waris" type="text" class="w-full bg-gray-50 border rounded-xl px-3 py-2 outline-none" />
-              </div>
-              <div class="space-y-1">
-                <label class="text-[10px] text-[#567778] font-bold uppercase">Nama Bank Waris</label>
-                <input v-model="form.bank_waris" type="text" placeholder="Cth: CIMB" class="w-full bg-gray-50 border rounded-xl px-3 py-2 outline-none uppercase" />
-              </div>
-            </div>
-            <div class="space-y-1">
-              <label class="text-[10px] text-[#567778] font-bold uppercase">No. Akaun Bank Waris</label>
-              <input v-model="form.no_acc_waris" type="text" class="w-full bg-gray-50 border rounded-xl px-3 py-2 outline-none font-mono" />
-            </div>
-          </div>
-          
-          <div class="space-y-3 bg-gray-50 p-3 rounded-2xl border border-gray-100">
-            <h4 class="text-[10px] font-black text-rose-500 uppercase tracking-wider">3. Tukar Kata Laluan (Opsyenal)</h4>
-            <div class="space-y-2">
-              <div class="space-y-1">
-                <label class="text-[9px] text-[#567778] font-bold uppercase">Kata Laluan Semasa</label>
-                <input v-model="pwdForm.oldPassword" type="password" placeholder="Wajib diisi jika ingin tukar" class="w-full bg-white border rounded-xl px-3 py-2 outline-none" />
-              </div>
-              <div class="space-y-1">
-                <label class="text-[9px] text-[#567778] font-bold uppercase">Kata Laluan Baru</label>
-                <input v-model="pwdForm.newPassword" type="password" placeholder="Kata laluan baru" class="w-full bg-white border rounded-xl px-3 py-2 outline-none" />
-              </div>
-              <div class="space-y-1">
-                <label class="text-[9px] text-[#567778] font-bold uppercase">Sahkan Kata Laluan Baru</label>
-                <input v-model="pwdForm.confirmPassword" type="password" placeholder="Sahkan kata laluan baru" class="w-full bg-white border rounded-xl px-3 py-2 outline-none" />
-              </div>
-            </div>
-          </div>
 
-        </div>
-
-        <div class="flex justify-end gap-2 pt-2 border-t">
-          <button @click="modalEdit = false" class="text-xs font-bold text-gray-500 px-4 py-2 hover:bg-gray-100 rounded-xl transition-all">Batal</button>
-          <button @click="simpanProfil" :disabled="loading" class="bg-[#08151D] text-[#87BCB5] text-xs font-bold px-5 py-2.5 rounded-xl disabled:opacity-50">
-            {{ loading ? 'Menyimpan...' : 'Simpan Data' }}
-          </button>
+            <div class="pt-4 mt-2 flex justify-end gap-2 border-t border-gray-100">
+              <button type="button" @click="modalBerhenti = false" class="text-xs font-bold text-gray-500 px-4 py-2 hover:bg-gray-100 rounded-xl transition-colors">Batal</button>
+              <button type="submit" :disabled="loading" class="py-3 px-5 bg-rose-600 text-white font-bold text-xs rounded-xl shadow-md transition-all active:scale-[0.98] disabled:opacity-70 flex items-center gap-2">
+                <span v-if="loading" class="w-3 h-3 rounded-full border-2 border-white border-t-transparent animate-spin"></span>
+                {{ loading ? 'Memproses...' : 'Sahkan Penamatan' }}
+              </button>
+            </div>
+          </form>
         </div>
       </div>
-    </div>
-
-    <div v-if="modalBerhenti" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-      <div class="bg-white rounded-3xl w-full max-w-sm p-6 space-y-4 shadow-2xl">
-        <h3 class="text-sm font-black text-rose-700 uppercase border-b border-rose-100 pb-2">Penamatan Keahlian</h3>
-        
-        <form @submit.prevent="hantarBerhenti" class="space-y-3 text-xs">
-          <div class="space-y-1">
-            <label class="text-[10px] text-[#567778] font-bold uppercase">Alasan Utama Berhenti</label>
-            <select v-model="formBerhenti.sebab_utama" required class="w-full bg-gray-50 border rounded-xl px-3 py-2.5 outline-none font-bold text-gray-700">
-              <option value="" disabled>Pilih Alasan</option>
-              <option value="Berhenti Kerja (Resignation)">Berhenti Kerja (Resignation)</option>
-              <option value="Bersara (Wajib / Pilihan)">Bersara (Wajib / Pilihan)</option>
-              <option value="Berpindah Jabatan / Kementerian">Berpindah Jabatan / Kementerian</option>
-              <option value="Lain-lain Alasan">Lain-lain Alasan</option>
-            </select>
-          </div>
-          <div class="space-y-1">
-            <label class="text-[10px] text-[#567778] font-bold uppercase">Ulasan / Catatan Tambahan</label>
-            <textarea v-model="formBerhenti.ulasan" rows="3" required placeholder="Nyatakan tarikh berkuatkuasa dan butiran lanjut..." class="w-full bg-gray-50 border rounded-xl px-3 py-2 outline-none resize-none font-medium text-gray-700"></textarea>
-          </div>
-
-          <div class="flex justify-end gap-2 pt-2 border-t">
-            <button type="button" @click="modalBerhenti = false" class="text-xs font-bold text-gray-500 px-4 py-2 hover:bg-gray-100 rounded-xl">Batal</button>
-            <button type="submit" :disabled="loading" class="bg-rose-600 text-white text-xs font-bold px-5 py-2.5 rounded-xl disabled:opacity-50">
-              {{ loading ? 'Memproses...' : 'Sahkan Penamatan' }}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+    </Teleport>
 
   </div>
 </template>
@@ -207,7 +238,7 @@ const form = ref({ penempatan_id: '', saiz_baju: '', no_tel: '', email: '', nama
 const pwdForm = ref({ oldPassword: '', newPassword: '', confirmPassword: '' });
 const formBerhenti = ref({ sebab_utama: '', ulasan: '' });
 
-// 1. Tarik Profil Kakitangan ( getMyProfile )
+// 1. Tarik Profil Kakitangan
 const fetchProfil = async () => {
   try {
     const res = await api.get('/user/profil'); 
@@ -215,7 +246,7 @@ const fetchProfil = async () => {
   } catch (e) { console.error("Gagal menarik profil:", e); }
 };
 
-// 2. Tarik Senarai Penempatan untuk Dropdown ( getSenaraiPTJ )
+// 2. Tarik Senarai Penempatan
 const fetchSenaraiPTJ = async () => {
   try {
     const res = await api.get('/user/senarai-ptj'); 
@@ -223,14 +254,14 @@ const fetchSenaraiPTJ = async () => {
   } catch (error) { console.error("Gagal menarik senarai PTJ:", error); }
 };
 
-// 3. Muat Naik Gambar Profil Menggunakan Multer ( updateGambarProfil )
+// 3. Muat Naik Gambar Profil Menggunakan Multer
 const triggerUpload = () => fileInput.value.click();
 const onFileChange = async (e) => {
   const file = e.target.files[0];
   if (!file) return;
   
   const formData = new FormData();
-  formData.append('gambar', file); // 'gambar' mestilah sepadan dengan nama input backend
+  formData.append('gambar', file);
   
   try {
     await api.put('/user/kemaskini-gambar', formData, { 
@@ -250,6 +281,7 @@ const bukaModalEdit = () => {
     no_tel: profil.value.no_tel || '',
     email: profil.value.email || '',
     nama_waris: profil.value.nama_waris || '',
+    hubungan_waris: profil.value.hubungan_waris || 'Suami / Isteri',
     no_tel_waris: profil.value.no_tel_waris || '',
     no_acc_waris: profil.value.no_acc_waris || '',
     bank_waris: profil.value.bank_waris || '',
@@ -264,7 +296,6 @@ const bukaModalEdit = () => {
 const simpanProfil = async () => {
   loading.value = true;
   try {
-    // Kemaskini Profil Asas ( updateMyProfile )
     await api.put('/user/kemaskini-profil', {
       email: form.value.email,
       no_tel: form.value.no_tel,
@@ -278,7 +309,6 @@ const simpanProfil = async () => {
       bank_ahli: form.value.bank_ahli
     });
 
-    // Proses Penukaran Kata Laluan Jika Diisi ( changePassword )
     if (pwdForm.value.newPassword && pwdForm.value.newPassword.trim() !== '') {
       if (pwdForm.value.newPassword !== pwdForm.value.confirmPassword) {
         alert("Sila pastikan pengesahan kata laluan baru adalah sepadan.");
@@ -304,7 +334,7 @@ const bukaModalBerhenti = () => {
   modalBerhenti.value = true;
 };
 
-// 5. Permohonan Penamatan Keahlian ( applyResignation )
+// 5. Permohonan Penamatan Keahlian
 const hantarBerhenti = async () => {
   if (!confirm("Adakah anda benar-benar pasti? Tindakan ini akan terus menukar status keahlian anda kepada Tidak Aktif.")) return;
   loading.value = true;
@@ -337,4 +367,7 @@ onMounted(() => {
 .custom-scrollbar::-webkit-scrollbar { width: 5px; }
 .custom-scrollbar::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 10px; }
 select { -webkit-appearance: none; -moz-appearance: none; appearance: none; }
+
+.animate-pop-in { animation: popIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+@keyframes popIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
 </style>
