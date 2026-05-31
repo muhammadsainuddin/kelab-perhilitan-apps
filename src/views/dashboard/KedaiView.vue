@@ -1,23 +1,44 @@
 <template>
-  <div class="space-y-5 animate-fade-in pb-10 font-sans">
+  <div class="space-y-4 pb-8 animate-page-in font-sans">
 
-    <div class="px-1">
-      <h2 class="text-xl font-bold text-[#08151D] uppercase tracking-wide">Kedai Kelab</h2>
-      <p class="text-xs text-[#567778] font-medium mt-0.5">Koleksi cenderamata & merchandise rasmi Kelab PERHILITAN.</p>
+    <!-- HEADER -->
+    <div class="px-1 pt-1">
+      <p class="text-[9px] font-bold uppercase tracking-[0.22em]" style="color: #52B788;">Merchandise</p>
+      <h2 class="text-[22px] font-black leading-tight mt-0.5" style="color: #0F172A;">Kedai Kelab</h2>
+      <p class="text-[11px] font-medium mt-0.5" style="color: #64748B;">
+        Koleksi cenderamata & merchandise rasmi Kelab PERHILITAN.
+      </p>
     </div>
 
-    <div v-if="profilDimuatkan && !isAhliAktif" class="bg-rose-50 border border-rose-200 rounded-[20px] p-4 flex items-start gap-3">
-      <svg class="w-5 h-5 text-rose-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-      <div>
-        <p class="text-xs font-black text-rose-800">Yuran Belum Dijelaskan</p>
+    <!-- WARNING -->
+    <div v-if="profilDimuatkan && !isAhliAktif"
+      class="rounded-[18px] p-4 flex items-start gap-3"
+      style="background: #FFF1F2; border: 1px solid rgba(239,68,68,0.2);">
+      <div class="w-8 h-8 rounded-xl flex items-center justify-center shrink-0"
+        style="background: rgba(239,68,68,0.1);">
+        <svg class="w-4 h-4 text-rose-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+        </svg>
+      </div>
+      <div class="flex-1">
+        <p class="text-[11px] font-black text-rose-800">Yuran Belum Dijelaskan</p>
         <p class="text-[10px] text-rose-700 mt-0.5 leading-relaxed">Sila jelaskan yuran tahunan sebelum membuat tempahan.</p>
-        <button @click="$router.push('/dashboard/yuran')" class="mt-1.5 text-[10px] font-black text-rose-700 underline">Bayar Sekarang →</button>
+        <button @click="$router.push('/dashboard/yuran')" class="mt-1.5 text-[10px] font-black text-rose-700 underline underline-offset-2">Bayar Sekarang →</button>
       </div>
     </div>
 
-    <div class="flex bg-white rounded-xl p-1 w-full border border-gray-200/60 shadow-sm mb-4">
-      <button @click="tabUtama='produk'" :class="tabUtama==='produk' ? 'bg-[#08151D] text-[#87BCB5]' : 'text-gray-500 hover:text-gray-900'" class="flex-1 px-4 py-2.5 rounded-lg text-xs font-bold transition-all">Beli-belah</button>
-      <button @click="tabUtama='pesanan'; muatPesananSaya()" :class="tabUtama==='pesanan' ? 'bg-[#08151D] text-[#87BCB5]' : 'text-gray-500 hover:text-gray-900'" class="flex-1 px-4 py-2.5 rounded-lg text-xs font-bold transition-all">Pesanan Saya</button>
+    <!-- TABS -->
+    <div class="flex rounded-2xl p-1 w-full" style="background: #F1F5F9; border: 1px solid #E2E8F0;">
+      <button @click="tabUtama='produk'"
+        class="flex-1 px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-wide transition-all"
+        :style="tabUtama==='produk' ? 'background: #081C15; color: #95D5B2;' : 'color: #64748B;'">
+        Beli-belah
+      </button>
+      <button @click="tabUtama='pesanan'; muatPesananSaya()"
+        class="flex-1 px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-wide transition-all"
+        :style="tabUtama==='pesanan' ? 'background: #081C15; color: #95D5B2;' : 'color: #64748B;'">
+        Pesanan Saya
+      </button>
     </div>
 
     <div v-if="tabUtama==='produk'">
@@ -337,7 +358,7 @@ import api from '../../services/api';
 import { cetakResitPesananKedai } from '../../config/kelab';
 
 const router = useRouter();
-const apiBase = (import.meta.env.VITE_API_URL || 'http://localhost:5001/api').replace('/api','');
+const apiBase = (import.meta.env.VITE_API_URL || 'https://kelabperhilitan.msdev.com.my/api').replace('/api','');
 
 const tabUtama = ref('produk'); 
 const statusPesananAktif = ref(''); 
@@ -527,8 +548,8 @@ onMounted(() => { fetchProfil(); fetchProduk(); });
 </script>
 
 <style scoped>
-.animate-fade-in { animation: fadeIn 0.3s ease; }
-@keyframes fadeIn { from { opacity:0; transform:translateY(8px);} to { opacity:1; transform:translateY(0);} }
+.animate-page-in { animation: pageIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) both; }
+@keyframes pageIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 .slide-up-enter-active, .slide-up-leave-active { transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1); }
 .slide-up-enter-from, .slide-up-leave-to { opacity: 0; transform: translateY(100px); }
 .fade-enter-active, .fade-leave-active { transition: opacity 0.2s ease; }
