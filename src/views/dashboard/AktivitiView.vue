@@ -415,7 +415,28 @@
               </p>
 
               <div class="space-y-4">
-                <div class="space-y-1.5">
+                <!-- Pilihan sukan dari senarai admin (acara SUKAN) -->
+                <div v-if="sukanTersedia.length > 0" class="space-y-1.5">
+                  <label class="text-[10px] font-black uppercase tracking-wider" style="color: #64748B;">
+                    Sukan Yang Ingin Disertai *
+                    <span class="font-bold normal-case tracking-normal" style="color: #94a3b8;">
+                      ({{ modal.benarkanPelbagai ? 'boleh pilih lebih satu' : 'pilih satu sahaja' }})
+                    </span>
+                  </label>
+                  <div class="flex flex-wrap gap-1.5">
+                    <button v-for="sukan in sukanTersedia" :key="sukan" type="button"
+                      @click="toggleSukan(sukan)"
+                      class="text-[11px] font-bold px-3 py-2 rounded-xl transition-all active:scale-95"
+                      :style="modal.sukanDipilih.includes(sukan)
+                        ? 'background: #081C15; color: #95D5B2; border: 1.5px solid #081C15;'
+                        : 'background: #F8FAFC; color: #0F172A; border: 1.5px solid #E2E8F0;'">
+                      {{ sukan }}
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Fallback teks bebas untuk acara bukan SUKAN / tiada senarai -->
+                <div v-else class="space-y-1.5">
                   <label class="text-[10px] font-black uppercase tracking-wider" style="color: #64748B;">
                     Acara / Sukan Yang Ingin Disertai *
                   </label>
@@ -441,7 +462,7 @@
                   style="background: #F1F5F9; color: #64748B;">
                   Batal
                 </button>
-                <button @click="hantarPendaftaran" :disabled="aksiLoading || !modal.kategori"
+                <button @click="hantarPendaftaran" :disabled="aksiLoading || !bolehHantar"
                   class="flex-[2] py-3.5 rounded-2xl text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2 transition-all active:scale-[0.98] disabled:opacity-50"
                   style="background: #081C15; color: #95D5B2;">
                   <span v-if="aksiLoading" class="w-3.5 h-3.5 rounded-full border-2 border-[#52B788] border-t-transparent animate-spin"></span>
@@ -487,10 +508,39 @@ const gotoDetailSlide = (idx) => {
   sliderDetailRef.value.scrollTo({ left: idx * sliderDetailRef.value.offsetWidth, behavior: 'smooth' });
 };
 
-const modal = ref({ show: false, acara: null, kategori: '', catatan: '' });
+const modal = ref({ show: false, acara: null, kategori: '', catatan: '', sukanDipilih: [], benarkanPelbagai: false });
 const modalGaleri = ref({ show: false, images: [], currentIndex: 0 });
 
 const isPaid = computed(() => !!profil.value.is_paid);
+
+// Senarai sukan yang ditetapkan admin untuk acara dalam modal
+const sukanTersedia = computed(() => {
+  if (modal.value.acara?.jenis_acara !== 'SUKAN') return [];
+  return safeParseJSON(modal.value.acara?.senarai_sukan);
+});
+
+// Sah untuk hantar: ada pilihan sukan, atau (fallback) ada teks kategori
+const bolehHantar = computed(() =>
+  sukanTersedia.value.length > 0 ? modal.value.sukanDipilih.length > 0 : !!modal.value.kategori
+);
+
+const safeParseJSON = (data) => {
+  if (!data) return [];
+  try {
+    return Array.isArray(data) ? data : JSON.parse(data);
+  } catch { return []; }
+};
+
+const toggleSukan = (sukan) => {
+  const dipilih = modal.value.sukanDipilih;
+  if (dipilih.includes(sukan)) {
+    modal.value.sukanDipilih = dipilih.filter(s => s !== sukan);
+  } else if (modal.value.benarkanPelbagai) {
+    modal.value.sukanDipilih = [...dipilih, sukan];
+  } else {
+    modal.value.sukanDipilih = [sukan]; // had satu sahaja
+  }
+};
 
 const fetchProfil = async () => {
   try {
@@ -565,16 +615,26 @@ const bukaDetail = (acara) => {
 };
 
 const bukaDaftar = (acara) => {
-  modal.value = { show: true, acara, kategori: '', catatan: '' };
+  modal.value = {
+    show: true,
+    acara,
+    kategori: '',
+    catatan: '',
+    sukanDipilih: [],
+    benarkanPelbagai: acara?.benarkan_pelbagai_sukan === 1 || acara?.benarkan_pelbagai_sukan === true
+  };
 };
 
 const hantarPendaftaran = async () => {
   aksiLoading.value = true;
   try {
+    const sukanDipilih = modal.value.sukanDipilih;
     const res = await api.post('/acara/daftar', {
       acara_id: modal.value.acara.id,
-      kategori: modal.value.kategori,
-      catatan: modal.value.catatan
+      // kategori = rumusan ringkas: senarai sukan dipilih atau teks bebas
+      kategori: sukanDipilih.length > 0 ? sukanDipilih.join(', ') : modal.value.kategori,
+      catatan: modal.value.catatan,
+      sukan_dipilih: sukanDipilih.length > 0 ? sukanDipilih : null
     });
     alert(res.data.message || 'Pendaftaran berjaya!');
     modal.value.show = false;

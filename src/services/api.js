@@ -4,7 +4,8 @@ import { useAuthStore } from '../stores/auth';
 
 // 1. Cipta instance Axios yang moden (Boleh gunakan persekitaran .env)
 const api = axios.create({
-  baseURL: 'https://kelabperhilitan.msdev.com.my/api',
+  //baseURL: 'https://kelabperhilitan.msdev.com.my/api',
+  baseURL: 'http://localhost:5001/api',
   timeout: 10000, // Timeout selepas 10 saat jika server tiada respons
   headers: {
     'Content-Type': 'application/json',
