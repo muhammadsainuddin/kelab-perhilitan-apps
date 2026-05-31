@@ -4,8 +4,7 @@ import { useAuthStore } from '../stores/auth';
 
 // 1. Cipta instance Axios yang moden (Boleh gunakan persekitaran .env)
 const api = axios.create({
-  //baseURL: 'https://kelabperhilitan.msdev.com.my/api',
-  baseURL: 'http://localhost:5001/api',
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5001/api',
   timeout: 10000, // Timeout selepas 10 saat jika server tiada respons
   headers: {
     'Content-Type': 'application/json',
@@ -42,19 +41,13 @@ api.interceptors.response.use(
   },
   (error) => {
     const authStore = useAuthStore();
+    const status = error.response?.status;
 
-    // Jika pelayan (server) membalas ralat 401 (Sesi Tamat Tempoh / Token Tidak Sah)
-    if (error.response && error.response.status === 401) {
-      console.warn('Sesi log masuk telah tamat tempoh. Log keluar automatik dijalankan.');
-      
-      // 1. Padam token dan data dari sistem (Pinia & LocalStorage)
+    // 401 = token luput atau tidak sah → auto-logout dan redirect ke login
+    // (Backend returns 401 untuk expired/invalid token, 403 untuk role denied)
+    if (status === 401) {
       authStore.logout();
-      
-      // 2. Tendang pengguna kembali ke halaman log masuk berserta notis
-      router.push({ 
-        path: '/login', 
-        query: { mesej: 'sesi-tamat' } // Boleh guna query ini untuk tunjuk amaran di Login page
-      });
+      router.push({ path: '/login', query: { mesej: 'sesi-tamat' } });
     }
 
     return Promise.reject(error);

@@ -33,7 +33,7 @@
               class="relative w-21 h-21 rounded-full cursor-pointer group overflow-hidden"
               style="box-shadow: 0 0 0 2.5px #081C15, 0 0 28px rgba(82,183,136,0.25);">
               <img v-if="profil.gambar"
-                :src="`https://kelabperhilitan.msdev.com.my/uploads/images/${profil.gambar}`"
+                :src="`${uploadBase}/uploads/images/${profil.gambar}`"
                 class="w-full h-full object-cover" />
               <div v-else class="w-full h-full flex items-center justify-center bg-[#1B4332] text-[2rem] font-black leading-none"
                 style="color: #95D5B2;">
@@ -729,6 +729,8 @@ import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import api from '../../services/api';
 import { useAuthStore } from '../../stores/auth';
+
+const uploadBase = import.meta.env.VITE_UPLOAD_URL || 'http://localhost:5001';
 import { cetakResitTransaksi } from '../../config/kelab';
 
 const router = useRouter();

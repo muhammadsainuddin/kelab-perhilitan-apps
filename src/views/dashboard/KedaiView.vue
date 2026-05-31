@@ -358,7 +358,7 @@ import api from '../../services/api';
 import { cetakResitPesananKedai } from '../../config/kelab';
 
 const router = useRouter();
-const apiBase = (import.meta.env.VITE_API_URL || 'https://kelabperhilitan.msdev.com.my/api').replace('/api','');
+const apiBase = (import.meta.env.VITE_API_URL || 'http://localhost:5001/api').replace('/api', '');
 
 const tabUtama = ref('produk'); 
 const statusPesananAktif = ref(''); 
@@ -479,9 +479,8 @@ const muatPesananSaya = async () => {
 
 const bayarFPX = (billCode) => {
   if (!billCode) return alert("Pautan bayaran tiada. Sila hubungi admin.");
-  const isDev = apiBase.includes('localhost') || apiBase.includes('dev');
-  const url = isDev ? `https://dev.toyyibpay.com/${billCode}` : `https://toyyibpay.com/${billCode}`;
-  window.location.href = url;
+  const toyyibpayBase = import.meta.env.VITE_TOYYIBPAY_URL || 'https://toyyibpay.com';
+  window.location.href = `${toyyibpayBase}/${billCode}`;
 };
 
 const bukaDetail = (item) => {

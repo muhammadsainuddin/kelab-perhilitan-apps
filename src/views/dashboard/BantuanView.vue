@@ -105,7 +105,7 @@
             <p class="text-[9px] font-mono mt-1" style="color: #94a3b8;">Dimohon: {{ formatTarikh(rekod.tarikh_mohon) }}</p>
             <div v-if="rekod.dokumen_sokongan && rekod.dokumen_sokongan.length > 0" class="mt-1.5 flex flex-wrap gap-1">
               <a v-for="doc in rekod.dokumen_sokongan" :key="doc"
-                :href="`https://kelabperhilitan.msdev.com.my/uploads/documents/${doc}`"
+                :href="`${uploadBase}/uploads/documents/${doc}`"
                 target="_blank"
                 class="text-[8px] font-black px-2 py-0.5 rounded-lg flex items-center gap-1"
                 style="background: rgba(82,183,136,0.1); color: #1B4332; border: 1px solid rgba(82,183,136,0.2);">
@@ -221,6 +221,8 @@
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import api from '../../services/api';
+
+const uploadBase = import.meta.env.VITE_UPLOAD_URL || 'http://localhost:5001';
 
 const router = useRouter();
 const profil = ref({});

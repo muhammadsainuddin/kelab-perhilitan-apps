@@ -73,7 +73,7 @@
           <div class="flex h-full overflow-x-auto snap-x snap-mandatory no-scrollbar">
             <div v-for="(img, si) in dapatkanSemuaPoster(acara.poster)" :key="si"
               class="relative shrink-0 w-full h-full snap-start">
-              <img :src="`https://kelabperhilitan.msdev.com.my/uploads/images/${img}`"
+              <img :src="`${uploadBase}/uploads/images/${img}`"
                 class="w-full h-full object-cover" />
             </div>
           </div>
@@ -216,7 +216,7 @@
                 @scroll="onDetailScroll">
                 <div v-for="(img, si) in detailImages" :key="si"
                   class="relative shrink-0 w-full h-full snap-start">
-                  <img :src="`https://kelabperhilitan.msdev.com.my/uploads/images/${img}`"
+                  <img :src="`${uploadBase}/uploads/images/${img}`"
                     class="w-full h-full object-cover" />
                 </div>
               </div>
@@ -373,7 +373,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
               </svg>
             </button>
-            <img :src="`https://kelabperhilitan.msdev.com.my/uploads/images/${modalGaleri.images[modalGaleri.currentIndex]}`"
+            <img :src="`${uploadBase}/uploads/images/${modalGaleri.images[modalGaleri.currentIndex]}`"
               class="max-w-full max-h-[85vh] object-contain rounded-xl" />
             <button v-if="modalGaleri.images.length > 1" @click="nextGambar"
               class="absolute right-3 w-10 h-10 flex items-center justify-center rounded-full transition-all active:scale-90 z-10"
@@ -481,6 +481,8 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import api from '../../services/api';
+
+const uploadBase = import.meta.env.VITE_UPLOAD_URL || 'http://localhost:5001';
 
 const senaraiAcara = ref([]);
 const profil = ref({});

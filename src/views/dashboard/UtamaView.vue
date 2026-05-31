@@ -74,7 +74,7 @@
           <div class="relative w-18 h-18 rounded-full overflow-hidden"
             style="border: 2.5px solid #081C15;">
             <img v-if="profil.gambar"
-              :src="`https://kelabperhilitan.msdev.com.my/uploads/images/${profil.gambar}`"
+              :src="`${uploadBase}/uploads/images/${profil.gambar}`"
               class="w-full h-full object-cover" />
             <div v-else class="w-full h-full flex items-center justify-center text-2xl font-black"
               style="background: #1B4332; color: #95D5B2;">
@@ -219,7 +219,7 @@
           <div class="w-10 h-10 rounded-2xl flex items-center justify-center overflow-hidden"
             style="background: rgba(82,183,136,0.07);">
             <img v-if="profil.gambar"
-              :src="`https://kelabperhilitan.msdev.com.my/uploads/images/${profil.gambar}`"
+              :src="`${uploadBase}/uploads/images/${profil.gambar}`"
               class="w-full h-full object-cover" />
             <svg v-else class="w-5 h-5" fill="none" stroke="#2D6A4F" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
@@ -402,6 +402,8 @@
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import api from '../../services/api';
+
+const uploadBase = import.meta.env.VITE_UPLOAD_URL || 'http://localhost:5001';
 
 const router = useRouter();
 const profil = ref({});
