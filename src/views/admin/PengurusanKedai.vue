@@ -127,12 +127,21 @@
     <!-- ══════════════════════ TAB: PESANAN ══════════════════════ -->
     <div v-if="tabAktif==='pesanan'">
 
-      <!-- FPX Notice -->
-      <div class="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 mb-4">
-        <svg class="w-4 h-4 text-amber-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-        <div>
-          <p class="text-amber-800 text-[11px] font-bold">Notis Caj ToyyibPay FPX</p>
-          <p class="text-amber-700 text-[10px] mt-0.5">Setiap pembayaran melalui FPX dikenakan <strong>caj RM1.00 oleh ToyyibPay</strong>. Caj ini direkodkan secara <em>automatik</em> sebagai perbelanjaan operasi kelab apabila bayaran berjaya disahkan.</p>
+      <!-- Notis Caj -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+        <div class="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
+          <svg class="w-4 h-4 text-amber-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          <div>
+            <p class="text-amber-800 text-[11px] font-bold">Caj FPX ToyyibPay — RM1.00</p>
+            <p class="text-amber-700 text-[10px] mt-0.5">Direkod secara automatik sebagai perbelanjaan operasi apabila bayaran berjaya.</p>
+          </div>
+        </div>
+        <div class="flex items-start gap-3 bg-purple-50 border border-purple-200 rounded-xl px-4 py-3">
+          <svg class="w-4 h-4 text-purple-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          <div>
+            <p class="text-purple-800 text-[11px] font-bold">Komisyen Kelab Sukan — RM1.00</p>
+            <p class="text-purple-700 text-[10px] mt-0.5">Bayaran penggunaan platform Marketplace bagi setiap transaksi penjual berdaftar.</p>
+          </div>
         </div>
       </div>
 
@@ -180,6 +189,10 @@
                   <p class="font-bold text-gray-900 text-[11px]">{{ p.nama_ahli || '—' }}</p>
                   <p class="text-gray-400 text-[10px] font-mono">{{ p.no_kp }}</p>
                   <p v-if="p.ptj" class="text-gray-400 text-[10px] truncate max-w-[140px]">{{ p.ptj }}</p>
+                  <span class="mt-0.5 inline-block text-[9px] font-bold px-1.5 py-0.5 rounded"
+                    :class="p.kaedah_penghantaran === 'POS' ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700'">
+                    {{ p.kaedah_penghantaran === 'POS' ? 'Pos' : 'PTJ' }}
+                  </span>
                 </td>
                 <td class="px-4 py-3">
                   <div v-for="item in p.items" :key="item.nama_produk" class="text-gray-600 text-[10px] leading-relaxed">
@@ -223,8 +236,12 @@
       <div class="flex items-start gap-3 bg-blue-50 border border-blue-200 rounded-xl px-4 py-3 mb-4">
         <svg class="w-4 h-4 text-blue-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
         <div>
-          <p class="text-blue-800 text-[11px] font-bold">Pendaftaran Penjual</p>
-          <p class="text-blue-700 text-[10px] mt-0.5">Ahli boleh mendaftar sebagai penjual melalui paparan Kedai mereka. Permohonan perlu <strong>diaktifkan oleh Admin</strong> sebelum mereka boleh menjual. Caj <strong>RM1.00 ToyyibPay FPX</strong> dikenakan bagi setiap transaksi.</p>
+          <p class="text-blue-800 text-[11px] font-bold">Pendaftaran Penjual Marketplace</p>
+          <p class="text-blue-700 text-[10px] mt-0.5 leading-relaxed">
+            Ahli daftar melalui tab "Daftar Jual" dalam paparan Kedai mereka. Permohonan perlu <strong>diaktifkan oleh Admin</strong> sebelum boleh menjual.
+            Caj dikenakan bagi setiap transaksi: <strong>RM1.00 FPX (ToyyibPay)</strong> + <strong>RM1.00 Komisyen Kelab</strong>.
+            Penghantaran: <strong>ke PTJ (percuma)</strong> atau <strong>Pos Malaysia (+RM8.00)</strong> — dipilih oleh pembeli.
+          </p>
         </div>
       </div>
 
@@ -564,6 +581,25 @@
                 <div class="col-span-2"><p class="text-[9px] font-bold text-gray-400 uppercase">Tarikh Pesanan</p><p class="font-medium text-gray-700 text-[10px]">{{ pilihanTempahan?.tarikh_pesanan }}</p></div>
               </div>
             </div>
+
+            <!-- Penghantaran -->
+            <div class="bg-sky-50 border border-sky-200 rounded-xl p-3.5">
+              <p class="text-[9px] font-bold text-sky-600 uppercase tracking-wider mb-2">Kaedah Penghantaran</p>
+              <div class="flex items-center justify-between">
+                <span class="text-[10px] font-black px-2 py-0.5 rounded-full"
+                  :class="pilihanTempahan?.kaedah_penghantaran === 'POS' ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700'">
+                  {{ pilihanTempahan?.kaedah_penghantaran === 'POS' ? 'Pos Malaysia' : 'Hantar ke PTJ (Percuma)' }}
+                </span>
+                <span v-if="pilihanTempahan?.kos_postage > 0" class="text-[10px] font-bold text-amber-700">
+                  +RM {{ fmtRM(pilihanTempahan?.kos_postage) }}
+                </span>
+              </div>
+              <div v-if="pilihanTempahan?.kaedah_penghantaran === 'POS' && pilihanTempahan?.alamat_penghantaran" class="mt-2">
+                <p class="text-[9px] font-bold text-sky-500 uppercase mb-0.5">Alamat</p>
+                <p class="text-[10px] text-sky-900 font-medium leading-relaxed">{{ pilihanTempahan.alamat_penghantaran }}</p>
+              </div>
+            </div>
+
             <div class="bg-gray-50 border border-gray-200 rounded-xl p-3.5">
               <p class="text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-2">Item Pembelian</p>
               <div v-for="item in pilihanTempahan?.items" :key="item.nama_produk" class="flex items-center justify-between py-2 border-b border-gray-100 last:border-0">
@@ -577,17 +613,25 @@
                 </div>
               </div>
               <div v-if="!pilihanTempahan?.is_percuma" class="mt-3 pt-3 border-t-2 border-gray-200 space-y-1">
+                <div v-if="pilihanTempahan?.kos_postage > 0" class="flex justify-between text-[10px]">
+                  <span class="text-gray-500">Kos Postage</span>
+                  <span class="font-bold text-amber-600">RM {{ fmtRM(pilihanTempahan?.kos_postage) }}</span>
+                </div>
                 <div class="flex justify-between text-[11px]">
-                  <span class="text-gray-500">Jumlah Pesanan</span>
+                  <span class="text-gray-500">Jumlah Bayar (FPX)</span>
                   <span class="font-black text-gray-900">RM {{ fmtRM(pilihanTempahan?.jumlah_keseluruhan) }}</span>
                 </div>
                 <div v-if="['DIBAYAR','DIPROSES','SELESAI'].includes(pilihanTempahan?.status_pesanan)" class="flex justify-between text-[10px]">
                   <span class="text-amber-600">Caj FPX ToyyibPay</span>
                   <span class="font-bold text-amber-600">- RM 1.00</span>
                 </div>
+                <div v-if="['DIBAYAR','DIPROSES','SELESAI'].includes(pilihanTempahan?.status_pesanan)" class="flex justify-between text-[10px]">
+                  <span class="text-purple-600">Komisyen Kelab Sukan</span>
+                  <span class="font-bold text-purple-600">- RM 1.00</span>
+                </div>
                 <div v-if="['DIBAYAR','DIPROSES','SELESAI'].includes(pilihanTempahan?.status_pesanan)" class="flex justify-between text-[11px] pt-1 border-t border-gray-100">
-                  <span class="text-gray-600 font-bold">Bersih Diterima</span>
-                  <span class="font-black text-[#0F4C3A]">RM {{ fmtRM(parseFloat(pilihanTempahan?.jumlah_keseluruhan||0) - 1) }}</span>
+                  <span class="text-gray-600 font-bold">Bersih Diterima Penjual</span>
+                  <span class="font-black text-[#0F4C3A]">RM {{ fmtRM(parseFloat(pilihanTempahan?.jumlah_keseluruhan||0) - parseFloat(pilihanTempahan?.kos_postage||0) - 2) }}</span>
                 </div>
               </div>
             </div>

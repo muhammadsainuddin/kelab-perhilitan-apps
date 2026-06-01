@@ -30,14 +30,20 @@
     <!-- TABS -->
     <div class="flex rounded-2xl p-1 w-full" style="background: #F1F5F9; border: 1px solid #E2E8F0;">
       <button @click="tabUtama='produk'"
-        class="flex-1 px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-wide transition-all"
+        class="flex-1 px-3 py-2.5 rounded-xl text-xs font-black uppercase tracking-wide transition-all"
         :style="tabUtama==='produk' ? 'background: #081C15; color: #95D5B2;' : 'color: #64748B;'">
         Beli-belah
       </button>
       <button @click="tabUtama='pesanan'; muatPesananSaya()"
-        class="flex-1 px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-wide transition-all"
+        class="flex-1 px-3 py-2.5 rounded-xl text-xs font-black uppercase tracking-wide transition-all"
         :style="tabUtama==='pesanan' ? 'background: #081C15; color: #95D5B2;' : 'color: #64748B;'">
         Pesanan Saya
+      </button>
+      <button @click="tabUtama='jual'"
+        class="flex-1 px-3 py-2.5 rounded-xl text-xs font-black uppercase tracking-wide transition-all relative"
+        :style="tabUtama==='jual' ? 'background: #081C15; color: #95D5B2;' : 'color: #64748B;'">
+        Daftar Jual
+        <span v-if="statusPenjual?.status === 'PENDING'" class="absolute top-1.5 right-1.5 w-2 h-2 bg-amber-400 rounded-full"></span>
       </button>
     </div>
 
@@ -145,6 +151,141 @@
       </div>
     </div>
 
+    <!-- TAB: DAFTAR JUAL -->
+    <div v-if="tabUtama==='jual'" class="space-y-4">
+
+      <!-- Peraturan -->
+      <div class="rounded-[18px] p-4 space-y-2.5" style="background: #F0FDF4; border: 1px solid rgba(21,128,61,0.2);">
+        <p class="text-[10px] font-black uppercase tracking-widest text-[#166534]">Peraturan Marketplace Kelab PERHILITAN</p>
+        <ol class="space-y-2">
+          <li class="flex gap-2 text-[11px] text-gray-700 leading-snug">
+            <span class="text-[#0F4C3A] font-black shrink-0 mt-0.5">1.</span>
+            <span>Ahli perlu mendaftar dan mendapat <strong>kelulusan Admin</strong> sebelum boleh menjual.</span>
+          </li>
+          <li class="flex gap-2 text-[11px] text-gray-700 leading-snug">
+            <span class="text-[#0F4C3A] font-black shrink-0 mt-0.5">2.</span>
+            <span>Setiap transaksi dikenakan <strong>caj FPX RM1.00</strong> oleh platform ToyyibPay.</span>
+          </li>
+          <li class="flex gap-2 text-[11px] text-gray-700 leading-snug">
+            <span class="text-[#0F4C3A] font-black shrink-0 mt-0.5">3.</span>
+            <span>Kelab mengenakan <strong>komisyen RM1.00</strong> bagi setiap transaksi berjaya sebagai bayaran penggunaan platform.</span>
+          </li>
+          <li class="flex gap-2 text-[11px] text-gray-700 leading-snug">
+            <span class="text-[#0F4C3A] font-black shrink-0 mt-0.5">4.</span>
+            <span>Penghantaran kepada pembeli: <strong>PTJ (percuma)</strong> atau <strong>Pos Malaysia (+RM8.00)</strong> — pembeli pilih semasa tempah.</span>
+          </li>
+          <li class="flex gap-2 text-[11px] text-gray-700 leading-snug">
+            <span class="text-[#0F4C3A] font-black shrink-0 mt-0.5">5.</span>
+            <span>Produk hendaklah halal, sah, dan tidak bertentangan dengan etika perkhidmatan awam. Admin berhak menyahaktifkan produk.</span>
+          </li>
+        </ol>
+      </div>
+
+      <!-- Loading -->
+      <div v-if="loadingStatusPenjual" class="bg-white rounded-[18px] p-8 text-center border border-gray-200/60">
+        <p class="text-xs text-gray-400">Menyemak status pendaftaran...</p>
+      </div>
+
+      <!-- Status: AKTIF -->
+      <template v-else-if="statusPenjual?.status === 'AKTIF'">
+        <div class="rounded-[18px] p-4 flex items-center gap-3" style="background: #F0FDF4; border: 1px solid rgba(21,128,61,0.2);">
+          <div class="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center shrink-0">
+            <svg class="w-5 h-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </div>
+          <div>
+            <p class="text-sm font-black text-emerald-800">Akaun Penjual Aktif</p>
+            <p class="text-[10px] text-emerald-700 mt-0.5">Produk anda sedang dipaparkan. Hubungi Admin untuk tambah atau kemaskini produk.</p>
+          </div>
+        </div>
+        <div v-if="produkPenjual.length > 0">
+          <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2">Produk Anda ({{ produkPenjual.length }})</p>
+          <div class="grid grid-cols-2 gap-3">
+            <div v-for="item in produkPenjual" :key="item.id"
+              class="bg-white rounded-[18px] overflow-hidden shadow-sm border border-gray-200/60 flex flex-col">
+              <div class="relative aspect-square bg-gray-50 overflow-hidden">
+                <img v-if="gambarUtama(item)" :src="apiBase + gambarUtama(item)" class="w-full h-full object-cover"/>
+                <div v-else class="w-full h-full flex items-center justify-center text-3xl text-gray-300">
+                  <svg class="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+                </div>
+              </div>
+              <div class="p-3">
+                <p class="font-bold text-[#08151D] text-xs line-clamp-2 leading-snug">{{ item.nama_produk }}</p>
+                <p class="text-[#0F4C3A] text-sm font-black mt-1">{{ item.is_percuma ? 'PERCUMA' : `RM ${parseFloat(item.harga).toFixed(2)}` }}</p>
+                <p class="text-[9px] text-gray-500 mt-0.5">Stok: {{ item.stok_semasa ?? 0 }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div v-else class="bg-white rounded-[18px] p-6 text-center border border-gray-200/60">
+          <p class="text-xs font-bold text-gray-500">Belum ada produk didaftarkan.</p>
+          <p class="text-[10px] text-gray-400 mt-1">Hubungi Admin untuk tambah produk anda ke marketplace.</p>
+        </div>
+      </template>
+
+      <!-- Status: PENDING -->
+      <div v-else-if="statusPenjual?.status === 'PENDING'"
+        class="rounded-[18px] p-5 text-center" style="background: #FFFBEB; border: 1px solid rgba(217,119,6,0.25);">
+        <svg class="w-10 h-10 mx-auto text-amber-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <p class="text-sm font-black text-amber-800">Permohonan Dalam Semakan</p>
+        <p class="text-[10px] text-amber-700 mt-1 leading-relaxed">Admin sedang menyemak permohonan anda. Sila tunggu maklum balas.</p>
+        <p class="text-[9px] text-amber-600 font-bold mt-2">Didaftar: {{ statusPenjual?.tarikh_daftar }}</p>
+      </div>
+
+      <!-- Status: DITOLAK atau Belum Daftar -->
+      <template v-else>
+        <div v-if="statusPenjual?.status === 'DITOLAK'"
+          class="rounded-[18px] p-4" style="background: #FFF1F2; border: 1px solid rgba(239,68,68,0.2);">
+          <p class="text-sm font-black text-rose-800 mb-1">Permohonan Ditolak</p>
+          <p v-if="statusPenjual?.nota_admin" class="text-xs text-rose-700">Sebab: {{ statusPenjual.nota_admin }}</p>
+          <p class="text-[10px] text-rose-600 mt-1.5">Anda boleh hantar semula permohonan di bawah.</p>
+        </div>
+
+        <!-- FORM DAFTAR -->
+        <div class="bg-white border border-gray-200 rounded-[18px] p-5 space-y-4">
+          <div>
+            <p class="text-sm font-black text-gray-900">{{ statusPenjual?.status === 'DITOLAK' ? 'Hantar Semula Permohonan' : 'Daftar Sebagai Penjual' }}</p>
+            <p class="text-[10px] text-gray-500 mt-0.5">Admin akan menyemak dalam masa 3 hari bekerja.</p>
+          </div>
+
+          <div class="space-y-3">
+            <div>
+              <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1">Nama Perniagaan / Produk *</label>
+              <input v-model="formPenjual.nama_perniagaan" type="text" placeholder="Cth: Kek Batik Puan Aminah"
+                class="w-full bg-gray-50 border border-gray-300 text-gray-900 rounded-xl px-3 py-2.5 text-xs focus:outline-none focus:border-[#0F4C3A] focus:ring-2 focus:ring-[#0F4C3A]/20"/>
+            </div>
+            <div>
+              <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1">Jenis Produk</label>
+              <input v-model="formPenjual.jenis_produk" type="text" placeholder="Cth: Makanan, Kraftangan, Pakaian"
+                class="w-full bg-gray-50 border border-gray-300 text-gray-900 rounded-xl px-3 py-2.5 text-xs focus:outline-none focus:border-[#0F4C3A] focus:ring-2 focus:ring-[#0F4C3A]/20"/>
+            </div>
+            <div>
+              <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1">No. Telefon</label>
+              <input v-model="formPenjual.telefon" type="tel" placeholder="01X-XXXXXXX"
+                class="w-full bg-gray-50 border border-gray-300 text-gray-900 rounded-xl px-3 py-2.5 text-xs focus:outline-none focus:border-[#0F4C3A] focus:ring-2 focus:ring-[#0F4C3A]/20"/>
+            </div>
+            <div>
+              <label class="block text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1">Keterangan Ringkas</label>
+              <textarea v-model="formPenjual.deskripsi" rows="3" placeholder="Cerita sedikit tentang produk anda..."
+                class="w-full bg-gray-50 border border-gray-300 text-gray-900 rounded-xl px-3 py-2.5 text-xs focus:outline-none focus:border-[#0F4C3A] focus:ring-2 focus:ring-[#0F4C3A]/20 resize-none"/>
+            </div>
+          </div>
+
+          <Transition name="fade">
+            <p v-if="mesejPenjual" class="text-xs font-bold px-4 py-2.5 rounded-xl flex items-center gap-2"
+              :class="mesejPenjualOk ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200'">
+              {{ mesejPenjual }}
+            </p>
+          </Transition>
+
+          <button @click="hantarPermohonanPenjual" :disabled="hantarPenjual"
+            class="w-full bg-[#08151D] hover:bg-[#0F4C3A] text-white font-bold uppercase tracking-widest text-xs py-3.5 rounded-2xl transition-all shadow-lg disabled:opacity-50">
+            {{ hantarPenjual ? 'Menghantar...' : 'Hantar Permohonan' }}
+          </button>
+        </div>
+      </template>
+
+    </div>
+
     <Teleport to="body">
       <Transition name="fade">
         <div v-if="showTempahan" class="fixed inset-0 z-[100] bg-black/60 flex items-center justify-center px-4 backdrop-blur-sm" @click.self="tutupTempahan">
@@ -183,6 +324,21 @@
                 </div>
               </div>
               
+              <!-- Maklumat Penghantaran -->
+              <div v-if="pilihanTempahan?.kaedah_penghantaran" class="bg-sky-50 border border-sky-200 rounded-xl p-4">
+                <p class="text-[10px] font-bold text-sky-700 uppercase tracking-wider mb-2">Kaedah Penghantaran</p>
+                <div class="flex items-center gap-2">
+                  <span class="text-[10px] font-black px-2 py-0.5 rounded-full"
+                    :class="pilihanTempahan.kaedah_penghantaran === 'POS' ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700'">
+                    {{ pilihanTempahan.kaedah_penghantaran === 'POS' ? 'Pos Malaysia' : 'Hantar ke PTJ (Percuma)' }}
+                  </span>
+                </div>
+                <div v-if="pilihanTempahan.kaedah_penghantaran === 'POS' && pilihanTempahan.alamat_penghantaran" class="mt-2">
+                  <p class="text-[9px] font-bold text-sky-600 uppercase mb-0.5">Alamat Penghantaran</p>
+                  <p class="text-[10px] text-sky-900 font-medium leading-relaxed">{{ pilihanTempahan.alamat_penghantaran }}</p>
+                </div>
+              </div>
+
               <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 space-y-3 mt-3">
                 <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider border-b border-gray-200 pb-2">Item Pembelian</p>
                 <div v-for="item in pilihanTempahan?.items" :key="item.nama_produk" class="flex justify-between text-sm py-1 border-b border-gray-100 last:border-0">
@@ -195,9 +351,15 @@
                     <p class="font-black text-[#08151D]">{{ pilihanTempahan?.is_percuma ? 'PERCUMA' : `RM ${parseFloat(item.harga_seunit*item.kuantiti).toFixed(2)}` }}</p>
                   </div>
                 </div>
-                <div v-if="!pilihanTempahan?.is_percuma" class="flex justify-between font-bold text-sm pt-2">
-                  <span class="uppercase text-[10px] font-bold tracking-wider text-gray-500 mt-1">Jumlah Dibayar</span>
-                  <span class="text-rose-600 text-lg font-black tabular-nums">RM {{ parseFloat(pilihanTempahan?.jumlah_keseluruhan||0).toFixed(2) }}</span>
+                <div v-if="!pilihanTempahan?.is_percuma" class="pt-2 space-y-1">
+                  <div v-if="pilihanTempahan?.kos_postage > 0" class="flex justify-between text-xs text-gray-500">
+                    <span>Kos Postage</span>
+                    <span class="font-bold text-amber-700">RM {{ parseFloat(pilihanTempahan.kos_postage).toFixed(2) }}</span>
+                  </div>
+                  <div class="flex justify-between font-bold text-sm">
+                    <span class="uppercase text-[10px] font-bold tracking-wider text-gray-500 mt-1">Jumlah Dibayar (FPX)</span>
+                    <span class="text-rose-600 text-lg font-black tabular-nums">RM {{ parseFloat(pilihanTempahan?.jumlah_keseluruhan||0).toFixed(2) }}</span>
+                  </div>
                 </div>
               </div>
 
@@ -311,10 +473,47 @@
                   <button @click="kuantiti = Math.min(stokSemasaItem||1, kuantiti+1)" class="w-9 h-9 rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-200 font-bold flex items-center justify-center transition-colors">+</button>
                 </div>
               </div>
-              
-              <div v-if="!pilihan?.is_percuma && (pilihan?.harga > 0 || variasiDipilih)" class="bg-emerald-50 rounded-2xl p-4 border border-emerald-100 flex justify-between items-center mt-2">
-                <span class="text-xs font-bold text-emerald-800 uppercase tracking-wider">Jumlah Kasar</span>
-                <span class="text-xl font-black text-emerald-700 tabular-nums">RM {{ (hargaSemasa * kuantiti).toFixed(2) }}</span>
+
+              <!-- KAEDAH PENGHANTARAN -->
+              <div v-if="!pilihan?.is_percuma" class="pt-2 border-t border-gray-100 space-y-2">
+                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Kaedah Penghantaran</p>
+                <label class="flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all"
+                  :class="kaedahHantar==='PTJ' ? 'border-[#0F4C3A] bg-[#0F4C3A]/5' : 'border-gray-200'">
+                  <input type="radio" v-model="kaedahHantar" value="PTJ" class="accent-[#0F4C3A]" @click.stop/>
+                  <div class="flex-1">
+                    <p class="text-xs font-bold text-gray-900">Hantar ke PTJ <span class="text-emerald-600 font-black">(Percuma)</span></p>
+                    <p class="text-[10px] text-gray-500 mt-0.5">Admin serahkan terus di pejabat PTJ anda.</p>
+                  </div>
+                </label>
+                <label class="flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-all"
+                  :class="kaedahHantar==='POS' ? 'border-[#0F4C3A] bg-[#0F4C3A]/5' : 'border-gray-200'">
+                  <input type="radio" v-model="kaedahHantar" value="POS" class="accent-[#0F4C3A] mt-0.5" @click.stop/>
+                  <div class="flex-1">
+                    <p class="text-xs font-bold text-gray-900">Pos ke Alamat <span class="text-amber-600 font-black">(+RM{{ KOS_POSTAGE.toFixed(2) }})</span></p>
+                    <p class="text-[10px] text-gray-500 mt-0.5">Dihantar melalui Pos Malaysia (Semenanjung).</p>
+                    <textarea v-if="kaedahHantar==='POS'" v-model="alamatHantar" rows="2"
+                      placeholder="No. Rumah, Jalan, Poskod, Bandar, Negeri..."
+                      class="mt-2 w-full bg-white border border-gray-300 text-gray-900 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-[#0F4C3A] resize-none"
+                      @click.stop/>
+                  </div>
+                </label>
+              </div>
+
+              <!-- JUMLAH -->
+              <div v-if="!pilihan?.is_percuma && (pilihan?.harga > 0 || variasiDipilih)" class="bg-emerald-50 rounded-2xl p-4 border border-emerald-100 mt-2 space-y-1.5">
+                <div v-if="kosPostage > 0" class="flex justify-between text-xs text-gray-600">
+                  <span>Subtotal Produk</span>
+                  <span class="font-bold">RM {{ (hargaSemasa * kuantiti).toFixed(2) }}</span>
+                </div>
+                <div v-if="kosPostage > 0" class="flex justify-between text-xs text-amber-700">
+                  <span>Kos Postage</span>
+                  <span class="font-bold">RM {{ kosPostage.toFixed(2) }}</span>
+                </div>
+                <div class="flex justify-between items-center" :class="kosPostage > 0 ? 'border-t border-emerald-200 pt-1.5' : ''">
+                  <span class="text-xs font-bold text-emerald-800 uppercase tracking-wider">Jumlah Bayar (FPX)</span>
+                  <span class="text-xl font-black text-emerald-700 tabular-nums">RM {{ jumlahTotal.toFixed(2) }}</span>
+                </div>
+                <p class="text-[9px] text-gray-400 mt-0.5">* Caj FPX RM1.00 dikenakan oleh ToyyibPay.</p>
               </div>
 
               <Transition name="fade">
@@ -360,8 +559,27 @@ import { cetakResitPesananKedai } from '../../config/kelab';
 const router = useRouter();
 const apiBase = (import.meta.env.VITE_API_URL || 'http://localhost:5001/api').replace('/api', '');
 
-const tabUtama = ref('produk'); 
-const statusPesananAktif = ref(''); 
+const tabUtama = ref('produk');
+const statusPesananAktif = ref('');
+
+// Penghantaran
+const KOS_POSTAGE = 8; // RM8 flat rate Pos Malaysia
+const kaedahHantar = ref('PTJ');
+const alamatHantar = ref('');
+const kosPostage = computed(() => (!pilihan.value?.is_percuma && kaedahHantar.value === 'POS') ? KOS_POSTAGE : 0);
+const jumlahTotal = computed(() => (hargaSemasa.value * kuantiti.value) + kosPostage.value);
+
+// Daftar Jual
+const statusPenjual = ref(null);
+const loadingStatusPenjual = ref(false);
+const formPenjual = ref({ nama_perniagaan: '', jenis_produk: '', telefon: '', deskripsi: '' });
+const hantarPenjual = ref(false);
+const mesejPenjual = ref('');
+const mesejPenjualOk = ref(false);
+const produkPenjual = computed(() => {
+  if (!statusPenjual.value?.id) return [];
+  return produk.value.filter(p => p.penjual_id === statusPenjual.value.id);
+});
 
 const tabStatusPesanan = [
   { value: '', label: 'Semua' },
@@ -483,6 +701,32 @@ const bayarFPX = (billCode) => {
   window.location.href = `${toyyibpayBase}/${billCode}`;
 };
 
+const fetchStatusPenjual = async () => {
+  if (loadingStatusPenjual.value) return;
+  loadingStatusPenjual.value = true;
+  try {
+    const { data } = await api.get('/kedai/status-penjual');
+    statusPenjual.value = data.data;
+  } catch(e) { console.error(e); }
+  finally { loadingStatusPenjual.value = false; }
+};
+
+const hantarPermohonanPenjual = async () => {
+  if (!formPenjual.value.nama_perniagaan) { mesejPenjual.value = 'Nama perniagaan/produk wajib diisi.'; mesejPenjualOk.value = false; return; }
+  hantarPenjual.value = true; mesejPenjual.value = '';
+  try {
+    await api.post('/kedai/daftar-jual', formPenjual.value);
+    mesejPenjualOk.value = true;
+    mesejPenjual.value = 'Permohonan berjaya dihantar! Sila tunggu semakan Admin.';
+    await fetchStatusPenjual();
+    formPenjual.value = { nama_perniagaan: '', jenis_produk: '', telefon: '', deskripsi: '' };
+  } catch(e) {
+    mesejPenjualOk.value = false;
+    mesejPenjual.value = e.response?.data?.message || 'Gagal menghantar permohonan.';
+  }
+  finally { hantarPenjual.value = false; }
+};
+
 const bukaDetail = (item) => {
   pilihan.value = item;
   slideAktif.value = 0;
@@ -490,6 +734,8 @@ const bukaDetail = (item) => {
   variasiDipilih.value = null;
   kuantiti.value = 1;
   ralat.value = '';
+  kaedahHantar.value = 'PTJ';
+  alamatHantar.value = '';
   showDetail.value = true;
 };
 const tutupDetail = () => { showDetail.value = false; pilihan.value = null; };
@@ -513,9 +759,13 @@ const slideNext = () => { slideAktif.value = (slideAktif.value + 1) % senaraiGam
 const tempah = async () => {
   ralat.value = '';
   if (!isAhliAktif.value) { router.push('/dashboard/yuran'); return; }
-  
+
   if (!pilihan.value.is_variasi && senaraiSaiz.value.length && !saizDipilih.value) { ralat.value = 'Sila pilih saiz dahulu.'; return; }
   if (pilihan.value.is_variasi && !variasiDipilih.value) { ralat.value = 'Sila pilih pakej/variasi dahulu.'; return; }
+  if (!pilihan.value.is_percuma && kaedahHantar.value === 'POS' && !alamatHantar.value.trim()) {
+    ralat.value = 'Sila masukkan alamat penghantaran untuk perkhidmatan pos.';
+    return;
+  }
 
   memproses.value = true;
   const namaVariasiAtauSaiz = pilihan.value.is_variasi ? variasiDipilih.value.nama : (saizDipilih.value || null);
@@ -526,7 +776,10 @@ const tempah = async () => {
         produk_id: pilihan.value.id,
         kuantiti: pilihan.value.is_percuma ? 1 : kuantiti.value,
         saiz: namaVariasiAtauSaiz,
-      }]
+      }],
+      kaedah_penghantaran: pilihan.value.is_percuma ? 'PTJ' : kaedahHantar.value,
+      alamat_penghantaran: kaedahHantar.value === 'POS' ? alamatHantar.value.trim() : null,
+      kos_postage: pilihan.value.is_percuma ? 0 : kosPostage.value,
     });
 
     if (data.success) {
@@ -543,7 +796,7 @@ const tempah = async () => {
   finally { memproses.value = false; }
 };
 
-onMounted(() => { fetchProfil(); fetchProduk(); });
+onMounted(() => { fetchProfil(); fetchProduk(); fetchStatusPenjual(); });
 </script>
 
 <style scoped>
