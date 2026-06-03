@@ -92,7 +92,7 @@
             {{ profil.nama_penuh || 'Memuatkan...' }}
           </h2>
           <p class="text-[11px] font-bold mt-1.5" style="color: #D4AF37; letter-spacing: 0.04em;">
-            {{ profil.jawatan_kelab || 'Ahli Biasa' }}
+            {{ profil.jawatan_kelab || 'Ahli Kelab' }}
           </p>
           <p class="text-[10px] font-medium mt-0.5 leading-snug"
             style="color: rgba(149,213,178,0.45);">
@@ -191,7 +191,8 @@
           <span class="text-[8.5px] font-black uppercase text-center leading-tight" style="color: #92660C;">Yuran<br>Kelab</span>
         </button>
 
-        <button @click="$router.push('/dashboard/kedai')"
+        <button v-if="settingsStore.modulAktif('modul_kedai')"
+          @click="$router.push('/dashboard/kedai')"
           class="shrink-0 flex flex-col items-center gap-2 p-4 rounded-[18px] w-22 transition-all active:scale-[0.94]"
           style="background: white; border: 1px solid #E2E8F0;">
           <div class="w-10 h-10 rounded-2xl flex items-center justify-center" style="background: rgba(82,183,136,0.08);">
@@ -202,7 +203,8 @@
           <span class="text-[8.5px] font-black uppercase text-center leading-tight" style="color: #0F172A;">Kedai<br>Merch</span>
         </button>
 
-        <button @click="$router.push('/dashboard/aktiviti')"
+        <button v-if="settingsStore.modulAktif('modul_acara')"
+          @click="$router.push('/dashboard/aktiviti')"
           class="shrink-0 flex flex-col items-center gap-2 p-4 rounded-[18px] w-22 transition-all active:scale-[0.94]"
           style="background: white; border: 1px solid #E2E8F0;">
           <div class="w-10 h-10 rounded-2xl flex items-center justify-center" style="background: rgba(15,23,42,0.05);">
@@ -211,6 +213,18 @@
             </svg>
           </div>
           <span class="text-[8.5px] font-black uppercase text-center leading-tight" style="color: #0F172A;">Sukan<br>Aktiviti</span>
+        </button>
+
+        <button v-if="settingsStore.modulAktif('modul_bantuan')"
+          @click="$router.push('/dashboard/bantuan')"
+          class="shrink-0 flex flex-col items-center gap-2 p-4 rounded-[18px] w-22 transition-all active:scale-[0.94]"
+          style="background: #FFF1F2; border: 1px solid rgba(251,113,133,0.25);">
+          <div class="w-10 h-10 rounded-2xl flex items-center justify-center" style="background: rgba(251,113,133,0.1);">
+            <svg class="w-5 h-5" fill="none" stroke="#be123c" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+            </svg>
+          </div>
+          <span class="text-[8.5px] font-black uppercase text-center leading-tight" style="color: #be123c;">Bantuan<br>Kebajikan</span>
         </button>
 
         <button @click="$router.push('/dashboard/profil')"
@@ -232,7 +246,7 @@
     </div>
 
     <!-- ── MARKETPLACE PROMO ── -->
-    <div class="reveal space-y-3" style="--d: 260ms;">
+    <div v-if="settingsStore.modulAktif('modul_kedai')" class="reveal space-y-3" style="--d: 260ms;">
       <div class="flex items-center justify-between px-1">
         <p class="text-[9px] font-black uppercase tracking-[0.2em]" style="color: #94a3b8;">Kedai Merchandise</p>
         <button @click="$router.push('/dashboard/kedai')"
@@ -317,7 +331,7 @@
     </div>
 
     <!-- ── AKTIVITI PROMO ── -->
-    <div class="reveal rounded-[20px] p-5 flex items-center justify-between"
+    <div v-if="settingsStore.modulAktif('modul_acara')" class="reveal rounded-[20px] p-5 flex items-center justify-between"
       style="--d: 310ms; background: #0F172A; border: 1px solid rgba(82,183,136,0.1);
              box-shadow: 0 4px 20px rgba(8,28,21,0.15);">
       <div class="flex-1 min-w-0 pr-3">
@@ -374,7 +388,7 @@
               </div>
               <div class="flex justify-between items-center">
                 <span class="text-[10px] font-medium" style="color: #94a3b8;">Jawatan</span>
-                <span class="text-[10px] font-black" style="color: #D4AF37;">{{ profil.jawatan_kelab || 'Ahli Biasa' }}</span>
+                <span class="text-[10px] font-black" style="color: #D4AF37;">{{ profil.jawatan_kelab || 'Ahli Kelab' }}</span>
               </div>
               <div class="flex justify-between items-center">
                 <span class="text-[10px] font-medium" style="color: #94a3b8;">Status</span>
@@ -402,6 +416,9 @@
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import api from '../../services/api';
+import { useSettingsStore } from '../../stores/settings';
+
+const settingsStore = useSettingsStore();
 
 const uploadBase = import.meta.env.VITE_UPLOAD_URL || 'http://localhost:5001';
 
@@ -433,6 +450,7 @@ const fetchProfil = async () => {
 
 onMounted(() => {
   fetchProfil();
+  settingsStore.muatTetapan();
 });
 </script>
 

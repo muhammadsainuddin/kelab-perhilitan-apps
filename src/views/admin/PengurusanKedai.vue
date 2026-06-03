@@ -49,6 +49,8 @@
         {{ tab.label }}
         <span v-if="tab.id==='penjual' && penjualPending > 0"
           class="bg-amber-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-full min-w-[16px] text-center">{{ penjualPending }}</span>
+        <span v-if="tab.id==='semak-produk' && produkSemakPending > 0"
+          class="bg-rose-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-full min-w-[16px] text-center">{{ produkSemakPending }}</span>
       </button>
     </div>
 
@@ -292,6 +294,80 @@
             </tr>
           </tbody>
         </table>
+      </div>
+    </div>
+
+    <!-- ══════════════════════ TAB: SEMAK PRODUK PENJUAL ══════════════════════ -->
+    <div v-if="tabAktif==='semak-produk'">
+
+      <div class="flex items-start gap-3 bg-rose-50 border border-rose-200 rounded-xl px-4 py-3 mb-4">
+        <svg class="w-4 h-4 text-rose-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+        <div>
+          <p class="text-rose-800 text-[11px] font-bold">Semakan Produk Penjual</p>
+          <p class="text-rose-700 text-[10px] mt-0.5 leading-relaxed">
+            Produk yang dihantar oleh penjual berdaftar perlu disemak sebelum dipaparkan di kedai. Luluskan atau tolak dengan nota.
+          </p>
+        </div>
+      </div>
+
+      <div v-if="loadingProdukSemak" class="text-center py-10 text-gray-400">Memuatkan...</div>
+      <p v-else-if="senaraiprodukSemak.length === 0" class="text-center py-12 text-gray-400">
+        Tiada produk menunggu semakan. ✅
+      </p>
+
+      <div v-else class="space-y-3">
+        <div v-for="item in senaraiprodukSemak" :key="item.id"
+          class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+          <div class="flex gap-4 p-4">
+            <div class="w-20 h-20 rounded-xl bg-gray-100 shrink-0 overflow-hidden border border-gray-200">
+              <img v-if="item.gambar" :src="apiBase + item.gambar" class="w-full h-full object-cover"/>
+              <div v-else class="w-full h-full flex items-center justify-center text-3xl text-gray-300">🛍️</div>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-start justify-between gap-2">
+                <div>
+                  <p class="font-bold text-sm text-gray-900">{{ item.nama_produk }}</p>
+                  <p class="text-[10px] text-gray-500 mt-0.5">oleh <strong>{{ item.nama_penjual }}</strong> ({{ item.nama_perniagaan }})</p>
+                  <p class="text-[10px] text-gray-400 font-mono mt-0.5">{{ item.penjual_no_kp }}</p>
+                </div>
+                <span :class="['text-[9px] font-black px-2 py-0.5 rounded-full shrink-0',
+                  item.status === 'SEMAK' ? 'bg-amber-100 text-amber-700' : 'bg-rose-100 text-rose-700']">
+                  {{ item.status === 'SEMAK' ? 'Dalam Semakan' : 'Ditolak' }}
+                </span>
+              </div>
+              <div class="mt-2 flex flex-wrap gap-3 text-[10px] text-gray-600">
+                <span>Harga: <strong class="text-[#0F4C3A]">RM {{ parseFloat(item.harga).toFixed(2) }}</strong></span>
+                <span>Stok: <strong>{{ item.stok_semasa }}</strong></span>
+                <span v-if="item.saiz_tersedia">Saiz: <strong>{{ item.saiz_tersedia }}</strong></span>
+                <span>Dihantar: <strong>{{ item.tarikh_hantar }}</strong></span>
+              </div>
+              <p v-if="item.deskripsi" class="text-[10px] text-gray-500 mt-1.5 line-clamp-2 leading-relaxed">{{ item.deskripsi }}</p>
+            </div>
+          </div>
+
+          <!-- Nota tolak sebelum ini -->
+          <div v-if="item.nota_tolak" class="mx-4 mb-3 bg-rose-50 border border-rose-200 rounded-lg px-3 py-2 text-[10px] text-rose-700">
+            <strong>Nota tolak sebelum:</strong> {{ item.nota_tolak }}
+          </div>
+
+          <!-- Aksi -->
+          <div class="border-t border-gray-100 px-4 py-3 flex flex-col sm:flex-row gap-2 items-start">
+            <input v-model="notaTolakProduk[item.id]" type="text" placeholder="Nota kepada penjual (wajib jika ditolak)..."
+              class="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-rose-400 min-w-0"/>
+            <div class="flex gap-2 shrink-0">
+              <button @click="semakProduk(item.id, 'AKTIF')"
+                class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition-colors flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                Luluskan
+              </button>
+              <button @click="semakProduk(item.id, 'DITOLAK')"
+                class="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl transition-colors flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+                Tolak
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -810,9 +886,10 @@ const formProduk = ref({
 
 // ── Tabs ──
 const tabs = [
-  { id: 'produk',  label: 'Inventori Produk' },
-  { id: 'pesanan', label: 'Tempahan Masuk' },
-  { id: 'penjual', label: 'Penjual Berdaftar' },
+  { id: 'produk',       label: 'Inventori Produk' },
+  { id: 'pesanan',      label: 'Tempahan Masuk' },
+  { id: 'penjual',      label: 'Penjual Berdaftar' },
+  { id: 'semak-produk', label: 'Semak Produk' },
 ];
 const statusPesanan  = [
   { v: '', l: 'Semua' }, { v: 'PENDING', l: 'Pending' }, { v: 'DIBAYAR', l: 'Dibayar' },
@@ -835,6 +912,7 @@ const jualanHariIni  = computed(() => {
 const penjualAktifCom = computed(() => penjual.value.filter(p => p.status === 'AKTIF').length);
 const penjualPending  = computed(() => penjual.value.filter(p => p.status === 'PENDING').length);
 const penjualAktifList = computed(() => penjual.value.filter(p => p.status === 'AKTIF'));
+const produkSemakPending = computed(() => senaraiprodukSemak.value.filter(p => p.status === 'SEMAK').length);
 
 // ── Filters ──
 const produkTertapis = computed(() => {
@@ -915,10 +993,38 @@ const muatPenjual = async () => {
   finally{loadingPenjual.value=false;}
 };
 
-// Muat penjual bila tab dibuka
+// ── Semak Produk Penjual ──
+const senaraiprodukSemak = ref([]);
+const loadingProdukSemak = ref(false);
+const produkSemakDimuat = ref(false);
+const notaTolakProduk = ref({});
+
+const muatProdukSemak = async () => {
+  if (produkSemakDimuat.value) return;
+  loadingProdukSemak.value = true;
+  try {
+    const { data } = await api.get('/kedai/admin/produk-semak');
+    if (data.success) senaraiprodukSemak.value = data.data;
+    produkSemakDimuat.value = true;
+  } catch(e) {} finally { loadingProdukSemak.value = false; }
+};
+
+const semakProduk = async (id, status) => {
+  const nota = notaTolakProduk.value[id] || '';
+  if (status === 'DITOLAK' && !nota.trim()) { alert('Sila masukkan nota penolakan untuk penjual.'); return; }
+  try {
+    await api.put(`/kedai/admin/produk-semak/${id}`, { status, nota_tolak: nota });
+    senaraiprodukSemak.value = senaraiprodukSemak.value.filter(p => p.id !== id);
+    notaTolakProduk.value[id] = '';
+    if (status === 'AKTIF') await muatProduk(); // refresh inventori
+  } catch(e) { alert(e.response?.data?.message || 'Gagal mengemaskini.'); }
+};
+
+// Muat penjual/semak bila tab dibuka
 const tukarTab = (id) => {
   tabAktif.value = id;
   if (id === 'penjual' && !penjualDimuat.value) muatPenjual();
+  if (id === 'semak-produk' && !produkSemakDimuat.value) muatProdukSemak();
 };
 
 // ── Modal Produk ──

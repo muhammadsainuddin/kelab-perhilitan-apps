@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router';
+import { createRouter, createWebHashHistory } from 'vue-router';
 import { useAuthStore } from '../stores/auth';
 
 // ── Helper: semak sama ada role adalah Admin ──
@@ -117,6 +117,11 @@ const routes = [
         path: 'profil',
         name: 'AdminProfil',
         component: () => import('../views/admin/ProfilAdminView.vue')
+      },
+      {
+        path: 'tetapan',
+        name: 'AdminTetapan',
+        component: () => import('../views/admin/TetapanSistemView.vue')
       }
     ]
   },
@@ -131,7 +136,7 @@ const routes = [
 ];
 
 const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHashHistory(),
   routes,
 });
 

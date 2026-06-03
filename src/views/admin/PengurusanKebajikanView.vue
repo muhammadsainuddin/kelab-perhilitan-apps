@@ -57,6 +57,107 @@
       </button>
     </div>
 
+    <!-- PANEL KADAR BANTUAN -->
+    <div class="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
+      <!-- Header toggle -->
+      <button @click="showKadarPanel = !showKadarPanel"
+        class="w-full flex items-center justify-between px-4 py-3 hover:bg-gray-50 transition-colors">
+        <div class="flex items-center gap-2.5">
+          <div class="w-7 h-7 rounded-lg bg-[#0F4C3A]/8 flex items-center justify-center shrink-0">
+            <svg class="w-3.5 h-3.5 text-[#0F4C3A]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 11h.01M12 11h.01M15 11h.01M4 19h16a2 2 0 002-2V7a2 2 0 00-2-2H4a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+            </svg>
+          </div>
+          <div class="text-left">
+            <p class="text-[12px] font-bold text-gray-800">Kadar Bantuan Semasa</p>
+            <p class="text-[10px] text-gray-400">
+              {{ adaHakLulus ? 'Klik untuk lihat dan ubah kadar standard' : 'Klik untuk lihat kadar standard' }}
+            </p>
+          </div>
+        </div>
+        <svg class="w-4 h-4 text-gray-400 transition-transform duration-200" :class="showKadarPanel ? 'rotate-180' : ''"
+          fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+        </svg>
+      </button>
+
+      <!-- Kandungan panel (collapsible) -->
+      <Transition name="slide-down">
+        <div v-if="showKadarPanel" class="border-t border-gray-100">
+
+          <!-- Info YDP -->
+          <div v-if="adaHakLulus"
+            class="flex items-center gap-2 px-4 py-2.5 bg-emerald-50 border-b border-emerald-100">
+            <svg class="w-3.5 h-3.5 text-emerald-600 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+            </svg>
+            <p class="text-[10px] text-emerald-700 font-semibold">Anda boleh mengedit kadar bantuan sebagai Yang Dipertua.</p>
+          </div>
+
+          <!-- Senarai kadar -->
+          <div class="divide-y divide-gray-50">
+            <div v-for="k in kadarBantuan" :key="k.kunci"
+              class="flex items-center justify-between px-4 py-3 hover:bg-gray-50/50 transition-colors">
+
+              <!-- Label -->
+              <div class="flex-1 min-w-0 mr-4">
+                <p class="text-[12px] font-semibold text-gray-800 truncate">{{ k.label }}</p>
+                <p class="text-[9px] text-gray-400 uppercase tracking-wide mt-0.5 font-mono">{{ k.kunci }}</p>
+              </div>
+
+              <!-- Nilai / Edit -->
+              <div class="flex items-center gap-2 shrink-0">
+                <!-- Mode edit -->
+                <template v-if="editKunci === k.kunci">
+                  <div class="flex items-center gap-1.5">
+                    <span class="text-[11px] font-bold text-gray-500">RM</span>
+                    <input v-model="editNilai" type="number" min="0" step="1"
+                      class="w-20 text-[12px] font-black text-emerald-700 bg-white border border-emerald-300 rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-right"
+                      @keyup.enter="simpanKadar(k.kunci)"
+                      @keyup.escape="batalEdit" />
+                    <button @click="simpanKadar(k.kunci)" :disabled="simpanLoading"
+                      class="px-2.5 py-1 bg-emerald-600 text-white rounded-lg text-[10px] font-bold hover:bg-emerald-700 disabled:opacity-60 transition-colors">
+                      {{ simpanLoading ? '...' : 'Simpan' }}
+                    </button>
+                    <button @click="batalEdit"
+                      class="px-2.5 py-1 bg-gray-100 text-gray-600 rounded-lg text-[10px] font-bold hover:bg-gray-200 transition-colors">
+                      Batal
+                    </button>
+                  </div>
+                </template>
+
+                <!-- Mode papar -->
+                <template v-else>
+                  <span class="text-[13px] font-black text-emerald-700 tabular-nums">
+                    RM {{ parseFloat(k.amaun).toLocaleString('ms-MY', { minimumFractionDigits: 2 }) }}
+                  </span>
+                  <button v-if="adaHakLulus && k.boleh_ubah" @click="mulaEdit(k)"
+                    class="p-1.5 rounded-lg text-gray-400 hover:text-[#0F4C3A] hover:bg-gray-100 transition-colors">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+                    </svg>
+                  </button>
+                </template>
+              </div>
+
+            </div>
+
+            <!-- Baris: Pertimbangan JK (fixed, tidak boleh edit) -->
+            <div class="flex items-center justify-between px-4 py-3 bg-amber-50/40">
+              <div class="flex-1">
+                <p class="text-[12px] font-semibold text-gray-600">Bencana Alam - Lain-lain / Kes Kritikal</p>
+                <p class="text-[9px] text-gray-400 uppercase tracking-wide mt-0.5">Dinilai oleh Jawatankuasa</p>
+              </div>
+              <span class="text-[11px] font-black text-amber-700 bg-amber-100 border border-amber-200 px-2.5 py-1 rounded-lg">
+                Pertimbangan JK
+              </span>
+            </div>
+          </div>
+
+        </div>
+      </Transition>
+    </div>
+
     <!-- TABLE -->
     <div class="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
       <div class="overflow-x-auto">
@@ -346,29 +447,43 @@
             <div class="px-6 py-4 border-t border-gray-100 bg-gray-50/60 shrink-0">
               <!-- Tindakan — belum selesai -->
               <div v-if="!['LULUS', 'DITOLAK'].includes(dipilih.status_permohonan)"
-                class="flex items-center justify-between gap-3 flex-wrap">
-                <button @click="showModal = false"
-                  class="px-4 py-2 text-gray-600 bg-white border border-gray-200 rounded-lg text-[11px] font-semibold hover:bg-gray-50 transition-colors">
-                  Tutup
-                </button>
-                <div class="flex items-center gap-2">
-                  <button @click="bukaModalTolak"
-                    class="px-4 py-2 bg-rose-50 text-rose-700 border border-rose-200 rounded-lg text-[11px] font-bold hover:bg-rose-100 transition-colors">
-                    Tolak Permohonan
+                class="space-y-3">
+
+                <!-- Notis jika bukan Yang Dipertua -->
+                <div v-if="dipilih.status_permohonan === 'DIKEMUKAKAN' && !adaHakLulus"
+                  class="flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+                  <svg class="w-3.5 h-3.5 text-amber-600 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                  </svg>
+                  <p class="text-[10px] text-amber-800 font-semibold">
+                    Kelulusan permohonan ini hanya boleh dilakukan oleh <strong>Yang Dipertua</strong> Kelab PERHILITAN.
+                  </p>
+                </div>
+
+                <div class="flex items-center justify-between gap-3 flex-wrap">
+                  <button @click="showModal = false"
+                    class="px-4 py-2 text-gray-600 bg-white border border-gray-200 rounded-lg text-[11px] font-semibold hover:bg-gray-50 transition-colors">
+                    Tutup
                   </button>
-                  <!-- Jika sudah dikemukakan → tunjuk butang Lulus -->
-                  <button v-if="dipilih.status_permohonan === 'DIKEMUKAKAN'"
-                    @click="bukaModalLulus"
-                    class="px-4 py-2 bg-emerald-600 text-white rounded-lg text-[11px] font-bold hover:bg-emerald-700 transition-colors shadow-sm">
-                    Lulus (Keputusan JK)
-                  </button>
-                  <!-- Belum dikemukakan → tunjuk butang Kemukakan -->
-                  <button v-else
-                    @click="kemukakan"
-                    :disabled="memproses"
-                    class="px-4 py-2 bg-[#0F4C3A] text-white rounded-lg text-[11px] font-bold hover:bg-[#155d47] transition-colors shadow-sm disabled:opacity-60">
-                    {{ memproses ? 'Memproses...' : 'Kemukakan kepada JK' }}
-                  </button>
+                  <div class="flex items-center gap-2">
+                    <button @click="bukaModalTolak"
+                      class="px-4 py-2 bg-rose-50 text-rose-700 border border-rose-200 rounded-lg text-[11px] font-bold hover:bg-rose-100 transition-colors">
+                      Tolak Permohonan
+                    </button>
+                    <!-- Jika sudah dikemukakan DAN ada hak → tunjuk butang Lulus -->
+                    <button v-if="dipilih.status_permohonan === 'DIKEMUKAKAN' && adaHakLulus"
+                      @click="bukaModalLulus"
+                      class="px-4 py-2 bg-emerald-600 text-white rounded-lg text-[11px] font-bold hover:bg-emerald-700 transition-colors shadow-sm">
+                      Lulus (Keputusan JK)
+                    </button>
+                    <!-- Belum dikemukakan → tunjuk butang Kemukakan -->
+                    <button v-else-if="dipilih.status_permohonan !== 'DIKEMUKAKAN'"
+                      @click="kemukakan"
+                      :disabled="memproses"
+                      class="px-4 py-2 bg-[#0F4C3A] text-white rounded-lg text-[11px] font-bold hover:bg-[#155d47] transition-colors shadow-sm disabled:opacity-60">
+                      {{ memproses ? 'Memproses...' : 'Kemukakan kepada JK' }}
+                    </button>
+                  </div>
                 </div>
               </div>
               <!-- Permohonan selesai -->
@@ -411,7 +526,17 @@
               <p class="font-semibold text-[#0F4C3A] text-[12px]">{{ dipilih?.jenis_bantuan }}</p>
             </div>
             <div class="space-y-1.5 mb-5">
-              <label class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Amaun Diluluskan (RM) *</label>
+              <div class="flex items-center justify-between">
+                <label class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Amaun Diluluskan (RM) *</label>
+                <span v-if="PETA_KUNCI[dipilih?.jenis_bantuan] && kadarMap[PETA_KUNCI[dipilih?.jenis_bantuan]] != null"
+                  class="text-[9px] font-bold bg-emerald-50 text-emerald-600 border border-emerald-100 px-2 py-0.5 rounded-md">
+                  Auto-isi ✓
+                </span>
+                <span v-else
+                  class="text-[9px] font-bold bg-amber-50 text-amber-600 border border-amber-100 px-2 py-0.5 rounded-md">
+                  Pertimbangan JK
+                </span>
+              </div>
               <div class="relative">
                 <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-bold text-sm">RM</span>
                 <input v-model="amaunLulus" type="number" min="0.01" step="0.50" placeholder="0.00" required
@@ -513,6 +638,34 @@ const tunjukRalat = ref(false);
 
 const memproses = ref(false);
 
+// Jawatan semasa admin yang log masuk
+const jawatanKelab = ref('');
+const adaHakLulus = computed(() => jawatanKelab.value === 'Yang Dipertua');
+
+// Kadar bantuan dari DB
+const kadarBantuan = ref([]);
+const showKadarPanel = ref(false);
+const editKunci = ref(null);
+const editNilai = ref('');
+const simpanLoading = ref(false);
+
+// Peta jenis_bantuan → kunci kadar_bantuan (sama dengan backend PETA_KUNCI)
+const PETA_KUNCI = {
+  'Khairat Kematian':                      'khairat_kematian',
+  'Kemalangan - Rawatan Luar (Tanpa Wad)': 'kemalangan_rawatan_luar',
+  'Kemalangan - Dimasukkan Wad':           'kemalangan_wad',
+  'Bencana Alam - Banjir':                 'bencana_banjir',
+  'Bencana Alam - Kebakaran':              'bencana_kebakaran',
+  'Persaraan':                             'persaraan',
+};
+
+// Lookup amaun dinamik dari kadarBantuan yang diambil dari API
+const kadarMap = computed(() => {
+  const m = {};
+  for (const k of kadarBantuan.value) m[k.kunci] = parseFloat(k.amaun);
+  return m;
+});
+
 // ── Helpers ──────────────────────────────────────────────────────────
 const parseDokumen = (str) => {
   if (!str || str === '[]' || str === 'null') return [];
@@ -590,8 +743,37 @@ const bukaModal = (p) => {
   showModal.value = true;
 };
 
+const muatKadar = async () => {
+  try {
+    const { data } = await api.get('/bantuan/kadar');
+    if (data.success) kadarBantuan.value = data.data;
+  } catch {}
+};
+
+const mulaEdit = (k) => {
+  editKunci.value = k.kunci;
+  editNilai.value = String(parseFloat(k.amaun));
+};
+
+const batalEdit = () => { editKunci.value = null; editNilai.value = ''; };
+
+const simpanKadar = async (kunci) => {
+  const amaun = parseFloat(editNilai.value);
+  if (isNaN(amaun) || amaun < 0) return alert('Sila masukkan amaun yang sah.');
+  simpanLoading.value = true;
+  try {
+    await api.put(`/bantuan/kadar/${kunci}`, { amaun });
+    await muatKadar();
+    batalEdit();
+  } catch (e) {
+    alert(e.response?.data?.message || 'Ralat menyimpan kadar.');
+  } finally { simpanLoading.value = false; }
+};
+
 const bukaModalLulus = () => {
-  amaunLulus.value = '';
+  const kunci = PETA_KUNCI[dipilih.value?.jenis_bantuan];
+  const autoAmaun = kunci != null ? kadarMap.value[kunci] : undefined;
+  amaunLulus.value = autoAmaun != null ? String(autoAmaun) : '';
   showModalLulus.value = true;
 };
 
@@ -653,10 +835,22 @@ const sahkanTolak = async () => {
   } finally { memproses.value = false; }
 };
 
-onMounted(muatKebajikan);
+onMounted(async () => {
+  muatKebajikan();
+  muatKadar();
+  try {
+    const { data } = await api.get('/admin/profil-saya');
+    jawatanKelab.value = data.data?.jawatan_kelab || '';
+  } catch {}
+});
 </script>
 
 <style scoped>
 .modal-enter-active, .modal-leave-active { transition: all 0.2s ease; }
 .modal-enter-from, .modal-leave-to { opacity: 0; transform: scale(0.97); }
+
+.slide-down-enter-active { transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1); }
+.slide-down-leave-active { transition: all 0.16s ease; }
+.slide-down-enter-from   { opacity: 0; transform: translateY(-8px); }
+.slide-down-leave-to     { opacity: 0; transform: translateY(-4px); }
 </style>

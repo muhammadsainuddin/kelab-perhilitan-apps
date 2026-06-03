@@ -2,12 +2,22 @@
   <div class="space-y-4 pb-8 animate-page-in">
 
     <!-- HEADER -->
-    <div class="px-1 pt-1">
-      <p class="text-[9px] font-bold uppercase tracking-[0.22em]" style="color: #52B788;">Program Kebajikan</p>
-      <h2 class="text-[22px] font-black leading-tight mt-0.5" style="color: #0F172A;">Kebajikan &amp; Tabung</h2>
-      <p class="text-[11px] font-medium mt-0.5" style="color: #64748B;">
-        Mohon bantuan kebajikan luar jangka khas untuk kakitangan berdaftar.
-      </p>
+    <div class="px-1 pt-1 flex items-start justify-between gap-3">
+      <div>
+        <p class="text-[9px] font-bold uppercase tracking-[0.22em]" style="color: #52B788;">Program Kebajikan</p>
+        <h2 class="text-[22px] font-black leading-tight mt-0.5" style="color: #0F172A;">Kebajikan &amp; Tabung</h2>
+        <p class="text-[11px] font-medium mt-0.5" style="color: #64748B;">
+          Mohon bantuan kebajikan luar jangka khas untuk kakitangan berdaftar.
+        </p>
+      </div>
+      <button @click="showInfoBantuan = true"
+        class="shrink-0 mt-1 flex items-center gap-1.5 px-3 py-2 rounded-xl text-[10px] font-black uppercase tracking-wide transition-all active:scale-95"
+        style="background: rgba(82,183,136,0.1); border: 1px solid rgba(82,183,136,0.2); color: #1B4332;">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        Info Bantuan
+      </button>
     </div>
 
     <!-- STATUS KELAYAKAN -->
@@ -31,6 +41,7 @@
         </svg>
       </div>
     </div>
+
 
     <!-- ACCESS BLOCKED -->
     <div v-if="!isAhliAktif"
@@ -132,6 +143,162 @@
       </div>
     </div>
 
+    <!-- POPUP INFO BANTUAN -->
+    <Teleport to="body">
+      <Transition name="sheet">
+        <div v-if="showInfoBantuan"
+          class="fixed inset-0 z-9999 flex items-end justify-center"
+          style="background: rgba(8,28,21,0.65); backdrop-filter: blur(6px);"
+          @click.self="showInfoBantuan = false">
+          <div class="bg-white w-full max-w-md max-h-[88vh] overflow-y-auto"
+            style="border-radius: 28px 28px 0 0; box-shadow: 0 -12px 48px rgba(0,0,0,0.18);">
+
+            <!-- Handle bar -->
+            <div class="flex justify-center pt-3 mb-1 shrink-0">
+              <div class="w-10 h-1 rounded-full" style="background: #E2E8F0;"></div>
+            </div>
+
+            <!-- Header -->
+            <div class="px-5 pt-2 pb-4 flex items-center gap-3" style="border-bottom: 1px solid #F1F5F9;">
+              <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style="background: #081C15;">
+                <svg class="w-4.5 h-4.5" style="color: #52B788;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+              </div>
+              <div class="flex-1">
+                <p class="text-[8px] font-black uppercase tracking-[0.2em]" style="color: #52B788;">Kelab PERHILITAN</p>
+                <h3 class="text-[15px] font-black" style="color: #0F172A;">Senarai Bantuan Kebajikan</h3>
+              </div>
+              <button @click="showInfoBantuan = false" class="w-7 h-7 rounded-full flex items-center justify-center" style="background: #F1F5F9;">
+                <svg class="w-3.5 h-3.5 text-gray-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+              </button>
+            </div>
+
+            <!-- Senarai -->
+            <div class="divide-y" style="border-color: #F8FAFC;">
+
+              <!-- Khairat Kematian -->
+              <div class="flex items-center justify-between px-5 py-4">
+                <div class="flex items-center gap-3">
+                  <div class="w-8 h-8 rounded-xl flex items-center justify-center shrink-0" style="background: rgba(15,76,58,0.08);">
+                    <svg class="w-4 h-4" style="color: #0F4C3A;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <p class="text-[13px] font-black" style="color: #0F172A;">Khairat Kematian</p>
+                    <p class="text-[9px] font-medium" style="color: #94a3b8;">Ahli atau waris yang meninggal dunia</p>
+                  </div>
+                </div>
+                <span class="text-[13px] font-black tabular-nums shrink-0 ml-2" style="color: #1B4332;">RM1,000</span>
+              </div>
+
+              <!-- Kemalangan -->
+              <div class="px-5 py-4">
+                <div class="flex items-center gap-3 mb-3">
+                  <div class="w-8 h-8 rounded-xl flex items-center justify-center shrink-0" style="background: rgba(245,158,11,0.1);">
+                    <svg class="w-4 h-4" style="color: #b45309;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                    </svg>
+                  </div>
+                  <p class="text-[13px] font-black" style="color: #0F172A;">Kemalangan</p>
+                </div>
+                <div class="pl-11 space-y-2.5">
+                  <div class="flex items-center justify-between">
+                    <p class="text-[11px] font-medium" style="color: #64748B;">Rawatan luar (tidak dimasukkan wad)</p>
+                    <span class="text-[12px] font-black tabular-nums shrink-0 ml-3" style="color: #1B4332;">RM100</span>
+                  </div>
+                  <div class="flex items-center justify-between">
+                    <p class="text-[11px] font-medium" style="color: #64748B;">Dimasukkan wad</p>
+                    <span class="text-[12px] font-black tabular-nums shrink-0 ml-3" style="color: #1B4332;">RM100</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Bencana Alam -->
+              <div class="px-5 py-4">
+                <div class="flex items-center gap-3 mb-3">
+                  <div class="w-8 h-8 rounded-xl flex items-center justify-center shrink-0" style="background: rgba(59,130,246,0.1);">
+                    <svg class="w-4 h-4" style="color: #1d4ed8;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"/>
+                    </svg>
+                  </div>
+                  <p class="text-[13px] font-black" style="color: #0F172A;">Bencana Alam</p>
+                </div>
+                <div class="pl-11 space-y-2.5">
+                  <div class="flex items-center justify-between">
+                    <p class="text-[11px] font-medium" style="color: #64748B;">Banjir</p>
+                    <span class="text-[12px] font-black tabular-nums shrink-0 ml-3" style="color: #1B4332;">RM300</span>
+                  </div>
+                  <div class="flex items-center justify-between">
+                    <p class="text-[11px] font-medium" style="color: #64748B;">Kebakaran</p>
+                    <span class="text-[12px] font-black tabular-nums shrink-0 ml-3" style="color: #1B4332;">RM300</span>
+                  </div>
+                  <div class="flex items-center justify-between">
+                    <p class="text-[11px] font-medium" style="color: #64748B;">Lain-lain bencana (nyatakan dalam permohonan)</p>
+                    <span class="text-[10px] font-black shrink-0 ml-3" style="color: #92400e;">Pertimbangan JK</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Kes Kritikal -->
+              <div class="flex items-center justify-between px-5 py-4">
+                <div class="flex items-center gap-3">
+                  <div class="w-8 h-8 rounded-xl flex items-center justify-center shrink-0" style="background: rgba(139,92,246,0.1);">
+                    <svg class="w-4 h-4" style="color: #6d28d9;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <p class="text-[13px] font-black" style="color: #0F172A;">Kes Kritikal / Luar Jangka</p>
+                    <p class="text-[9px] font-medium" style="color: #94a3b8;">Nyatakan jenis permohonan dalam borang</p>
+                  </div>
+                </div>
+                <span class="text-[10px] font-black shrink-0 ml-2" style="color: #92400e;">Pertimbangan JK</span>
+              </div>
+
+              <!-- Persaraan -->
+              <div class="flex items-center justify-between px-5 py-4">
+                <div class="flex items-center gap-3">
+                  <div class="w-8 h-8 rounded-xl flex items-center justify-center shrink-0" style="background: rgba(251,191,36,0.12);">
+                    <svg class="w-4 h-4" style="color: #b45309;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <p class="text-[13px] font-black" style="color: #0F172A;">Persaraan</p>
+                    <p class="text-[9px] font-medium" style="color: #94a3b8;">Saguhati penghargaan kepada ahli yang bersara</p>
+                  </div>
+                </div>
+                <span class="text-[13px] font-black tabular-nums shrink-0" style="color: #1B4332;">RM400</span>
+              </div>
+
+            </div>
+
+            <!-- Footer nota + tutup -->
+            <div class="px-5 py-4" style="border-top: 1px solid rgba(251,191,36,0.2); background: rgba(251,191,36,0.04);">
+              <div class="flex items-start gap-2 mb-4">
+                <svg class="w-3.5 h-3.5 shrink-0 mt-0.5" style="color: #b45309;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <p class="text-[10px] font-medium leading-relaxed" style="color: #92400e;">
+                  Sumbangan ini <strong>hanya layak</strong> kepada ahli yang aktif dan telah menjelaskan yuran keahlian Kelab PERHILITAN.
+                </p>
+              </div>
+              <button @click="showInfoBantuan = false"
+                class="w-full py-3 rounded-2xl text-[11px] font-black uppercase tracking-wider"
+                style="background: #081C15; color: #95D5B2;">
+                Faham, Tutup
+              </button>
+            </div>
+
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
+
     <!-- MODAL PERMOHONAN -->
     <Teleport to="body">
       <Transition name="sheet">
@@ -155,10 +322,22 @@
                     class="w-full text-xs font-bold rounded-2xl px-4 py-3 outline-none transition-all"
                     style="background: #F8FAFC; border: 1.5px solid #E2E8F0; color: #0F172A;">
                     <option value="" disabled>— Pilih Kategori —</option>
-                    <option value="Bencana Alam (Banjir)">Bencana Alam / Banjir</option>
-                    <option value="Khairat Kematian">Khairat Kematian (Ahli/Waris)</option>
-                    <option value="Kemalangan (Warded)">Kemalangan & Kemasukan Wad</option>
-                    <option value="Sumbangan Kelahiran">Sumbangan Cahaya Mata Baru</option>
+                    <optgroup label="Khairat Kematian">
+                      <option value="Khairat Kematian">Khairat Kematian — RM1,000</option>
+                    </optgroup>
+                    <optgroup label="Kemalangan">
+                      <option value="Kemalangan - Rawatan Luar (Tanpa Wad)">Kemalangan: Rawatan Luar (Tanpa Wad) — RM100</option>
+                      <option value="Kemalangan - Dimasukkan Wad">Kemalangan: Dimasukkan Wad — RM100</option>
+                    </optgroup>
+                    <optgroup label="Bencana Alam">
+                      <option value="Bencana Alam - Banjir">Bencana Alam: Banjir — RM300</option>
+                      <option value="Bencana Alam - Kebakaran">Bencana Alam: Kebakaran — RM300</option>
+                      <option value="Bencana Alam - Lain-lain">Bencana Alam: Lain-lain (nyatakan dalam butiran)</option>
+                    </optgroup>
+                    <optgroup label="Lain-lain">
+                      <option value="Kes Kritikal / Luar Jangka">Kes Kritikal / Luar Jangka (nyatakan jenis)</option>
+                      <option value="Persaraan">Persaraan — RM400</option>
+                    </optgroup>
                   </select>
                 </div>
 
@@ -230,7 +409,8 @@ const sejarahBantuan = ref([]);
 const submitting = ref(false);
 const loadingSejarah = ref(false);
 
-const showModal = ref(false); // State untuk mengawal Modal
+const showInfoBantuan = ref(false);
+const showModal = ref(false);
 const form = ref({ jenis_bantuan: '', keterangan: '' });
 const failTerpilih = ref(null);
 const formMessage = ref({ type: '', text: '' });
