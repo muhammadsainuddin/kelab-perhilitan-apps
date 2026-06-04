@@ -18,12 +18,18 @@ api.interceptors.request.use(
   (config) => {
     // Panggil authStore di SINI untuk elakkan ralat Pinia
     const authStore = useAuthStore();
-    
+
     // Jika JWT wujud, masukkan ke dalam header Authorization
     if (authStore.token) {
       config.headers.Authorization = `Bearer ${authStore.token}`;
     }
-    
+
+    // Bila data adalah FormData, padam Content-Type supaya browser/WebView
+    // set sendiri dengan boundary yang betul (multer perlukan boundary untuk parse)
+    if (config.data instanceof FormData) {
+      delete config.headers['Content-Type'];
+    }
+
     return config;
   },
   (error) => {
@@ -44,8 +50,8 @@ api.interceptors.response.use(
     const status = error.response?.status;
 
     // 401 = token luput atau tidak sah → auto-logout dan redirect ke login
-    // (Backend returns 401 untuk expired/invalid token, 403 untuk role denied)
-    if (status === 401) {
+    // Kecuali /auth/renew — biar LoginView tangani sendiri (biometrik expired)
+    if (status === 401 && !error.config?.url?.includes('/auth/renew')) {
       authStore.logout();
       router.push({ path: '/login', query: { mesej: 'sesi-tamat' } });
     }

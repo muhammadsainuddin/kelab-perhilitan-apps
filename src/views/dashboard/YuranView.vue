@@ -189,16 +189,69 @@
     </div>
 
   </div>
+
+  <!-- ── MODAL RESIT (mobile / native) ── -->
+  <Teleport to="body">
+    <Transition name="resit-sheet">
+      <div v-if="showResitModal"
+        class="fixed inset-0 z-9999 flex flex-col"
+        style="background: #F8FAFC;">
+
+        <!-- Header -->
+        <div class="flex items-center justify-between px-4 py-3 shrink-0"
+          style="background: #081C15; padding-top: max(12px, env(safe-area-inset-top));">
+          <div class="flex items-center gap-2.5">
+            <svg class="w-4 h-4" style="color: #52B788;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+            <span class="text-[13px] font-black text-white uppercase tracking-wide">Resit Pembayaran</span>
+          </div>
+          <button @click="showResitModal = false"
+            class="w-8 h-8 rounded-full flex items-center justify-center transition-all active:scale-90"
+            style="background: rgba(255,255,255,0.1);">
+            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Iframe resit -->
+        <iframe class="flex-1 w-full border-0" :srcdoc="resitHtml"></iframe>
+
+        <!-- Footer -->
+        <div class="px-4 py-3 shrink-0"
+          style="background: white; border-top: 1px solid #F1F5F9; padding-bottom: max(12px, env(safe-area-inset-bottom));">
+          <button @click="showResitModal = false"
+            class="w-full py-3.5 rounded-2xl text-[11px] font-black uppercase tracking-wider transition-all active:scale-[0.98]"
+            style="background: #081C15; color: #95D5B2;">
+            Tutup Resit
+          </button>
+        </div>
+
+      </div>
+    </Transition>
+  </Teleport>
+
 </template>
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { Capacitor } from '@capacitor/core';
 import api from '../../services/api';
-import { cetakResitTransaksi } from '../../config/kelab';
+import { cetakResitTransaksi, buatHtmlResit } from '../../config/kelab';
 
 const profil = ref({});
+const showResitModal = ref(false);
+const resitHtml = ref('');
 
-const lihatResit = (tx) => cetakResitTransaksi(tx, profil.value);
+const lihatResit = (tx) => {
+  if (Capacitor.isNativePlatform()) {
+    resitHtml.value = buatHtmlResit(tx, profil.value);
+    showResitModal.value = true;
+  } else {
+    cetakResitTransaksi(tx, profil.value);
+  }
+};
 const sejarahBayaran = ref([]);
 const isProcessing = ref(false);
 const tahunSemasa = new Date().getFullYear();
@@ -296,4 +349,8 @@ onUnmounted(() => {
 <style scoped>
 .animate-page-in { animation: pageIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) both; }
 @keyframes pageIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+.resit-sheet-enter-active { transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1); }
+.resit-sheet-leave-active { transition: transform 0.25s cubic-bezier(0.4, 0, 1, 1); }
+.resit-sheet-enter-from, .resit-sheet-leave-to { transform: translateY(100%); }
 </style>

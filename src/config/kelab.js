@@ -33,13 +33,13 @@ export const footerResitHTML = () => `
 `;
 
 // ============================================================
-// Resit / Invois Transaksi FPX (gaya invois kedai) — buka tetingkap cetak.
-// Pengguna boleh "Save as PDF" melalui dialog cetak pelayar.
+// Jana HTML resit transaksi FPX — digunakan oleh modal in-app
+// (mobile) dan tetingkap cetak (desktop).
 // tx     : { billCode, amaun, status, keterangan, tarikh }
 // profil : { nama_penuh, no_kp }
 // ============================================================
-export const cetakResitTransaksi = (tx, profil = {}) => {
-  if (!tx) return;
+export const buatHtmlResit = (tx, profil = {}) => {
+  if (!tx) return '';
   const rm = (v) => 'RM ' + parseFloat(v || 0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
   const tarikhCetak = new Date().toLocaleDateString('ms-MY', { day: 'numeric', month: 'long', year: 'numeric' });
   const esc = (s) => String(s ?? '').replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
@@ -49,10 +49,9 @@ export const cetakResitTransaksi = (tx, profil = {}) => {
   const labelStatus = status === 'BERJAYA' ? 'LUNAS / BERJAYA' : (status === 'PENDING' ? 'BELUM SELESAI' : (status || '—'));
   const isKedai = /kedai|pesanan|pembelian/i.test(tx.keterangan || '');
 
-  const w = window.open('', '_blank', 'width=760,height=720');
-  w.document.write(`<html><head><title>Resit ${esc(tx.billCode || '')}</title><style>
+  return `<html><head><title>Resit ${esc(tx.billCode || '')}</title><style>
     *{margin:0;padding:0;box-sizing:border-box}
-    body{font-family:Arial,sans-serif;padding:38px;color:#222;max-width:620px;margin:auto}
+    body{font-family:Arial,sans-serif;padding:28px;color:#222;max-width:620px;margin:auto}
     .badge{display:inline-block;padding:4px 14px;border-radius:20px;font-size:11px;font-weight:bold;background:${bgStatus};color:${warnaStatus}}
     .meta{display:flex;justify-content:space-between;align-items:flex-start;margin:18px 0}
     .box{background:#f9fafb;border:1px solid #eee;border-radius:10px;padding:14px 16px;margin:10px 0}
@@ -91,7 +90,15 @@ export const cetakResitTransaksi = (tx, profil = {}) => {
     <div class="r"><span class="l">Status Transaksi</span><span class="v" style="color:${warnaStatus}">${labelStatus}</span></div>
   </div>
   ${footerResitHTML()}
-  </body></html>`);
+  </body></html>`;
+};
+
+// Buka resit dalam tetingkap baru + dialog cetak (desktop / admin)
+export const cetakResitTransaksi = (tx, profil = {}) => {
+  if (!tx) return;
+  const html = buatHtmlResit(tx, profil);
+  const w = window.open('', '_blank', 'width=760,height=720');
+  w.document.write(html);
   w.document.close();
   setTimeout(() => w.print(), 400);
 };

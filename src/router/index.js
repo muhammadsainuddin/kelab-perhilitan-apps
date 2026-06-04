@@ -39,7 +39,7 @@ const routes = [
     path: '/reset-password/:token',
     name: 'ResetPassword',
     component: () => import('../views/ResetPasswordView.vue'),
-    meta: { requiresGuest: true }
+    // Tiada meta — boleh diakses oleh sesiapa (tetamu & pengguna log masuk)
   },
 
   // ==========================================
@@ -49,6 +49,16 @@ const routes = [
     path: '/terms',
     name: 'TermsPolicy',
     component: () => import('../views/TermsPolicyView.vue')
+  },
+  {
+    path: '/privacy-policy',
+    name: 'PrivacyPolicy',
+    component: () => import('../views/PrivacyPolicyView.vue')
+  },
+  {
+    path: '/padam-akaun',
+    name: 'AccountDeletion',
+    component: () => import('../views/AccountDeletionView.vue')
   },
 
   // ==========================================

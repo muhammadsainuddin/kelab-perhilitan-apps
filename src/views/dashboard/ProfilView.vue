@@ -29,8 +29,9 @@
               style="background: conic-gradient(from 0deg, #52B788, #D4AF37, #95D5B2, #52B788); border-radius: 9999px;"></div>
             <div class="absolute -inset-0.75 rounded-full pointer-events-none"
               style="background: conic-gradient(from 90deg, #52B788 0%, #D4AF37 50%, #95D5B2 100%); filter: blur(8px); opacity: 0.4;"></div>
-            <div @click="triggerUpload"
-              class="relative w-21 h-21 rounded-full cursor-pointer group overflow-hidden"
+            <div @click="!uploadingGambar && triggerUpload()"
+              class="relative w-21 h-21 rounded-full group overflow-hidden"
+              :class="uploadingGambar ? 'cursor-not-allowed' : 'cursor-pointer'"
               style="box-shadow: 0 0 0 2.5px #081C15, 0 0 28px rgba(82,183,136,0.25);">
               <img v-if="profil.gambar"
                 :src="`${uploadBase}/uploads/images/${profil.gambar}`"
@@ -39,7 +40,17 @@
                 style="color: #95D5B2;">
                 {{ profil.nama_penuh?.charAt(0) || '?' }}
               </div>
-              <div class="absolute inset-0 flex flex-col items-center justify-center gap-1 opacity-0 group-hover:opacity-100 transition-all duration-300"
+              <!-- Loading overlay semasa upload -->
+              <div v-if="uploadingGambar"
+                class="absolute inset-0 flex flex-col items-center justify-center gap-1.5"
+                style="background: rgba(8,28,21,0.82); backdrop-filter: blur(4px);">
+                <div class="w-5 h-5 rounded-full border-2 border-t-transparent animate-spin"
+                  style="border-color: rgba(82,183,136,0.4); border-top-color: #52B788;"></div>
+                <span class="text-[7px] text-white/70 font-bold uppercase tracking-widest">Menghantar</span>
+              </div>
+              <!-- Hover overlay (tersembunyi semasa upload) -->
+              <div v-else
+                class="absolute inset-0 flex flex-col items-center justify-center gap-1 opacity-0 group-hover:opacity-100 transition-all duration-300"
                 style="background: rgba(8,28,21,0.78); backdrop-filter: blur(4px);">
                 <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
@@ -274,6 +285,29 @@
         <!-- divider -->
         <div class="mx-4" style="height: 1px; background: #F1F5F9;"></div>
 
+        <!-- Cap Jari (hanya native + biometri tersedia) -->
+        <div v-if="biometriTersedia" class="w-full flex items-center gap-3.5 px-4 py-4">
+          <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style="background: rgba(15,76,58,0.08);">
+            <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" style="color: #0F4C3A;">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4"/>
+            </svg>
+          </div>
+          <div class="flex-1 text-left">
+            <p class="text-[12px] font-black tracking-wide" style="color: #0F172A;">Log Masuk Cap Jari</p>
+            <p class="text-[10px] font-medium mt-0.5" style="color: #94a3b8;">Gunakan cap jari untuk log masuk pantas</p>
+          </div>
+          <button @click="togolBiometrik"
+            class="relative w-12 h-6 rounded-full transition-all duration-300 shrink-0 focus:outline-none"
+            :style="authStore.biometrikAktif ? 'background: #0F4C3A;' : 'background: #E2E8F0;'">
+            <span class="absolute top-1 w-4 h-4 bg-white rounded-full shadow-sm transition-all duration-300"
+              :style="authStore.biometrikAktif ? 'left: calc(100% - 20px);' : 'left: 4px;'"></span>
+          </button>
+        </div>
+
+        <!-- divider sebelum log keluar -->
+        <div v-if="biometriTersedia" class="mx-4" style="height: 1px; background: #F1F5F9;"></div>
+
         <!-- Log Keluar -->
         <button @click="logKeluar"
           class="w-full flex items-center gap-3.5 px-4 py-4 transition-colors active:bg-rose-50/60 group">
@@ -290,6 +324,15 @@
           <svg class="w-4 h-4 transition-transform group-active:translate-x-0.5" style="color: #CBD5E1;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
           </svg>
+        </button>
+      </div>
+
+      <!-- ─── PADAM AKAUN ─── -->
+      <div class="text-center py-2">
+        <button @click="router.push('/padam-akaun')"
+          class="text-[10px] font-semibold underline underline-offset-2 transition-colors"
+          style="color: #CBD5E1;">
+          Minta Pemadaman Akaun & Data
         </button>
       </div>
 
@@ -721,20 +764,67 @@
       </div>
     </Teleport>
 
+  <!-- ── MODAL RESIT (mobile / native) ── -->
+  <Teleport to="body">
+    <Transition name="resit-sheet">
+      <div v-if="showResitModal"
+        class="fixed inset-0 z-9999 flex flex-col"
+        style="background: #F8FAFC;">
+
+        <!-- Header -->
+        <div class="flex items-center justify-between px-4 py-3 shrink-0"
+          style="background: #081C15; padding-top: max(12px, env(safe-area-inset-top));">
+          <div class="flex items-center gap-2.5">
+            <svg class="w-4 h-4" style="color: #52B788;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+            <span class="text-[13px] font-black text-white uppercase tracking-wide">Resit Pembayaran</span>
+          </div>
+          <button @click="showResitModal = false"
+            class="w-8 h-8 rounded-full flex items-center justify-center transition-all active:scale-90"
+            style="background: rgba(255,255,255,0.1);">
+            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Iframe resit -->
+        <iframe class="flex-1 w-full border-0" :srcdoc="resitHtml"></iframe>
+
+        <!-- Footer -->
+        <div class="px-4 py-3 shrink-0"
+          style="background: white; border-top: 1px solid #F1F5F9; padding-bottom: max(12px, env(safe-area-inset-bottom));">
+          <button @click="showResitModal = false"
+            class="w-full py-3.5 rounded-2xl text-[11px] font-black uppercase tracking-wider transition-all active:scale-[0.98]"
+            style="background: #081C15; color: #95D5B2;">
+            Tutup Resit
+          </button>
+        </div>
+
+      </div>
+    </Transition>
+  </Teleport>
+
   </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+import { Capacitor } from '@capacitor/core';
+import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
+import { BiometricAuth, BiometryErrorType } from '@aparajita/capacitor-biometric-auth';
 import api from '../../services/api';
 import { useAuthStore } from '../../stores/auth';
 
 const uploadBase = import.meta.env.VITE_UPLOAD_URL || 'http://localhost:5001';
-import { cetakResitTransaksi } from '../../config/kelab';
+import { cetakResitTransaksi, buatHtmlResit } from '../../config/kelab';
 
 const router = useRouter();
 const authStore = useAuthStore();
+const adalahNative = Capacitor.isNativePlatform();
+const biometriTersedia = ref(false);
 
 const profil = ref({});
 const senaraiPTJ = ref([]);
@@ -743,6 +833,7 @@ const modalEdit = ref(false);
 const modalBerhenti = ref(false);
 const fileInput = ref(null);
 const loading = ref(false);
+const uploadingGambar = ref(false);
 
 const form = ref({ penempatan_id: '', saiz_baju: '', no_tel: '', email: '', nama_waris: '', no_tel_waris: '', no_acc_waris: '', bank_waris: '', no_acc_bank: '', bank_ahli: '' });
 const pwdForm = ref({ oldPassword: '', newPassword: '', confirmPassword: '' });
@@ -806,7 +897,17 @@ const jumlahYuran = computed(() => txBerjaya.value.filter(t => !adalahKedai(t)).
 const jumlahKedai = computed(() => txBerjaya.value.filter(t => adalahKedai(t)).reduce((a, t) => a + parseFloat(t.amaun || 0), 0));
 const fmtRM = (v) => 'RM ' + parseFloat(v || 0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 
-const lihatResit = (tx) => cetakResitTransaksi(tx, profil.value);
+const showResitModal = ref(false);
+const resitHtml = ref('');
+
+const lihatResit = (tx) => {
+  if (Capacitor.isNativePlatform()) {
+    resitHtml.value = buatHtmlResit(tx, profil.value);
+    showResitModal.value = true;
+  } else {
+    cetakResitTransaksi(tx, profil.value);
+  }
+};
 
 // Muat sejarah transaksi (untuk ringkasan + modal)
 const muatSejarahSemua = async () => {
@@ -834,23 +935,80 @@ const fetchSenaraiPTJ = async () => {
   } catch (error) { console.error("Gagal menarik senarai PTJ:", error); }
 };
 
-// 3. Muat Naik Gambar Profil Menggunakan Multer
-const triggerUpload = () => fileInput.value.click();
+// Helper: resize + tukar ke JPEG via canvas (max 800px, ~100-250KB)
+// Selesaikan: HEIC (iPhone), fail besar, format tidak disokong
+const resizeKeJpeg = (sumber) => new Promise((resolve, reject) => {
+  const img = new Image();
+  img.onerror = () => reject(new Error('Gagal muatkan imej'));
+  img.onload = () => {
+    const MAX = 800;
+    let w = img.width, h = img.height;
+    if (w > MAX || h > MAX) {
+      if (w >= h) { h = Math.round(h * MAX / w); w = MAX; }
+      else { w = Math.round(w * MAX / h); h = MAX; }
+    }
+    const canvas = document.createElement('canvas');
+    canvas.width = w; canvas.height = h;
+    canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+    canvas.toBlob(
+      (blob) => blob ? resolve(blob) : reject(new Error('Canvas export gagal')),
+      'image/jpeg', 0.72
+    );
+  };
+  img.src = typeof sumber === 'string' ? sumber : URL.createObjectURL(sumber);
+});
+
+// 3. Muat Naik Gambar Profil
+const triggerUpload = async () => {
+  if (Capacitor.isNativePlatform()) {
+    try {
+      const photo = await Camera.getPhoto({
+        quality: 90,
+        allowEditing: false,
+        resultType: CameraResultType.DataUrl,
+        source: CameraSource.Photos,
+      });
+      if (!photo.dataUrl) return;
+
+      uploadingGambar.value = true;
+      const blob = await resizeKeJpeg(photo.dataUrl);
+      const formData = new FormData();
+      formData.append('gambar', blob, `profile-${Date.now()}.jpg`);
+      await api.put('/user/kemaskini-gambar', formData);
+      await fetchProfil();
+      alert("Gambar profil anda berjaya dikemas kini!");
+    } catch (err) {
+      const msg = err?.message || '';
+      if (!msg.includes('cancel') && !msg.includes('dismiss') && !msg.includes('No image')) {
+        alert("Gagal memuat naik gambar profil.");
+      }
+    } finally {
+      uploadingGambar.value = false;
+    }
+  } else {
+    if (fileInput.value) {
+      fileInput.value.value = '';
+      fileInput.value.click();
+    }
+  }
+};
+
 const onFileChange = async (e) => {
   const file = e.target.files[0];
   if (!file) return;
-
-  const formData = new FormData();
-  formData.append('gambar', file);
-
+  uploadingGambar.value = true;
   try {
-    await api.put('/user/kemaskini-gambar', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
-    });
-    fetchProfil();
+    const blob = await resizeKeJpeg(file);
+    const formData = new FormData();
+    formData.append('gambar', blob, `profile-${Date.now()}.jpg`);
+    await api.put('/user/kemaskini-gambar', formData);
+    await fetchProfil();
     alert("Gambar profil anda berjaya dikemas kini!");
-  } catch (error) {
+  } catch {
     alert("Gagal memuat naik gambar profil.");
+  } finally {
+    uploadingGambar.value = false;
+    e.target.value = '';
   }
 };
 
@@ -942,10 +1100,35 @@ const logKeluar = () => {
   }
 };
 
-onMounted(() => {
+const togolBiometrik = async () => {
+  if (authStore.biometrikAktif) {
+    authStore.matikanBiometrik();
+    return;
+  }
+  try {
+    await BiometricAuth.authenticate({
+      reason: 'Sahkan cap jari untuk mengaktifkan log masuk pantas',
+      cancelTitle: 'Batal',
+    });
+    authStore.aktifkanBiometrik();
+  } catch (err) {
+    const cancelCodes = [BiometryErrorType.userCancel, BiometryErrorType.systemCancel, BiometryErrorType.appCancel];
+    if (!cancelCodes.includes(err?.code)) {
+      alert('Cap jari tidak dapat disahkan. Sila cuba lagi.');
+    }
+  }
+};
+
+onMounted(async () => {
   fetchProfil();
   fetchSenaraiPTJ();
   muatSejarahSemua();
+  if (adalahNative) {
+    try {
+      const info = await BiometricAuth.checkBiometry();
+      biometriTersedia.value = info.isAvailable;
+    } catch {}
+  }
 });
 </script>
 
@@ -971,4 +1154,9 @@ select { -webkit-appearance: none; -moz-appearance: none; appearance: none; }
 /* Pop-in for modals inner */
 .animate-pop-in { animation: popIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 @keyframes popIn { from { opacity: 0; transform: scale(0.96) translateY(16px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+
+/* Resit modal slide-up */
+.resit-sheet-enter-active { transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1); }
+.resit-sheet-leave-active { transition: transform 0.25s cubic-bezier(0.4, 0, 1, 1); }
+.resit-sheet-enter-from, .resit-sheet-leave-to { transform: translateY(100%); }
 </style>
