@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="space-y-4 font-sans text-gray-900 pb-10 text-xs">
 
     <!-- HEADER -->
@@ -251,7 +251,7 @@
     <Teleport to="body">
       <Transition name="modal">
         <div v-if="showModal"
-          class="fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm flex items-center justify-center px-4"
+          class="absolute inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center px-4"
           @click.self="showModal = false">
           <div v-if="dipilih" class="bg-white border border-gray-200 rounded-2xl w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
 
@@ -505,7 +505,7 @@
     <Teleport to="body">
       <Transition name="modal">
         <div v-if="showModalLulus"
-          class="fixed inset-0 z-[110] bg-black/60 backdrop-blur-sm flex items-center justify-center px-4"
+          class="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center px-4"
           @click.self="showModalLulus = false">
           <div class="bg-white border border-gray-200 rounded-2xl p-6 w-full max-w-sm shadow-2xl">
             <div class="flex items-center gap-3 mb-4">
@@ -564,7 +564,7 @@
     <Teleport to="body">
       <Transition name="modal">
         <div v-if="showModalTolak"
-          class="fixed inset-0 z-[110] bg-black/60 backdrop-blur-sm flex items-center justify-center px-4"
+          class="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center px-4"
           @click.self="showModalTolak = false">
           <div class="bg-white border border-gray-200 rounded-2xl p-6 w-full max-w-sm shadow-2xl">
             <div class="flex items-center gap-3 mb-4">

@@ -92,6 +92,50 @@
       </div>
     </div>
 
+    <!-- KONFIGURASI FPX -->
+    <div class="space-y-3">
+      <p class="text-xs font-black uppercase tracking-widest text-gray-400 px-1">Konfigurasi Pembayaran FPX</p>
+      <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+        <div class="flex items-start gap-4 mb-5">
+          <div class="w-11 h-11 rounded-xl flex items-center justify-center shrink-0"
+            style="background: rgba(251,191,36,0.1);">
+            <svg class="w-6 h-6" style="color: #92660C;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+            </svg>
+          </div>
+          <div>
+            <h2 class="text-sm font-black text-gray-900">Kategori Kod FPX — Sumbangan</h2>
+            <p class="text-xs text-gray-500 mt-0.5 leading-relaxed">
+              Kod kategori dari ToyyibPay untuk bil sumbangan ahli. Dapatkan kod ini dari dashboard ToyyibPay anda
+              di bawah seksyen <em>Category</em>. Kosongkan untuk menggunakan kategori yuran lalai.
+            </p>
+          </div>
+        </div>
+
+        <div class="flex gap-3">
+          <div class="flex-1">
+            <label class="text-xs font-bold text-gray-600 mb-1 block">Kod Kategori</label>
+            <input v-model="categoryCodeSumbangan" type="text"
+              placeholder="Contoh: ABCD1234"
+              class="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-amber-400/30 focus:border-amber-400"
+              :disabled="menyimpanFpx" />
+          </div>
+          <div class="flex items-end">
+            <button @click="simpanCategoryCode" :disabled="menyimpanFpx"
+              class="px-5 py-2.5 rounded-xl text-xs font-black text-white transition-all"
+              style="background: #0F4C3A;" :class="menyimpanFpx ? 'opacity-60' : 'hover:opacity-90'">
+              {{ menyimpanFpx ? 'Menyimpan...' : 'Simpan' }}
+            </button>
+          </div>
+        </div>
+
+        <p v-if="fpxSimpanMesej" class="mt-2 text-xs font-bold" :class="fpxSimpanOk ? 'text-emerald-700' : 'text-red-600'">
+          {{ fpxSimpanMesej }}
+        </p>
+      </div>
+    </div>
+
     <!-- MESEJ STATUS -->
     <Transition name="fade">
       <div v-if="mesej" class="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 px-5 py-3 rounded-2xl text-sm font-bold shadow-xl"
@@ -114,6 +158,12 @@ const loading  = ref(false);
 const toggling = ref(null);
 const mesej    = ref('');
 const mesejOk  = ref(true);
+
+// FPX category code
+const categoryCodeSumbangan = ref('');
+const menyimpanFpx          = ref(false);
+const fpxSimpanMesej        = ref('');
+const fpxSimpanOk           = ref(true);
 
 const senaraModul = [
   {
@@ -156,12 +206,34 @@ const tunjukMesej = (teks, ok) => {
   setTimeout(() => { mesej.value = ''; }, 3000);
 };
 
+const simpanCategoryCode = async () => {
+  menyimpanFpx.value = true;
+  fpxSimpanMesej.value = '';
+  try {
+    await api.put('/settings/teks/category_code_sumbangan', { nilai_teks: categoryCodeSumbangan.value });
+    fpxSimpanOk.value   = true;
+    fpxSimpanMesej.value = 'Kod kategori berjaya disimpan.';
+    setTimeout(() => { fpxSimpanMesej.value = ''; }, 3000);
+  } catch (e) {
+    fpxSimpanOk.value   = false;
+    fpxSimpanMesej.value = e.response?.data?.mesej || 'Gagal menyimpan.';
+  } finally { menyimpanFpx.value = false; }
+};
+
+const muatCategoryCode = async () => {
+  try {
+    const res = await api.get('/settings/teks/category_code_sumbangan');
+    categoryCodeSumbangan.value = res.data.nilai_teks || '';
+  } catch { categoryCodeSumbangan.value = ''; }
+};
+
 onMounted(async () => {
   if (!settingsStore.dimuat) {
     loading.value = true;
     await settingsStore.muatTetapan();
     loading.value = false;
   }
+  muatCategoryCode();
 });
 </script>
 

@@ -41,7 +41,7 @@
       <!-- Kredit -->
       <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
         <div class="flex items-start justify-between mb-2">
-          <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wider leading-tight">Jumlah Kredit<br/><span class="text-[9px] normal-case font-normal text-gray-400">Pemasukan {{ tahunPilihan }}</span></p>
+          <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wider leading-tight">Jumlah Kredit<br/><span class="text-[9px] normal-case font-normal text-gray-400">Pendapatan {{ tahunPilihan }}</span></p>
           <div class="w-7 h-7 rounded-md bg-emerald-100 flex items-center justify-center shrink-0">
             <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
               <path stroke-linecap="round" stroke-linejoin="round" d="M7 11l5-5m0 0l5 5m-5-5v12"/>
@@ -669,6 +669,7 @@ const totalPages = computed(() => Math.ceil(meta.value.total / meta.value.limit)
 
 const fmt = (v) => `RM ${parseFloat(v || 0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',')}`;
 const rm  = (v) => 'RM ' + parseFloat(v || 0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+const num = (v) => parseFloat(v || 0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 
 // ── Actions ──
 const bukaTambahBorang = (jenis) => {
@@ -886,32 +887,39 @@ const eksportCSV = () => {
 };
 
 // ── Print helpers ──
+const fmtTarikhSahaja = (t) => {
+  if (!t) return '—';
+  const d = String(t).substring(0, 10);
+  const [y, m, dy] = d.split('-');
+  return `${dy}/${m}/${y}`;
+};
+
 const buatBarisTx = (tx, idx) => `
   <tr>
-    <td style="text-align:center">${idx + 1}</td>
-    <td style="font-family:monospace;font-size:10px">${tx.tarikh || '—'}</td>
-    <td><span style="font-size:9px;font-weight:bold;color:${tx.jenis_aliran === 'MASUK' ? '#047857' : '#b91c1c'}">${tx.jenis_aliran === 'MASUK' ? '▲ KREDIT' : '▼ DEBIT'}</span></td>
+    <td style="text-align:center;color:#64748b">${idx + 1}</td>
+    <td style="font-family:monospace">${fmtTarikhSahaja(tx.tarikh)}</td>
+    <td><span style="font-size:8px;font-weight:700;letter-spacing:.04em;color:${tx.jenis_aliran === 'MASUK' ? '#047857' : '#b91c1c'}">${tx.jenis_aliran === 'MASUK' ? '▲ KREDIT' : '▼ DEBIT'}</span></td>
     <td>${labelKat(tx.kategori)}</td>
-    <td>${(tx.nota || tx.rujukan || '—').substring(0, 40)}</td>
-    <td>${tx.nama_ahli || tx.penerima_bayaran || '—'}</td>
-    <td style="text-align:right;color:#b91c1c;font-weight:bold">${tx.jenis_aliran === 'KELUAR' ? rm(tx.amaun) : ''}</td>
-    <td style="text-align:right;color:#047857;font-weight:bold">${tx.jenis_aliran === 'MASUK' ? rm(tx.amaun) : ''}</td>
+    <td style="color:#475569">${(tx.nota || tx.rujukan || '—').substring(0, 45)}</td>
+    <td style="color:#475569">${tx.nama_ahli || tx.penerima_bayaran || '—'}</td>
+    <td style="text-align:right;color:#b91c1c;font-weight:700;font-family:monospace">${tx.jenis_aliran === 'KELUAR' ? num(tx.amaun) : ''}</td>
+    <td style="text-align:right;color:#047857;font-weight:700;font-family:monospace">${tx.jenis_aliran === 'MASUK' ? num(tx.amaun) : ''}</td>
   </tr>`;
 
 const bukaCetakWindow = (tajuk, badan) => {
-  const w = window.open('', '_blank', 'width=900,height=700');
+  const w = window.open('', '_blank', 'width=920,height=720');
   w.document.write(`<html><head><title>${tajuk}</title><style>
-    body{font-family:Tahoma,Arial,sans-serif;padding:28px;color:#222;max-width:800px;margin:auto;font-size:11px}
-    table{width:100%;border-collapse:collapse;margin-top:10px}
-    th{background:#0F4C3A;color:#fff;padding:6px 8px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.04em}
-    td{padding:5px 8px;border-bottom:1px solid #eee;vertical-align:top}
-    tr:nth-child(even){background:#f9fafb}
-    .ringkas{margin-top:20px;border:1.5px solid #0F4C3A;border-radius:8px;overflow:hidden}
-    .ringkas .r{display:flex;justify-content:space-between;padding:8px 14px;font-size:12px;border-bottom:1px solid #eee}
+    body{font-family:Arial,sans-serif;padding:24px;color:#1e293b;max-width:820px;margin:auto;font-size:11px;line-height:1.5}
+    table{width:100%;border-collapse:collapse;margin-top:8px;font-size:11px}
+    th{background:#1e293b;color:#f8fafc;padding:5px 8px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.06em;font-weight:700;white-space:nowrap}
+    td{padding:3.5px 8px;border-bottom:1px solid #e2e8f0;vertical-align:middle}
+    tr:nth-child(even) td{background:#f8fafc}
+    .ringkas{margin-top:16px;border:1px solid #334155;border-radius:5px;overflow:hidden;font-size:9.5px}
+    .ringkas .r{display:flex;justify-content:space-between;padding:6px 12px;border-bottom:1px solid #e2e8f0}
     .ringkas .r:last-child{border-bottom:none}
-    .ringkas .akhir{background:#0F4C3A;color:#fff;font-weight:bold;font-size:13px}
-    .pos{color:#047857;font-weight:bold}.neg{color:#b91c1c;font-weight:bold}
-    @media print{body{padding:10px}}
+    .ringkas .akhir{background:#1e293b;color:#f8fafc;font-weight:700;font-size:10px}
+    .pos{color:#047857;font-weight:700}.neg{color:#b91c1c;font-weight:700}
+    @media print{body{padding:8px}}
   </style></head><body>
   ${headerResitHTML(tajuk)}
   ${badan}
@@ -931,19 +939,19 @@ const cetakPenyataTahunan = async () => {
     const tarikhCetak = new Date().toLocaleDateString('ms-MY', { day:'numeric', month:'long', year:'numeric' });
 
     const barisPendapatan = d.pendapatan.length
-      ? d.pendapatan.map(r => `<tr><td>${labelKat(r.kategori)}</td><td style="text-align:center">${r.bil}</td><td style="text-align:right">${rm(r.jumlah)}</td></tr>`).join('')
+      ? d.pendapatan.map(r => `<tr><td>${labelKat(r.kategori)}</td><td style="text-align:center">${r.bil}</td><td style="text-align:right;font-family:monospace">${num(r.jumlah)}</td></tr>`).join('')
       : `<tr><td colspan="3" style="text-align:center;color:#999">Tiada rekod pendapatan.</td></tr>`;
     const barisPerbelanjaan = d.perbelanjaan.length
-      ? d.perbelanjaan.map(r => `<tr><td>${labelKat(r.kategori)}</td><td style="text-align:center">${r.bil}</td><td style="text-align:right">${rm(r.jumlah)}</td></tr>`).join('')
+      ? d.perbelanjaan.map(r => `<tr><td>${labelKat(r.kategori)}</td><td style="text-align:center">${r.bil}</td><td style="text-align:right;font-family:monospace">${num(r.jumlah)}</td></tr>`).join('')
       : `<tr><td colspan="3" style="text-align:center;color:#999">Tiada rekod perbelanjaan.</td></tr>`;
 
     const badan = `
-      <h3 style="font-size:12px;color:#0F4C3A;margin:20px 0 6px;border-bottom:2px solid #0F4C3A;padding-bottom:4px">A. PENDAPATAN / KREDIT</h3>
+      <h3 style="font-size:10px;color:#1e293b;margin:18px 0 5px;border-bottom:1.5px solid #334155;padding-bottom:3px;font-weight:700;letter-spacing:.05em;text-transform:uppercase">A. Pendapatan / Kredit</h3>
       <table><thead><tr><th>Kategori</th><th style="text-align:center">Bil. Transaksi</th><th style="text-align:right">Jumlah (RM)</th></tr></thead>
-      <tbody>${barisPendapatan}<tr style="font-weight:bold;background:#f0f7f4;border-top:2px solid #0F4C3A"><td>JUMLAH KREDIT</td><td></td><td style="text-align:right">${rm(d.jumlah_pendapatan)}</td></tr></tbody></table>
-      <h3 style="font-size:12px;color:#b91c1c;margin:20px 0 6px;border-bottom:2px solid #b91c1c;padding-bottom:4px">B. PERBELANJAAN / DEBIT</h3>
+      <tbody>${barisPendapatan}<tr style="font-weight:700;background:#f1f5f9;border-top:1.5px solid #334155"><td>JUMLAH KREDIT</td><td></td><td style="text-align:right;font-family:monospace">${num(d.jumlah_pendapatan)}</td></tr></tbody></table>
+      <h3 style="font-size:10px;color:#1e293b;margin:18px 0 5px;border-bottom:1.5px solid #334155;padding-bottom:3px;font-weight:700;letter-spacing:.05em;text-transform:uppercase">B. Perbelanjaan / Debit</h3>
       <table><thead><tr><th>Kategori</th><th style="text-align:center">Bil. Transaksi</th><th style="text-align:right">Jumlah (RM)</th></tr></thead>
-      <tbody>${barisPerbelanjaan}<tr style="font-weight:bold;background:#fff5f5;border-top:2px solid #b91c1c"><td>JUMLAH DEBIT</td><td></td><td style="text-align:right">${rm(d.jumlah_perbelanjaan)}</td></tr></tbody></table>
+      <tbody>${barisPerbelanjaan}<tr style="font-weight:700;background:#f1f5f9;border-top:1.5px solid #334155"><td>JUMLAH DEBIT</td><td></td><td style="text-align:right;font-family:monospace">${num(d.jumlah_perbelanjaan)}</td></tr></tbody></table>
       <div class="ringkas">
         <div class="r"><span>Baki Bawa Ke Hadapan (sebelum ${d.tahun})</span><span>${rm(d.baki_bawa)}</span></div>
         <div class="r"><span>Jumlah Kredit ${d.tahun}</span><span class="pos">${rm(d.jumlah_pendapatan)}</span></div>
@@ -953,7 +961,7 @@ const cetakPenyataTahunan = async () => {
       </div>
       <div style="display:flex;justify-content:space-between;margin-top:40px;font-size:10px;color:#444">
         <div style="text-align:center">________________________<br/>Disediakan oleh (Bendahari)</div>
-        <div style="text-align:center">________________________<br/>Disahkan oleh (Pengerusi)</div>
+        <div style="text-align:center">________________________<br/>Disahkan oleh (Yang Dipertua)</div>
       </div>`;
 
     bukaCetakWindow(`Penyata Kewangan Tahunan &bull; Tahun ${d.tahun} &bull; Dicetak: ${tarikhCetak}`, badan);
@@ -982,28 +990,28 @@ const cetakLaporanHarian = async () => {
         <div><strong>TARIKH:</strong> ${tarikhLaporan}</div>
         <div style="text-align:right"><strong>DICETAK:</strong> ${tarikhCetak}</div>
       </div>
-      <div style="display:flex;gap:10px;margin-bottom:12px">
-        <div style="background:#f0f7f4;border:1px solid #0F4C3A;border-radius:6px;padding:8px 14px;text-align:center">
-          <div style="font-size:9px;color:#555;text-transform:uppercase;letter-spacing:.05em">Jumlah Kredit</div>
-          <div style="font-size:14px;font-weight:bold;color:#047857">+${rm(r.masuk)}</div>
+      <div style="display:flex;gap:8px;margin-bottom:12px">
+        <div style="background:#f8fafc;border:1px solid #cbd5e1;border-radius:5px;padding:7px 14px;text-align:center;flex:1">
+          <div style="font-size:8px;color:#64748b;text-transform:uppercase;letter-spacing:.06em;font-weight:700">Jumlah Kredit</div>
+          <div style="font-size:13px;font-weight:700;color:#047857;font-family:monospace">+${rm(r.masuk)}</div>
         </div>
-        <div style="background:#fff5f5;border:1px solid #b91c1c;border-radius:6px;padding:8px 14px;text-align:center">
-          <div style="font-size:9px;color:#555;text-transform:uppercase;letter-spacing:.05em">Jumlah Debit</div>
-          <div style="font-size:14px;font-weight:bold;color:#b91c1c">-${rm(r.keluar)}</div>
+        <div style="background:#f8fafc;border:1px solid #cbd5e1;border-radius:5px;padding:7px 14px;text-align:center;flex:1">
+          <div style="font-size:8px;color:#64748b;text-transform:uppercase;letter-spacing:.06em;font-weight:700">Jumlah Debit</div>
+          <div style="font-size:13px;font-weight:700;color:#b91c1c;font-family:monospace">-${rm(r.keluar)}</div>
         </div>
-        <div style="background:#f9fafb;border:1px solid #d1d5db;border-radius:6px;padding:8px 14px;text-align:center">
-          <div style="font-size:9px;color:#555;text-transform:uppercase;letter-spacing:.05em">Lebihan / (Kurangan)</div>
-          <div style="font-size:14px;font-weight:bold;color:${r.lebihan >= 0 ? '#047857' : '#b91c1c'}">${r.lebihan >= 0 ? '+' : ''}${rm(r.lebihan)}</div>
+        <div style="background:#f8fafc;border:1px solid #cbd5e1;border-radius:5px;padding:7px 14px;text-align:center;flex:1">
+          <div style="font-size:8px;color:#64748b;text-transform:uppercase;letter-spacing:.06em;font-weight:700">Lebihan / (Kurangan)</div>
+          <div style="font-size:13px;font-weight:700;font-family:monospace;color:${r.lebihan >= 0 ? '#047857' : '#b91c1c'}">${r.lebihan >= 0 ? '+' : ''}${rm(r.lebihan)}</div>
         </div>
       </div>
       <table><thead><tr>
-        <th style="width:30px;text-align:center">#</th><th>Tarikh / Masa</th><th>Jenis</th>
+        <th style="width:26px;text-align:center">#</th><th>Tarikh</th><th>Jenis</th>
         <th>Kategori</th><th>Nota / Rujukan</th><th>Pihak</th>
-        <th style="text-align:right;color:#b91c1c">Debit (–)</th>
-        <th style="text-align:right;color:#047857">Kredit (+)</th>
+        <th style="text-align:right">Debit (–) RM</th>
+        <th style="text-align:right">Kredit (+) RM</th>
       </tr></thead>
       <tbody>${baris}</tbody></table>
-      <div style="margin-top:8px;font-size:10px;color:#555">Jumlah: <strong>${r.bil}</strong> transaksi</div>`;
+      <div style="margin-top:6px;font-size:8.5px;color:#64748b">Jumlah: <strong>${r.bil}</strong> transaksi</div>`;
 
     bukaCetakWindow(`Laporan Tunai Harian &bull; ${tarikhLaporan}`, badan);
   } catch (e) {
@@ -1030,28 +1038,28 @@ const cetakLaporanBulanan = async () => {
         <div><strong>TEMPOH:</strong> ${namaBulan} ${laporanTahunBulan.value}</div>
         <div style="text-align:right"><strong>DICETAK:</strong> ${tarikhCetak}</div>
       </div>
-      <div style="display:flex;gap:10px;margin-bottom:12px">
-        <div style="background:#f0f7f4;border:1px solid #0F4C3A;border-radius:6px;padding:8px 14px;text-align:center">
-          <div style="font-size:9px;color:#555;text-transform:uppercase;letter-spacing:.05em">Jumlah Kredit</div>
-          <div style="font-size:14px;font-weight:bold;color:#047857">+${rm(r.masuk)}</div>
+      <div style="display:flex;gap:8px;margin-bottom:12px">
+        <div style="background:#f8fafc;border:1px solid #cbd5e1;border-radius:5px;padding:7px 14px;text-align:center;flex:1">
+          <div style="font-size:8px;color:#64748b;text-transform:uppercase;letter-spacing:.06em;font-weight:700">Jumlah Kredit</div>
+          <div style="font-size:13px;font-weight:700;color:#047857;font-family:monospace">+${rm(r.masuk)}</div>
         </div>
-        <div style="background:#fff5f5;border:1px solid #b91c1c;border-radius:6px;padding:8px 14px;text-align:center">
-          <div style="font-size:9px;color:#555;color:#b91c1c;">Jumlah Debit</div>
-          <div style="font-size:14px;font-weight:bold;color:#b91c1c">-${rm(r.keluar)}</div>
+        <div style="background:#f8fafc;border:1px solid #cbd5e1;border-radius:5px;padding:7px 14px;text-align:center;flex:1">
+          <div style="font-size:8px;color:#64748b;text-transform:uppercase;letter-spacing:.06em;font-weight:700">Jumlah Debit</div>
+          <div style="font-size:13px;font-weight:700;color:#b91c1c;font-family:monospace">-${rm(r.keluar)}</div>
         </div>
-        <div style="background:#f9fafb;border:1px solid #d1d5db;border-radius:6px;padding:8px 14px;text-align:center">
-          <div style="font-size:9px;color:#555;text-transform:uppercase;letter-spacing:.05em">Lebihan / (Kurangan)</div>
-          <div style="font-size:14px;font-weight:bold;color:${r.lebihan >= 0 ? '#047857' : '#b91c1c'}">${r.lebihan >= 0 ? '+' : ''}${rm(r.lebihan)}</div>
+        <div style="background:#f8fafc;border:1px solid #cbd5e1;border-radius:5px;padding:7px 14px;text-align:center;flex:1">
+          <div style="font-size:8px;color:#64748b;text-transform:uppercase;letter-spacing:.06em;font-weight:700">Lebihan / (Kurangan)</div>
+          <div style="font-size:13px;font-weight:700;font-family:monospace;color:${r.lebihan >= 0 ? '#047857' : '#b91c1c'}">${r.lebihan >= 0 ? '+' : ''}${rm(r.lebihan)}</div>
         </div>
       </div>
       <table><thead><tr>
-        <th style="width:30px;text-align:center">#</th><th>Tarikh</th><th>Jenis</th>
+        <th style="width:26px;text-align:center">#</th><th>Tarikh</th><th>Jenis</th>
         <th>Kategori</th><th>Nota / Rujukan</th><th>Pihak</th>
-        <th style="text-align:right;color:#b91c1c">Debit (–)</th>
-        <th style="text-align:right;color:#047857">Kredit (+)</th>
+        <th style="text-align:right">Debit (–) RM</th>
+        <th style="text-align:right">Kredit (+) RM</th>
       </tr></thead>
       <tbody>${baris}</tbody></table>
-      <div style="margin-top:8px;font-size:10px;color:#555">Jumlah: <strong>${r.bil}</strong> transaksi &bull; ${namaBulan} ${laporanTahunBulan.value}</div>`;
+      <div style="margin-top:6px;font-size:8.5px;color:#64748b">Jumlah: <strong>${r.bil}</strong> transaksi &bull; ${namaBulan} ${laporanTahunBulan.value}</div>`;
 
     bukaCetakWindow(`Laporan Kewangan Bulanan &bull; ${namaBulan} ${laporanTahunBulan.value}`, badan);
   } catch (e) {
@@ -1063,7 +1071,7 @@ const cetakLaporanBulanan = async () => {
 const cetakSumbangan = () => {
   const tarikhCetak = new Date().toLocaleDateString('ms-MY', { day:'numeric', month:'long', year:'numeric' });
   const baris = senaraiSumbangan.value.map((s, i) =>
-    `<tr><td style="text-align:center">${i+1}</td><td>${s.nama_penyumbang}</td><td>${s.program||'—'}</td><td>${s.tarikh}</td><td style="text-align:right;font-weight:bold;color:#b45309">${rm(s.amaun)}</td></tr>`
+    `<tr><td style="text-align:center">${i+1}</td><td>${s.nama_penyumbang}</td><td>${s.program||'—'}</td><td>${s.tarikh}</td><td style="text-align:right;font-weight:700;font-family:monospace;color:#b45309">${num(s.amaun)}</td></tr>`
   ).join('');
 
   const badan = `
@@ -1074,7 +1082,7 @@ const cetakSumbangan = () => {
     <tbody>${baris}
     <tr style="font-weight:bold;background:#fffbeb;border-top:2px solid #d97706">
       <td colspan="4">JUMLAH KESELURUHAN KUTIPAN (${senaraiSumbangan.value.length} penyumbang)</td>
-      <td style="text-align:right;color:#b45309">${rm(jumlahSumbangan.value)}</td>
+      <td style="text-align:right;font-weight:700;font-family:monospace;color:#b45309">${num(jumlahSumbangan.value)}</td>
     </tr></tbody></table>`;
 
   bukaCetakWindow(`Laporan Kutipan Sumbangan &bull; Tahun ${tahunPilihan.value} &bull; Dicetak: ${tarikhCetak}`, badan);

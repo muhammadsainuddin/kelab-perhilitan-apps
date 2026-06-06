@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="space-y-4 pb-6 animate-page-in">
 
     <!-- HEADER -->
@@ -98,6 +98,15 @@
             </svg>
             Telah Mendaftar
           </div>
+          <!-- penuh badge -->
+          <div v-else-if="acara.acara_penuh"
+            class="absolute bottom-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[8px] font-black uppercase tracking-wide pointer-events-none"
+            style="background: rgba(239,68,68,0.85); color: white; backdrop-filter: blur(4px);">
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
+            </svg>
+            Penuh
+          </div>
         </div>
 
         <!-- Card body -->
@@ -108,6 +117,11 @@
               class="text-[8px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full"
               :class="warnaJenis(acara.jenis_acara)">
               {{ acara.jenis_acara }}
+            </span>
+            <span v-if="acara.kategori_jantina && acara.kategori_jantina !== 'Semua'"
+              :class="['text-[8px] font-black px-2.5 py-1 rounded-full border',
+                acara.kategori_jantina === 'Lelaki' ? 'bg-blue-50 text-blue-700 border-blue-100' : 'bg-pink-50 text-pink-700 border-pink-100']">
+              {{ acara.kategori_jantina === 'Lelaki' ? '♂ Lelaki' : '♀ Perempuan' }}
             </span>
             <span class="inline-flex items-center gap-1 text-[8px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full"
               style="background: #081C15; color: #95D5B2;">
@@ -161,6 +175,19 @@
                 style="background: rgba(239,68,68,0.08); color: #dc2626; border: 1px solid rgba(239,68,68,0.15);">
                 Batal Daftar
               </button>
+              <span v-else-if="acara.acara_penuh"
+                class="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wide px-4 py-2 rounded-xl"
+                style="background: rgba(239,68,68,0.06); color: #dc2626; border: 1px solid rgba(239,68,68,0.15);">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
+                </svg>
+                Penuh
+              </span>
+              <span v-else-if="acara.jantina_sesuai === false || acara.jantina_sesuai === 0"
+                class="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wide px-3.5 py-2 rounded-xl"
+                style="background: rgba(107,114,128,0.06); color: #6b7280; border: 1px solid rgba(107,114,128,0.15);">
+                {{ acara.kategori_jantina === 'Lelaki' ? '♂ Lelaki Sahaja' : '♀ Perempuan Sahaja' }}
+              </span>
               <button v-else @click="bukaDaftar(acara)" :disabled="!isPaid"
                 class="text-[10px] font-black uppercase tracking-wide px-4 py-2 rounded-xl transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
                 style="background: #081C15; color: #95D5B2;">
@@ -297,6 +324,31 @@
                   <p class="text-[7.5px] font-black uppercase tracking-[0.16em] mb-1.5" style="color: #92660C;">Tutup Pendaftaran</p>
                   <p class="text-[12px] font-black" style="color: #92660C;">{{ formatTarikh(acaraTerpilih.tarikh_tutup) }}</p>
                 </div>
+                <div v-if="acaraTerpilih.had_peserta" class="col-span-2 rounded-2xl p-3.5"
+                  :style="acaraTerpilih.acara_penuh
+                    ? 'background: #fff5f5; border: 1px solid rgba(239,68,68,0.2);'
+                    : 'background: #f0fdf4; border: 1px solid rgba(74,222,128,0.25);'">
+                  <p class="text-[7.5px] font-black uppercase tracking-[0.16em] mb-1.5"
+                    :style="acaraTerpilih.acara_penuh ? 'color:#dc2626' : 'color:#166534'">
+                    Kapasiti Atlet
+                  </p>
+                  <div class="flex items-center justify-between gap-3">
+                    <div class="flex-1 h-2 rounded-full overflow-hidden" style="background:#e5e7eb;">
+                      <div class="h-full rounded-full transition-all"
+                        :style="`width:${Math.min(100, Math.round((Number(acaraTerpilih.jumlah_peserta)||0)/Number(acaraTerpilih.had_peserta)*100))}%; background:${acaraTerpilih.acara_penuh?'#ef4444':'#22c55e'}`"></div>
+                    </div>
+                    <p class="text-[13px] font-black tabular-nums shrink-0"
+                      :style="acaraTerpilih.acara_penuh ? 'color:#dc2626' : 'color:#166534'">
+                      {{ acaraTerpilih.jumlah_peserta || 0 }} / {{ acaraTerpilih.had_peserta }}
+                    </p>
+                  </div>
+                  <p v-if="acaraTerpilih.acara_penuh" class="text-[10px] font-bold mt-1" style="color:#dc2626;">
+                    Pendaftaran telah penuh
+                  </p>
+                  <p v-else class="text-[10px] font-medium mt-1" style="color:#166534;">
+                    {{ Number(acaraTerpilih.had_peserta) - (Number(acaraTerpilih.jumlah_peserta)||0) }} slot masih tersedia
+                  </p>
+                </div>
               </div>
 
               <!-- Full description -->
@@ -334,6 +386,19 @@
               <span v-if="aksiLoading" class="w-4 h-4 rounded-full border-2 border-red-300 border-t-transparent animate-spin"></span>
               {{ aksiLoading ? 'Memproses...' : 'Batalkan Pendaftaran' }}
             </button>
+            <div v-else-if="acaraTerpilih.acara_penuh"
+              class="w-full py-3.5 rounded-2xl text-[11px] font-black uppercase tracking-wider flex items-center justify-center gap-2"
+              style="background: rgba(239,68,68,0.06); color: #dc2626; border: 1px solid rgba(239,68,68,0.15);">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
+              </svg>
+              Pendaftaran Penuh
+            </div>
+            <div v-else-if="acaraTerpilih.jantina_sesuai === false || acaraTerpilih.jantina_sesuai === 0"
+              class="w-full py-3.5 rounded-2xl text-[11px] font-black uppercase tracking-wider flex items-center justify-center gap-2"
+              style="background: rgba(107,114,128,0.06); color: #6b7280; border: 1px solid rgba(107,114,128,0.15);">
+              Terhad — {{ acaraTerpilih.kategori_jantina === 'Lelaki' ? '♂ Lelaki Sahaja' : '♀ Perempuan Sahaja' }}
+            </div>
             <button v-else @click="bukaDaftar(acaraTerpilih)" :disabled="!isPaid"
               class="w-full py-3.5 rounded-2xl text-[11px] font-black uppercase tracking-wider flex items-center justify-center gap-2 transition-all active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
               style="background: #081C15; color: #95D5B2;">

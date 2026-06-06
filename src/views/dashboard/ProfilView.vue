@@ -173,22 +173,32 @@
 
         <!-- Mohon Berhenti -->
         <button @click="bukaModalBerhenti"
-          :disabled="profil.status_ahli === 'tidak aktif'"
+          :disabled="profil.status_ahli === 'tidak aktif' || statusBerhenti?.status_permohonan === 'MENUNGGU'"
           class="relative overflow-hidden rounded-[20px] p-4 text-left group transition-all duration-200"
-          :class="profil.status_ahli === 'tidak aktif' ? 'opacity-40 cursor-not-allowed' : 'active:scale-[0.96]'"
+          :class="(profil.status_ahli === 'tidak aktif' || statusBerhenti?.status_permohonan === 'MENUNGGU') ? 'opacity-60 cursor-not-allowed' : 'active:scale-[0.96]'"
           style="background: #fefce8; border: 1px solid rgba(217,119,6,0.2); box-shadow: 0 2px 12px rgba(217,119,6,0.06);">
           <div class="absolute -top-6 -right-6 w-20 h-20 rounded-full pointer-events-none"
             style="background: radial-gradient(circle, rgba(217,119,6,0.1) 0%, transparent 70%);"></div>
           <div class="w-9 h-9 rounded-xl flex items-center justify-center mb-3 bg-amber-100">
-            <svg class="w-4.5 h-4.5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg v-if="statusBerhenti?.status_permohonan === 'MENUNGGU'" class="w-4.5 h-4.5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <svg v-else class="w-4.5 h-4.5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
             </svg>
           </div>
           <p class="text-[11px] font-black text-amber-900 uppercase tracking-wider leading-tight">
-            {{ profil.status_ahli === 'tidak aktif' ? 'Telah Berhenti' : 'Mohon Berhenti' }}
+            {{ profil.status_ahli === 'tidak aktif' ? 'Telah Berhenti'
+               : statusBerhenti?.status_permohonan === 'MENUNGGU' ? 'Dalam Semakan'
+               : statusBerhenti?.status_permohonan === 'DITOLAK' ? 'Mohon Semula'
+               : 'Mohon Berhenti' }}
           </p>
-          <p class="text-[9px] font-medium mt-0.5 text-amber-600/60">Penamatan keahlian</p>
+          <p class="text-[9px] font-medium mt-0.5 text-amber-600/60">
+            {{ statusBerhenti?.status_permohonan === 'MENUNGGU' ? 'Menunggu keputusan admin'
+               : statusBerhenti?.status_permohonan === 'DITOLAK' ? 'Permohonan ditolak'
+               : 'Penamatan keahlian' }}
+          </p>
         </button>
       </div>
 
@@ -305,6 +315,27 @@
           </button>
         </div>
 
+        <!-- divider -->
+        <div class="mx-4" style="height: 1px; background: #F1F5F9;"></div>
+
+        <!-- Hubungi Kelab -->
+        <button @click="modalHubungi = true"
+          class="w-full flex items-center gap-3.5 px-4 py-4 transition-colors active:bg-[#F8FAFC] group">
+          <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style="background: rgba(59,130,246,0.1);">
+            <svg class="w-4.5 h-4.5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+            </svg>
+          </div>
+          <div class="flex-1 text-left">
+            <p class="text-[12px] font-black tracking-wide" style="color: #0F172A;">Hubungi Kelab</p>
+            <p class="text-[10px] font-medium mt-0.5" style="color: #94a3b8;">Pertanyaan, aduan atau permohonan bantuan</p>
+          </div>
+          <svg class="w-4 h-4 transition-transform group-active:translate-x-0.5" style="color: #CBD5E1;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
+          </svg>
+        </button>
+
         <!-- divider sebelum log keluar -->
         <div v-if="biometriTersedia" class="mx-4" style="height: 1px; background: #F1F5F9;"></div>
 
@@ -337,7 +368,10 @@
       </div>
 
       <!-- ─── FOOTER CREDIT ─── -->
-      <footer class="pt-2 flex flex-col items-center gap-1.5 text-center select-none">
+      <footer class="pt-2 pb-2 flex flex-col items-center gap-1.5 text-center select-none">
+        <span class="text-[9px] font-black px-2.5 py-1 rounded-full" style="background: rgba(82,183,136,0.1); color: #2D6A4F; border: 1px solid rgba(82,183,136,0.2);">
+          v{{ appVersion }}
+        </span>
         <p class="text-[10px] font-medium" style="color: #94a3b8;">
           Develop by <span class="font-black" style="color: #64748B;">Muhammad.S</span>
         </p>
@@ -491,7 +525,7 @@
               <div class="rounded-2xl p-4 space-y-3" style="background: #FFF7ED; border: 1px solid rgba(234,88,12,0.15);">
                 <div class="flex items-center gap-2">
                   <div class="w-1 h-3.5 rounded-full bg-orange-400"></div>
-                  <p class="text-[9px] font-black uppercase tracking-[0.2em] text-orange-500">Tukar Kata Laluan (Opsyenal)</p>
+                  <p class="text-[9px] font-black uppercase tracking-[0.2em] text-orange-500">Tukar Kata Laluan (Sekiranya Perlu)</p>
                 </div>
                 <div class="space-y-1">
                   <label class="text-[10px] font-bold uppercase tracking-wider ml-0.5" style="color: #64748B;">Kata Laluan Semasa</label>
@@ -552,7 +586,9 @@
             <div class="flex items-center justify-between px-6 py-4" style="border-bottom: 1px solid #FEE2E2;">
               <div>
                 <h3 class="text-[15px] font-black uppercase tracking-wide text-rose-700">Penamatan Keahlian</h3>
-                <p class="text-[10px] font-medium mt-0.5" style="color: #94a3b8;">Tindakan ini tidak boleh diundur</p>
+                <p class="text-[10px] font-medium mt-0.5" style="color: #94a3b8;">
+                  {{ statusBerhenti?.status_permohonan === 'DITOLAK' ? 'Permohonan sebelum ini ditolak — mohon semula' : 'Permohonan akan disemak oleh pentadbir' }}
+                </p>
               </div>
               <button @click="modalBerhenti = false"
                 class="w-8 h-8 flex items-center justify-center rounded-xl"
@@ -564,6 +600,13 @@
             </div>
 
             <form @submit.prevent="hantarBerhenti" class="px-6 py-5 space-y-4">
+              <!-- Notis tolak sebelumnya -->
+              <div v-if="statusBerhenti?.status_permohonan === 'DITOLAK'"
+                class="rounded-2xl px-4 py-3 space-y-1"
+                style="background: #FFF1F2; border: 1px solid rgba(244,63,94,0.2);">
+                <p class="text-[10px] font-black text-rose-700 uppercase tracking-wider">Permohonan Sebelum Ini Ditolak</p>
+                <p class="text-[11px] text-rose-800 leading-relaxed">{{ statusBerhenti.catatan_admin || 'Tiada sebab dinyatakan.' }}</p>
+              </div>
               <div class="space-y-1">
                 <label class="text-[10px] font-bold uppercase tracking-wider ml-0.5" style="color: #64748B;">Alasan Utama Berhenti</label>
                 <select v-model="formBerhenti.sebab_utama" required
@@ -764,6 +807,91 @@
       </div>
     </Teleport>
 
+  <!-- ═══════════════════════════════════════
+       MODAL — HUBUNGI KELAB
+       ═══════════════════════════════════════ -->
+  <Teleport to="body">
+    <Transition name="modal">
+      <div v-if="modalHubungi" class="fixed inset-0 z-9999 flex items-end sm:items-center justify-center"
+        style="background: rgba(8,28,21,0.6); backdrop-filter: blur(8px);">
+        <div class="bg-white w-full max-w-md shadow-2xl custom-scrollbar overflow-y-auto"
+          style="border-radius: 28px 28px 0 0; max-height: 90vh; border-top: 1px solid #E2E8F0;">
+
+          <div class="flex justify-center pt-3 pb-1 shrink-0">
+            <div class="w-10 h-1 rounded-full" style="background: #E2E8F0;"></div>
+          </div>
+
+          <div class="flex items-center justify-between px-6 py-4 shrink-0" style="border-bottom: 1px solid #F1F5F9;">
+            <div>
+              <h3 class="text-[15px] font-black uppercase tracking-wide" style="color: #0F172A;">Hubungi Kelab</h3>
+              <p class="text-[10px] font-medium mt-0.5" style="color: #94a3b8;">Mesej anda akan dihantar terus kepada urusetia</p>
+            </div>
+            <button @click="tutupModalHubungi"
+              class="w-8 h-8 flex items-center justify-center rounded-xl transition-colors"
+              style="background: #F1F5F9; color: #64748B;">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+            </button>
+          </div>
+
+          <form @submit.prevent="hantarHubungiKelab" class="px-6 py-5 space-y-4">
+
+            <!-- Subjek -->
+            <div class="space-y-1">
+              <label class="text-[10px] font-bold uppercase tracking-wider ml-0.5" style="color: #64748B;">Jenis Pertanyaan</label>
+              <select v-model="formHubungi.subjek" required
+                class="w-full text-xs font-bold rounded-2xl px-4 py-3 outline-none transition-all"
+                style="background: #F8FAFC; border: 1.5px solid #E2E8F0; color: #0F172A;">
+                <option value="" disabled>— Pilih Jenis —</option>
+                <option value="Pertanyaan Umum">Pertanyaan Umum</option>
+                <option value="Masalah Pembayaran Yuran">Masalah Pembayaran Yuran</option>
+                <option value="Permohonan Bantuan Kebajikan">Permohonan Bantuan Kebajikan</option>
+                <option value="Aduan Berkaitan Aplikasi">Aduan Berkaitan Aplikasi</option>
+                <option value="Kemaskini Maklumat">Kemaskini Maklumat</option>
+                <option value="Lain-lain">Lain-lain</option>
+              </select>
+            </div>
+
+            <!-- Mesej -->
+            <div class="space-y-1">
+              <label class="text-[10px] font-bold uppercase tracking-wider ml-0.5" style="color: #64748B;">Mesej</label>
+              <textarea v-model="formHubungi.mesej" rows="5" required
+                placeholder="Huraikan pertanyaan atau masalah anda di sini..."
+                class="w-full text-xs font-medium rounded-2xl px-4 py-3 outline-none resize-none transition-all leading-relaxed"
+                style="background: #F8FAFC; border: 1.5px solid #E2E8F0; color: #0F172A;"
+                maxlength="1000"></textarea>
+              <p class="text-right text-[9px] font-medium pr-1" style="color: #94a3b8;">{{ formHubungi.mesej.length }}/1000</p>
+            </div>
+
+            <!-- Info box -->
+            <div class="rounded-2xl p-4" style="background: rgba(59,130,246,0.06); border: 1px solid rgba(59,130,246,0.15);">
+              <p class="text-[10px] font-medium leading-relaxed" style="color: #1e40af;">
+                Mesej akan dihantar kepada <strong>kelabperhilitan@gmail.com</strong>.
+                Salinan pengesahan akan dihantar ke emel anda sekiranya telah dikemaskini dalam profil.
+              </p>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex gap-3 pb-2">
+              <button type="button" @click="tutupModalHubungi"
+                class="flex-1 py-3.5 rounded-2xl text-xs font-black uppercase tracking-wider transition-all active:scale-[0.98]"
+                style="background: #F1F5F9; color: #64748B;">
+                Batal
+              </button>
+              <button type="submit" :disabled="loadingHubungi"
+                class="flex-2 grow-2 py-3.5 rounded-2xl text-xs font-black uppercase tracking-wider transition-all active:scale-[0.98] flex items-center justify-center gap-2 disabled:opacity-60"
+                style="background: #1e3a5f; color: #bfdbfe;">
+                <span v-if="loadingHubungi" class="w-3.5 h-3.5 rounded-full border-2 border-blue-300 border-t-transparent animate-spin"></span>
+                {{ loadingHubungi ? 'Menghantar...' : 'Hantar Mesej' }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </Transition>
+  </Teleport>
+
   <!-- ── MODAL RESIT (mobile / native) ── -->
   <Teleport to="body">
     <Transition name="resit-sheet">
@@ -819,6 +947,7 @@ import api from '../../services/api';
 import { useAuthStore } from '../../stores/auth';
 
 const uploadBase = import.meta.env.VITE_UPLOAD_URL || 'http://localhost:5001';
+const appVersion = __APP_VERSION__;
 import { cetakResitTransaksi, buatHtmlResit } from '../../config/kelab';
 
 const router = useRouter();
@@ -831,6 +960,7 @@ const senaraiPTJ = ref([]);
 
 const modalEdit = ref(false);
 const modalBerhenti = ref(false);
+const statusBerhenti = ref(null);
 const fileInput = ref(null);
 const loading = ref(false);
 const uploadingGambar = ref(false);
@@ -842,6 +972,10 @@ const formBerhenti = ref({ sebab_utama: '', ulasan: '' });
 const modalTransaksi = ref(false);
 const sejarahSemua = ref([]);
 const loadingTransaksi = ref(false);
+
+const modalHubungi = ref(false);
+const loadingHubungi = ref(false);
+const formHubungi = ref({ subjek: '', mesej: '' });
 
 // Filter & Search
 const cariTx = ref('');
@@ -1017,6 +1151,27 @@ const bukaModalTransaksi = async () => {
   if (sejarahSemua.value.length === 0) await muatSejarahSemua();
 };
 
+const tutupModalHubungi = () => {
+  modalHubungi.value = false;
+  formHubungi.value = { subjek: '', mesej: '' };
+};
+
+const hantarHubungiKelab = async () => {
+  loadingHubungi.value = true;
+  try {
+    await api.post('/user/hubungi-kelab', {
+      subjek: formHubungi.value.subjek,
+      mesej: formHubungi.value.mesej,
+    });
+    alert('Mesej anda telah berjaya dihantar kepada pihak kelab. Terima kasih.');
+    tutupModalHubungi();
+  } catch (e) {
+    alert(e.response?.data?.message || 'Gagal menghantar mesej. Sila cuba lagi.');
+  } finally {
+    loadingHubungi.value = false;
+  }
+};
+
 const bukaModalEdit = () => {
   form.value = {
     penempatan_id: profil.value.penempatan_id || '',
@@ -1072,22 +1227,30 @@ const simpanProfil = async () => {
   } finally { loading.value = false; }
 };
 
+const muatStatusBerhenti = async () => {
+  try {
+    const { data } = await api.get('/user/status-berhenti');
+    statusBerhenti.value = data.data;
+  } catch {}
+};
+
 const bukaModalBerhenti = () => {
+  if (statusBerhenti.value?.status_permohonan === 'MENUNGGU') return;
   formBerhenti.value = { sebab_utama: '', ulasan: '' };
   modalBerhenti.value = true;
 };
 
 // 5. Permohonan Penamatan Keahlian
 const hantarBerhenti = async () => {
-  if (!confirm("Adakah anda benar-benar pasti? Tindakan ini akan terus menukar status keahlian anda kepada Tidak Aktif.")) return;
+  if (!confirm("Adakah anda pasti mahu menghantar permohonan berhenti? Permohonan akan disemak oleh pentadbir sebelum diluluskan.")) return;
   loading.value = true;
   try {
     await api.post('/user/mohon-berhenti', {
       sebab_berhenti: `${formBerhenti.value.sebab_utama}: ${formBerhenti.value.ulasan}`
     });
-    alert("Permohonan penamatan kelab anda telah diproses secara automatik.");
+    alert("Permohonan berhenti anda telah dihantar kepada urusetia untuk semakan.");
     modalBerhenti.value = false;
-    fetchProfil();
+    await muatStatusBerhenti();
   } catch (error) {
     alert(error.response?.data?.message || "Gagal memproses permohonan penamatan.");
   } finally { loading.value = false; }
@@ -1123,6 +1286,7 @@ onMounted(async () => {
   fetchProfil();
   fetchSenaraiPTJ();
   muatSejarahSemua();
+  muatStatusBerhenti();
   if (adalahNative) {
     try {
       const info = await BiometricAuth.checkBiometry();

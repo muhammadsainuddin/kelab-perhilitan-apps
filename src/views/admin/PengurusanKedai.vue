@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div style="font-family: Tahoma, 'Segoe UI', Arial, sans-serif" class="text-xs text-gray-800 pb-10">
 
     <!-- ══════════════════════ HEADER ══════════════════════ -->
@@ -374,7 +374,7 @@
     <!-- ══════════ MODAL: PRODUK (FULL SCREEN) ══════════ -->
     <Teleport to="body">
       <Transition name="fs-fade">
-        <div v-if="showModalProduk" class="fixed inset-0 z-[200] flex flex-col bg-gray-50">
+        <div v-if="showModalProduk" class="absolute inset-0 flex flex-col bg-gray-50">
           <!-- Header bar -->
           <div :class="['flex items-center justify-between px-5 py-3.5 border-b border-gray-200 bg-white shadow-sm shrink-0']">
             <div class="flex items-center gap-3">
@@ -634,7 +634,7 @@
 
     <!-- ══════════ MODAL: TEMPAHAN DETAIL ══════════ -->
     <Teleport to="body"><Transition name="modal">
-      <div v-if="showTempahan" class="fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm flex items-center justify-center px-4" @click.self="showTempahan=false">
+      <div v-if="showTempahan" class="absolute inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center px-4" @click.self="showTempahan=false">
         <div class="bg-white rounded-[20px] w-full max-w-md shadow-2xl overflow-hidden">
           <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100">
             <div>
@@ -718,7 +718,7 @@
 
     <!-- ══════════ MODAL: LAPORAN KILANG ══════════ -->
     <Teleport to="body"><Transition name="modal">
-      <div v-if="showLaporanKilang" class="fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm flex items-center justify-center px-4" @click.self="showLaporanKilang=false">
+      <div v-if="showLaporanKilang" class="absolute inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center px-4" @click.self="showLaporanKilang=false">
         <div class="bg-white rounded-[20px] w-full max-w-lg shadow-2xl overflow-hidden">
           <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100 bg-[#0F4C3A]/5">
             <div>
@@ -768,7 +768,7 @@
 
     <!-- ══════════ MODAL: PENJUAL DETAIL ══════════ -->
     <Teleport to="body"><Transition name="modal">
-      <div v-if="showPenjualDetail" class="fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm flex items-center justify-center px-4" @click.self="showPenjualDetail=false">
+      <div v-if="showPenjualDetail" class="absolute inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center px-4" @click.self="showPenjualDetail=false">
         <div class="bg-white rounded-[20px] w-full max-w-md shadow-2xl overflow-hidden">
           <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100">
             <h3 class="font-bold text-gray-900 text-sm">Maklumat Penjual</h3>

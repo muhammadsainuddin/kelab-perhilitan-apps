@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div style="font-family: Tahoma, 'Segoe UI', Arial, sans-serif" class="text-xs text-gray-800 pb-10">
 
     <!-- ══ HEADER ══ -->
@@ -202,7 +202,7 @@
     ══════════════════════════════════════════ -->
     <Teleport to="body">
       <Transition name="modal">
-        <div v-if="showDetail" class="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center px-4"
+        <div v-if="showDetail" class="absolute inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center px-4"
           @click.self="showDetail=false">
           <div class="bg-white rounded-2xl w-full max-w-[480px] shadow-2xl overflow-hidden">
 

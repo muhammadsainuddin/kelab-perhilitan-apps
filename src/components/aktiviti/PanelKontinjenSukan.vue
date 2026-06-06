@@ -1,4 +1,4 @@
-
+﻿
 <template>
   <Teleport to="body">
     <Transition name="slide-in">
@@ -54,7 +54,7 @@
           <!-- ── RINGKASAN ATAS ── -->
           <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
             <div class="bg-[#0F4C3A] text-white rounded-2xl px-5 py-4 shadow-sm">
-              <p class="text-[10px] font-bold uppercase tracking-wider opacity-60">Jumlah Peserta</p>
+              <p class="text-[10px] font-bold uppercase tracking-wider opacity-60">Jumlah Atlet</p>
               <p class="text-3xl font-black mt-1">{{ data.ringkasan.jumlah_peserta }}</p>
             </div>
             <div class="bg-white border border-gray-100 rounded-2xl px-5 py-4 shadow-sm">
@@ -83,7 +83,7 @@
                 <thead class="bg-gray-50 text-[11px] font-bold text-gray-500 uppercase tracking-wider">
                   <tr>
                     <th class="px-4 py-3 text-left">Acara / Sukan</th>
-                    <th class="px-4 py-3 text-center">Peserta</th>
+                    <th class="px-4 py-3 text-center">Atlet</th>
                     <th class="px-4 py-3 text-center">Pegawai</th>
                     <th class="px-4 py-3 text-center">Sokongan</th>
                   </tr>
@@ -151,19 +151,19 @@
             </div>
 
             <!-- Header tab aktif -->
-            <div v-if="sukanAktifData" class="px-5 py-3 bg-gray-50/60 border-b border-gray-100 flex items-center justify-between">
+            <div v-if="sukanAktifTersusun" class="px-5 py-3 bg-gray-50/60 border-b border-gray-100 flex items-center justify-between">
               <div class="text-sm font-black text-gray-800">
-                {{ sukanAktifData.sukan }}
-                <span class="text-xs font-semibold text-gray-400 ml-2">{{ sukanAktifData.jumlah }} peserta</span>
+                {{ sukanAktifTersusun.sukan }}
+                <span class="text-xs font-semibold text-gray-400 ml-2">{{ sukanAktifTersusun.jumlah }} atlet</span>
               </div>
               <div class="flex gap-3 text-xs font-bold">
-                <span class="text-[#0F4C3A]">Pegawai: {{ sukanAktifData.pegawai }}</span>
-                <span class="text-indigo-600">Sokongan: {{ sukanAktifData.sokongan }}</span>
+                <span class="text-[#0F4C3A]">Pegawai: {{ sukanAktifTersusun.pegawai }}</span>
+                <span class="text-indigo-600">Sokongan: {{ sukanAktifTersusun.sokongan }}</span>
               </div>
             </div>
 
-            <!-- ── JADUAL DETAIL PESERTA (Maklumat Lengkap Ketua Kontinjen) ── -->
-            <div v-if="sukanAktifData" class="overflow-x-auto">
+            <!-- ── JADUAL DETAIL ATLET (Maklumat Lengkap Ketua Kontinjen) ── -->
+            <div v-if="sukanAktifTersusun" class="overflow-x-auto">
               <table class="min-w-full text-xs divide-y divide-gray-100">
                 <thead class="bg-gray-50 text-[10px] font-bold text-gray-500 uppercase tracking-wider">
                   <tr>
@@ -179,7 +179,7 @@
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-50">
-                  <tr v-for="(p, idx) in sukanAktifData.peserta" :key="p.penyertaan_id" class="hover:bg-gray-50/60">
+                  <tr v-for="(p, idx) in sukanAktifTersusun.peserta" :key="p.penyertaan_id" class="hover:bg-gray-50/60">
 
                     <td class="px-4 py-3 text-gray-400 font-bold">{{ idx + 1 }}</td>
 
@@ -264,6 +264,7 @@
 <script setup>
 import { ref, computed, watch } from 'vue';
 import api from '../../services/api';
+import { KELAB } from '../../config/kelab';
 
 const props = defineProps({
   show: Boolean,
@@ -307,6 +308,22 @@ watch(() => props.show, async (val) => {
 const sukanAktifData = computed(() =>
   data.value?.per_sukan.find(s => s.sukan === sukanAktif.value) || null
 );
+
+const rankGred = (gred) => {
+  if (!gred || gred === '—') return 0;
+  const g = String(gred).toUpperCase().trim();
+  if (g.startsWith('JUSA')) return 10000;
+  const m = g.match(/(\d+)/);
+  return m ? parseInt(m[1]) : 1;
+};
+
+const susunAtlet = (arr) =>
+  [...arr].sort((a, b) => rankGred(b.gred) - rankGred(a.gred));
+
+const sukanAktifTersusun = computed(() => {
+  const s = sukanAktifData.value;
+  return s ? { ...s, peserta: susunAtlet(s.peserta) } : null;
+});
 
 // Kira umur dari No. KP Malaysia (format: YYMMDD-PP-XXXX)
 const hitungUmur = (no_kp) => {
@@ -359,7 +376,7 @@ const buatHtmlCetak = (tajuk, senaraiBaris, perihalRingkas) => {
 
   return `<!DOCTYPE html>
 <html><head><meta charset="utf-8">
-<title>Senarai Peserta Kontinjen — ${namaAcara}</title>
+<title>Senarai Atlet Kontinjen — ${namaAcara}</title>
 <style>
   @page { margin: 15mm 18mm; size: A4 landscape; }
   body { font-family: Arial, sans-serif; font-size: 10px; color: #111; }
@@ -387,8 +404,8 @@ const buatHtmlCetak = (tajuk, senaraiBaris, perihalRingkas) => {
   .seksyen-hdr { background: #1a5c47; color: white; font-size: 11px; font-weight: 900; padding: 8px 12px; margin-top: 20px; margin-bottom: 0; border-radius: 4px 4px 0 0; letter-spacing: .04em; text-transform: uppercase; }
 </style></head><body>
 <div class="hdr">
-  <h1>Kelab Sukan &amp; Rekreasi Perhilitan Malaysia</h1>
-  <h2>Senarai Peserta Kontinjen Sukan</h2>
+  <h1>${KELAB.namaPendek}</h1>
+  <h2>Senarai Atlet Kontinjen Sukan</h2>
   <h3>${namaAcara}</h3>
 </div>
 <div class="meta">
@@ -412,7 +429,7 @@ ${senaraiBaris}
     <div class="sign-sub">Setiausaha Kelab</div>
   </div>
   <div class="sign">
-    <div class="sign-line">Pengerusi Kelab Sukan &amp; Rekreasi Perhilitan</div>
+    <div class="sign-line">${KELAB.namaTandatangan}</div>
     <div class="sign-sub">Nama &amp; Tarikh</div>
   </div>
 </div>
@@ -420,15 +437,23 @@ ${senaraiBaris}
 };
 
 const jadualHtml = (peserta, namaS) => {
-  const rows = peserta.map((p, i) => {
+  const tersusun = [...peserta].sort((a, b) => rankGred(b.gred) - rankGred(a.gred));
+  const rows = tersusun.map((p, i) => {
     const badgeKls = p.kategori === 'pegawai' ? 'b-peg' : 'b-sok';
     const kategoriLabel = p.kategori === 'pegawai' ? 'Pegawai' : 'Sokongan';
     const umur = hitungUmur(p.no_kp);
     const jersi = jersiSimpan.value[`${p.penyertaan_id}_${namaS}`] || '—';
+    const jantina = p.jantina || '—';
+    const jantinaStyle = jantina === 'Lelaki'
+      ? 'color:#1d4ed8;font-weight:bold;background:#dbeafe;padding:2px 6px;border-radius:4px;font-size:9px'
+      : jantina === 'Perempuan'
+        ? 'color:#9d174d;font-weight:bold;background:#fce7f3;padding:2px 6px;border-radius:4px;font-size:9px'
+        : '';
     return `<tr>
       <td style="text-align:center;color:#888;font-weight:bold">${i + 1}</td>
       <td><strong>${p.nama_pegawai}</strong></td>
       <td style="font-family:monospace;font-size:9.5px">${p.no_kp}</td>
+      <td style="text-align:center"><span style="${jantinaStyle}">${jantina}</span></td>
       <td style="text-align:center;font-weight:900">${umur}</td>
       <td style="text-align:center"><strong>${p.gred}</strong></td>
       <td style="text-align:center"><span class="badge ${badgeKls}">${kategoriLabel}</span></td>
@@ -443,6 +468,7 @@ const jadualHtml = (peserta, namaS) => {
       <th style="width:30px;text-align:center">No.</th>
       <th>Nama Penuh</th>
       <th>No. Kad Pengenalan</th>
+      <th style="text-align:center">Jantina</th>
       <th style="text-align:center">Umur</th>
       <th style="text-align:center">Gred SSPA</th>
       <th style="text-align:center">Kategori</th>
@@ -454,11 +480,18 @@ const jadualHtml = (peserta, namaS) => {
   </table>`;
 };
 
+const kiraPesertaJantina = (peserta) => {
+  const lelaki = peserta.filter(p => p.jantina === 'Lelaki').length;
+  const perempuan = peserta.filter(p => p.jantina === 'Perempuan').length;
+  return { lelaki, perempuan };
+};
+
 // Cetak sukan yang sedang aktif sahaja
 const cetakSenaraiSukan = () => {
   if (!sukanAktifData.value) return;
   const s = sukanAktifData.value;
-  const ringkasan = `<span class="lbl">Peserta:</span> <strong>${s.jumlah}</strong> &nbsp;|&nbsp; Pegawai: <strong>${s.pegawai}</strong> &nbsp;|&nbsp; Sokongan: <strong>${s.sokongan}</strong>`;
+  const { lelaki, perempuan } = kiraPesertaJantina(s.peserta);
+  const ringkasan = `<span class="lbl">Atlet:</span> <strong>${s.jumlah}</strong> &nbsp;|&nbsp; Pegawai: <strong>${s.pegawai}</strong> &nbsp;|&nbsp; Sokongan: <strong>${s.sokongan}</strong> &nbsp;|&nbsp; <span style="color:#1d4ed8;font-weight:bold">Lelaki: ${lelaki}</span> &nbsp;|&nbsp; <span style="color:#9d174d;font-weight:bold">Perempuan: ${perempuan}</span>`;
   const kandungan = jadualHtml(s.peserta, s.sukan);
   const html = buatHtmlCetak(s.sukan, kandungan, ringkasan);
   const win = window.open('', '_blank');
@@ -470,14 +503,15 @@ const cetakSenaraiSukan = () => {
 // Cetak semua sukan dalam satu dokumen
 const cetakSemuaSukan = () => {
   if (!data.value) return;
-  const jumlah = data.value.ringkasan.jumlah_peserta;
-  const ringkasan = `<span class="lbl">Jumlah:</span> <strong>${jumlah} peserta</strong> &nbsp;|&nbsp; Pegawai: <strong>${data.value.ringkasan.pegawai}</strong> &nbsp;|&nbsp; Sokongan: <strong>${data.value.ringkasan.sokongan}</strong>`;
+  const r = data.value.ringkasan;
+  const ringkasan = `<span class="lbl">Jumlah:</span> <strong>${r.jumlah_peserta} atlet</strong> &nbsp;|&nbsp; Pegawai: <strong>${r.pegawai}</strong> &nbsp;|&nbsp; Sokongan: <strong>${r.sokongan}</strong> &nbsp;|&nbsp; <span style="color:#1d4ed8;font-weight:bold">Lelaki: ${r.lelaki ?? '—'}</span> &nbsp;|&nbsp; <span style="color:#9d174d;font-weight:bold">Perempuan: ${r.perempuan ?? '—'}</span>`;
 
   let kandunganSemua = '';
   data.value.per_sukan.forEach(s => {
-    kandunganSemua += `<div class="seksyen-hdr">${s.sukan} &mdash; ${s.jumlah} Peserta (Pegawai: ${s.pegawai} | Sokongan: ${s.sokongan})</div>`;
+    const { lelaki, perempuan } = kiraPesertaJantina(s.peserta);
+    kandunganSemua += `<div class="seksyen-hdr">${s.sukan} &mdash; ${s.jumlah} Atlet &nbsp;(Pegawai: ${s.pegawai} | Sokongan: ${s.sokongan} | Lelaki: ${lelaki} | Perempuan: ${perempuan})</div>`;
     kandunganSemua += jadualHtml(s.peserta, s.sukan);
-    kandunganSemua += `<div class="ringkasan">Jumlah ${s.sukan}: ${s.jumlah} peserta</div>`;
+    kandunganSemua += `<div class="ringkasan">Jumlah ${s.sukan}: ${s.jumlah} Atlet &mdash; Lelaki: ${lelaki} | Perempuan: ${perempuan}</div>`;
   });
 
   const html = buatHtmlCetak('Semua Sukan', kandunganSemua, ringkasan);

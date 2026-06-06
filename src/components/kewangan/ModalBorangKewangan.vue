@@ -79,13 +79,13 @@
                     <!-- MASUK -->
                     <template v-if="jenisAktif === 'masuk'">
                       <div>
-                        <label class="field-label">Kategori Pemasukan *</label>
+                        <label class="field-label">Kategori Pendapatan *</label>
                         <select v-model="form.kategori" class="field-input">
                           <option value="YURAN">Yuran Keahlian</option>
                           <option value="KEDAI">Jualan Kedai / Merchandise</option>
                           <option value="ACARA">Bayaran Penyertaan Acara</option>
                           <option value="SUMBANGAN">Sumbangan / Derma</option>
-                          <option value="LAIN">Lain-lain Pemasukan</option>
+                          <option value="LAIN">Lain-lain Pendapatan</option>
                         </select>
                       </div>
                       <div>
@@ -267,7 +267,7 @@ const emit = defineEmits(['tutup', 'berjaya']);
 
 const jenisTab = [
   {
-    id: 'masuk', label: 'Pemasukan (Kredit)',
+    id: 'masuk', label: 'Pendapatan (Kredit)',
     aktif: 'bg-emerald-50 text-emerald-700 border-b-2 border-emerald-500',
     ikon: 'M7 11l5-5m0 0l5 5m-5-5v12',
   },

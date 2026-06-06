@@ -75,7 +75,8 @@ const routes = [
       { path: 'aktiviti', name: 'Aktiviti', component: () => import('../views/dashboard/AktivitiView.vue') },
       { path: 'kedai',    name: 'Kedai',    component: () => import('../views/dashboard/KedaiView.vue') },
       { path: 'bantuan',  name: 'Bantuan',  component: () => import('../views/dashboard/BantuanView.vue') },
-      { path: 'profil',   name: 'Profil',   component: () => import('../views/dashboard/ProfilView.vue') },
+      { path: 'profil',           name: 'Profil',           component: () => import('../views/dashboard/ProfilView.vue') },
+      { path: 'kempen-sumbangan', name: 'KempenSumbangan',  component: () => import('../views/dashboard/KempenSumbanganView.vue') },
     ]
   },
 
@@ -127,6 +128,16 @@ const routes = [
         path: 'profil',
         name: 'AdminProfil',
         component: () => import('../views/admin/ProfilAdminView.vue')
+      },
+      {
+        path: 'berhenti',
+        name: 'AdminBerhenti',
+        component: () => import('../views/admin/PengurusanBerhentiView.vue')
+      },
+      {
+        path: 'sumbangan',
+        name: 'AdminSumbangan',
+        component: () => import('../views/admin/PengurusanSumbanganView.vue')
       },
       {
         path: 'tetapan',

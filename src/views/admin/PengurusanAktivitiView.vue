@@ -1,4 +1,4 @@
-
+﻿
 <template>
   <div class="w-full space-y-6">
 
@@ -32,7 +32,7 @@
             </svg>
           </div>
           <div>
-            <p class="text-[10px] font-bold uppercase tracking-wider text-gray-400 leading-none">Peserta</p>
+            <p class="text-[10px] font-bold uppercase tracking-wider text-gray-400 leading-none">Atlet</p>
             <p class="text-xl font-black text-gray-900 mt-0.5">{{ jumlahPeserta }}</p>
           </div>
         </div>
@@ -122,7 +122,7 @@
               <th class="px-5 py-3.5 pl-6">Acara</th>
               <th class="px-5 py-3.5">Lokasi & Tarikh</th>
               <th class="px-5 py-3.5">Sukan</th>
-              <th class="px-5 py-3.5 text-center">Peserta</th>
+              <th class="px-5 py-3.5 text-center">Atlet</th>
               <th class="px-5 py-3.5">Status</th>
               <th class="px-5 py-3.5 pr-6 text-right">Tindakan</th>
             </tr>
@@ -147,15 +147,22 @@
                   </div>
                   <div class="min-w-0">
                     <div class="font-bold text-gray-900 leading-snug truncate max-w-55">{{ acara.nama_acara }}</div>
-                    <span class="inline-block mt-1 text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wide"
-                      :class="{
-                        'bg-emerald-50 text-emerald-700': acara.jenis_acara === 'SUKAN',
-                        'bg-blue-50 text-blue-700': acara.jenis_acara === 'KEBAJIKAN',
-                        'bg-violet-50 text-violet-700': acara.jenis_acara === 'SOSIAL',
-                        'bg-amber-50 text-amber-700': acara.jenis_acara === 'MESYUARAT'
-                      }">
-                      {{ acara.jenis_acara }}
-                    </span>
+                    <div class="flex items-center gap-1.5 mt-1 flex-wrap">
+                      <span class="text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wide"
+                        :class="{
+                          'bg-emerald-50 text-emerald-700': acara.jenis_acara === 'SUKAN',
+                          'bg-blue-50 text-blue-700': acara.jenis_acara === 'KEBAJIKAN',
+                          'bg-violet-50 text-violet-700': acara.jenis_acara === 'SOSIAL',
+                          'bg-amber-50 text-amber-700': acara.jenis_acara === 'MESYUARAT'
+                        }">
+                        {{ acara.jenis_acara }}
+                      </span>
+                      <span v-if="acara.kategori_jantina && acara.kategori_jantina !== 'Semua'"
+                        :class="['text-[9px] font-black px-2 py-0.5 rounded-full border',
+                          acara.kategori_jantina === 'Lelaki' ? 'bg-blue-50 text-blue-700 border-blue-100' : 'bg-pink-50 text-pink-700 border-pink-100']">
+                        {{ acara.kategori_jantina === 'Lelaki' ? '♂ Lelaki' : '♀ Perempuan' }}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </td>
@@ -206,11 +213,24 @@
               <!-- Peserta -->
               <td class="px-5 py-4 text-center">
                 <button @click="paparkanPeserta(acara)"
-                  class="inline-flex items-center gap-1.5 bg-gray-100 hover:bg-emerald-50 text-gray-700 hover:text-emerald-700 font-bold px-3 py-1.5 rounded-lg text-xs transition-colors">
-                  <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
-                  </svg>
-                  {{ acara.jumlah_peserta || 0 }} orang
+                  :class="[
+                    'inline-flex flex-col items-center gap-0.5 font-bold px-3 py-1.5 rounded-lg text-xs transition-colors',
+                    acara.had_peserta && Number(acara.jumlah_peserta) >= Number(acara.had_peserta)
+                      ? 'bg-rose-50 text-rose-700 hover:bg-rose-100'
+                      : 'bg-gray-100 hover:bg-emerald-50 text-gray-700 hover:text-emerald-700'
+                  ]">
+                  <span class="inline-flex items-center gap-1">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                    {{ acara.jumlah_peserta || 0 }}
+                    <template v-if="acara.had_peserta">/ {{ acara.had_peserta }}</template>
+                    orang
+                  </span>
+                  <span v-if="acara.had_peserta && Number(acara.jumlah_peserta) >= Number(acara.had_peserta)"
+                    class="text-[9px] font-black uppercase tracking-wide text-rose-600">PENUH</span>
+                  <span v-else-if="acara.had_peserta"
+                    class="text-[9px] font-medium text-gray-400">{{ acara.had_peserta - (acara.jumlah_peserta || 0) }} slot lagi</span>
                 </button>
               </td>
 
@@ -289,8 +309,12 @@
     <ModalSenaraiPeserta
       :show="paparanModalPeserta"
       :namaAcara="namaAcaraDipilih"
+      :acaraId="acaraIdPeserta"
+      :hadPeserta="hadPesertaDipilih"
+      :senaraiSukan="senaraiSukanDipilih"
       :senarai="senaraiPeserta"
       @tutup="paparanModalPeserta = false"
+      @pesertaDitambah="onPesertaDitambah"
     />
 
     <PanelKontinjenSukan
@@ -330,6 +354,9 @@ const filterStatus = ref('');
 const modEdit = ref(false);
 const idAcaraDipilih = ref(null);
 const namaAcaraDipilih = ref('');
+const hadPesertaDipilih = ref(null);
+const acaraIdPeserta = ref(null);
+const senaraiSukanDipilih = ref([]);
 const formEditAsal = ref(null);
 const idAcaraKontinjen = ref(null);
 
@@ -406,6 +433,7 @@ const bukaBorangEdit = (acara) => {
     status: acara.status,
     senarai_sukan: safeArr(acara.senarai_sukan),
     benarkan_pelbagai_sukan: acara.benarkan_pelbagai_sukan === 1,
+    had_peserta: acara.had_peserta ?? null,
     poster: acara.poster || null
   };
   paparanModalBorang.value = true;
@@ -434,6 +462,9 @@ const padamAcaraId = async (id) => {
 
 const paparkanPeserta = async (acara) => {
   namaAcaraDipilih.value = acara.nama_acara;
+  hadPesertaDipilih.value = acara.had_peserta ?? null;
+  acaraIdPeserta.value = acara.id;
+  senaraiSukanDipilih.value = safeArr(acara.senarai_sukan);
   try {
     const res = await api.get(`/acara/admin/peserta/${acara.id}`);
     if (res.data.success) {
@@ -443,6 +474,17 @@ const paparkanPeserta = async (acara) => {
   } catch {
     alert('Gagal mengambil senarai peserta.');
   }
+};
+
+const onPesertaDitambah = async () => {
+  if (!acaraIdPeserta.value) return;
+  try {
+    const res = await api.get(`/acara/admin/peserta/${acaraIdPeserta.value}`);
+    if (res.data.success) {
+      senaraiPeserta.value = res.data.data;
+      muatNaikAcara();
+    }
+  } catch { /* senyap */ }
 };
 
 const bukaKontinjen = (acara) => {

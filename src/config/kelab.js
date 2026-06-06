@@ -5,11 +5,26 @@
 // ============================================================
 
 export const KELAB = {
+  // Nama rasmi penuh
   nama: 'Kelab Sukan dan Kebajikan Jabatan Perlindungan Hidupan Liar dan Taman Negara (Kelab PERHILITAN)',
+
+  // Nama ringkas — digunakan dalam header dokumen cetak & UI
   namaPendek: 'Kelab PERHILITAN',
+
+  // No. pendaftaran pertubuhan
   noPertubuhan: 'PPM-006-14-27071985',
+
+  // Alamat pejabat
   alamat: 'Ibu Pejabat Jabatan Perlindungan Hidupan Liar dan Taman Negara (PERHILITAN), KM.10 Jalan Cheras, 56100 Cheras Kuala Lumpur.',
+
+  // Emel rasmi
   emel: 'kelabperhilitan@gmail.com',
+
+  // Nombor telefon pejabat
+  noTel: '03-9075 2872',
+
+  // Nama yang dipapar dalam tanda tangan dokumen rasmi
+  namaTandatangan: 'Yang Dipertua Kelab PERHILITAN',
 };
 
 // Blok header HTML untuk dokumen cetakan (resit/slip/laporan).
@@ -19,7 +34,7 @@ export const headerResitHTML = (subtajuk = '') => `
     <h1 style="font-size:15px;color:#0F4C3A;letter-spacing:.5px;margin:0;line-height:1.35">${KELAB.nama}</h1>
     <p style="font-size:10px;color:#555;margin:4px 0 0">No. Pendaftaran: ${KELAB.noPertubuhan}</p>
     <p style="font-size:10px;color:#777;margin:2px 0 0;line-height:1.4">${KELAB.alamat}</p>
-    <p style="font-size:10px;color:#777;margin:2px 0 0">E-mel: ${KELAB.emel}</p>
+    <p style="font-size:10px;color:#777;margin:2px 0 0">Tel: ${KELAB.noTel} &bull; E-mel: ${KELAB.emel}</p>
     ${subtajuk ? `<p style="font-size:11px;color:#0F4C3A;font-weight:bold;margin:8px 0 0">${subtajuk}</p>` : ''}
   </div>
 `;

@@ -1,4 +1,4 @@
-
+﻿
 <template>
   <Transition name="fullscreen-fade">
     <div v-if="show" class="fixed inset-0 z-50 bg-gray-50 flex flex-col">
@@ -177,7 +177,7 @@
                   placeholder="cth: Stadium MSN Bukit Jalil, Kuala Lumpur"
                   class="w-full border border-gray-200 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500">
               </div>
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wide mb-1.5">Tarikh Acara Mula</label>
                   <input type="date" v-model="form.tarikh_acara"
@@ -188,6 +188,36 @@
                   <input type="date" v-model="form.tarikh_tutup"
                     class="w-full border border-gray-200 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500">
                 </div>
+                <div>
+                  <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wide mb-1.5">Had Atlet</label>
+                  <div class="relative">
+                    <input type="number" v-model.number="form.had_peserta" min="1"
+                      placeholder="Tiada had (kosongkan)"
+                      class="w-full border border-gray-200 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 pr-10">
+                    <span class="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-gray-400">org</span>
+                  </div>
+                  <p class="text-[10px] text-gray-400 mt-1">Kosongkan jika tiada had. Ahli tidak boleh daftar bila penuh.</p>
+                </div>
+              </div>
+
+              <!-- Kategori Jantina -->
+              <div>
+                <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wide mb-2">Kategori Jantina Atlet</label>
+                <div class="flex gap-2 flex-wrap">
+                  <button v-for="j in ['Semua','Lelaki','Perempuan']" :key="j" type="button"
+                    @click="form.kategori_jantina = j"
+                    :class="['px-4 py-2 rounded-xl text-xs font-bold border transition-all',
+                      form.kategori_jantina === j
+                        ? j === 'Lelaki'   ? 'bg-blue-600 text-white border-blue-600'
+                        : j === 'Perempuan' ? 'bg-pink-500 text-white border-pink-500'
+                        : 'bg-emerald-600 text-white border-emerald-600'
+                        : 'bg-white text-gray-500 border-gray-200 hover:border-gray-300']">
+                    <span v-if="j === 'Lelaki'">♂ Lelaki Sahaja</span>
+                    <span v-else-if="j === 'Perempuan'">♀ Perempuan Sahaja</span>
+                    <span v-else>Semua Jantina</span>
+                  </button>
+                </div>
+                <p class="text-[10px] text-gray-400 mt-1.5">Ahli yang tidak memenuhi syarat jantina tidak boleh mendaftar.</p>
               </div>
             </div>
 
@@ -228,7 +258,7 @@
                 <h4 class="text-xs font-black text-gray-600 uppercase tracking-widest">Keterangan / Atur Cara</h4>
               </div>
               <textarea v-model="form.keterangan" rows="5"
-                placeholder="Perincian kelayakan peserta, pakaian, syarat, jadual pertandingan, dsb."
+                placeholder="Perincian kelayakan atlet, pakaian, syarat, jadual pertandingan, dsb."
                 class="w-full border border-gray-200 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 resize-none"></textarea>
             </div>
 
@@ -377,11 +407,13 @@ const formKosong = () => ({
   lokasi: '',
   tarikh_acara: '',
   tarikh_tutup: '',
+  had_peserta: null,
   emel_urusetia: '',
   no_tel_urusetia: '',
   status: 'AKTIF',
   senarai_sukan: [],
-  benarkan_pelbagai_sukan: false
+  benarkan_pelbagai_sukan: false,
+  kategori_jantina: 'Semua'
 });
 
 const form = ref(formKosong());
@@ -393,7 +425,7 @@ watch(() => props.show, (val) => {
   failGambar.value = [];
 
   if (props.modEdit && props.formAsal) {
-    form.value = { ...props.formAsal, senarai_sukan: [...(props.formAsal.senarai_sukan || [])] };
+    form.value = { ...props.formAsal, senarai_sukan: [...(props.formAsal.senarai_sukan || [])], had_peserta: props.formAsal.had_peserta ?? null, kategori_jantina: props.formAsal.kategori_jantina || 'Semua' };
     try {
       const p = props.formAsal.poster;
       const parsed = p ? (typeof p === 'string' ? JSON.parse(p) : p) : [];
@@ -463,6 +495,8 @@ const simpan = async () => {
   fd.append('no_tel_urusetia', form.value.no_tel_urusetia || '');
   fd.append('status', form.value.status || 'AKTIF');
   fd.append('benarkan_pelbagai_sukan', form.value.benarkan_pelbagai_sukan ? 'true' : 'false');
+  fd.append('had_peserta', form.value.had_peserta || '');
+  fd.append('kategori_jantina', form.value.kategori_jantina || 'Semua');
   fd.append('senarai_sukan',
     form.value.jenis_acara === 'SUKAN' && form.value.senarai_sukan.length > 0
       ? JSON.stringify(form.value.senarai_sukan) : ''

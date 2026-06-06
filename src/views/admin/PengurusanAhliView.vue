@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="space-y-4 font-sans text-gray-900 pb-10 text-xs">
 
     <!-- HEADER -->
@@ -8,16 +8,21 @@
         <p class="text-gray-400 text-[11px] mt-0.5">Urus data ahli, jawatan, pendaftaran dan jejak profil 360°.</p>
       </div>
       <div class="flex flex-wrap gap-2">
-        <button @click="janaSemulaAhli" :disabled="janaLoading"
+        <button v-if="tabAktif === 'semua'" @click="janaSemulaAhli" :disabled="janaLoading"
           class="flex items-center gap-1.5 text-[11px] bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 text-white font-bold px-3 py-2 rounded-lg transition-all shadow-sm">
           <svg v-if="!janaLoading" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
           <span v-else class="animate-spin w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full"></span>
           Jana Semula No. Ahli
         </button>
-        <button @click="eksportCSV"
+        <button v-if="tabAktif === 'semua'" @click="eksportCSV"
           class="flex items-center gap-1.5 text-[11px] bg-white hover:bg-gray-50 text-gray-700 font-bold px-3 py-2 rounded-lg transition-all border border-gray-200 shadow-sm">
           <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
           Eksport CSV
+        </button>
+        <button v-if="tabAktif === 'jawatankuasa'" @click="cetakJawatankuasa"
+          class="flex items-center gap-1.5 text-[11px] bg-white hover:bg-gray-50 text-gray-700 font-bold px-3 py-2 rounded-lg transition-all border border-gray-200 shadow-sm">
+          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+          Cetak Senarai
         </button>
         <button @click="bukaModalDaftar"
           class="flex items-center gap-1.5 text-[11px] bg-[#0F4C3A] hover:bg-[#155d47] text-white font-bold px-3 py-2 rounded-lg transition-all shadow-sm">
@@ -27,6 +32,20 @@
       </div>
     </div>
 
+    <!-- TAB SWITCHER -->
+    <div class="flex gap-1 bg-gray-100 p-1 rounded-xl w-fit">
+      <button @click="tabAktif = 'semua'"
+        :class="['px-4 py-1.5 rounded-lg text-xs font-bold transition-all', tabAktif === 'semua' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700']">
+        Semua Ahli
+      </button>
+      <button @click="tabAktif = 'jawatankuasa'"
+        :class="['px-4 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5', tabAktif === 'jawatankuasa' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700']">
+        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        Jawatankuasa
+        <span class="bg-[#0F4C3A] text-white text-[9px] font-black px-1.5 py-px rounded-full leading-none">{{ ahliJawatankuasa.length }}</span>
+      </button>
+    </div>
+
     <!-- NOTIS JANA -->
     <Transition name="fade">
       <div v-if="mesejJana" :class="['text-xs font-bold px-4 py-2.5 rounded-lg flex items-center gap-2 border', mesejJana.type==='success' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-rose-50 text-rose-700 border-rose-200']">
@@ -34,110 +53,228 @@
       </div>
     </Transition>
 
-    <!-- PENAPIS -->
-    <div class="bg-white p-3 rounded-xl shadow-sm border border-gray-200">
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2">
-        <div class="relative lg:col-span-1">
-          <input v-model="carian" type="text" placeholder="Cari Nama, No. KP, Jawatan..."
-            class="w-full bg-gray-50 border border-gray-200 text-gray-900 text-xs rounded-lg pl-8 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0F4C3A]/20 focus:border-[#0F4C3A] transition-all placeholder-gray-400"/>
-          <svg class="w-3.5 h-3.5 text-gray-400 absolute left-2.5 top-1/2 -translate-y-1/2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+    <!-- ======================================== -->
+    <!-- TAB: SEMUA AHLI                          -->
+    <!-- ======================================== -->
+    <template v-if="tabAktif === 'semua'">
+
+      <!-- PENAPIS -->
+      <div class="bg-white p-3 rounded-xl shadow-sm border border-gray-200">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2">
+          <div class="relative lg:col-span-1">
+            <input v-model="carian" type="text" placeholder="Cari Nama, No. KP, Jawatan..."
+              class="w-full bg-gray-50 border border-gray-200 text-gray-900 text-xs rounded-lg pl-8 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0F4C3A]/20 focus:border-[#0F4C3A] transition-all placeholder-gray-400"/>
+            <svg class="w-3.5 h-3.5 text-gray-400 absolute left-2.5 top-1/2 -translate-y-1/2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          </div>
+          <select v-model="filterStatus" class="bg-gray-50 border border-gray-200 text-gray-700 text-xs font-medium rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0F4C3A]/20">
+            <option value="">Semua Status</option><option value="aktif">Aktif</option><option value="tidak aktif">Tidak Aktif</option>
+          </select>
+          <select v-model="filterPenempatan" class="bg-gray-50 border border-gray-200 text-gray-700 text-xs font-medium rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0F4C3A]/20">
+            <option value="">Semua Penempatan</option><option v-for="ptj in senaraiPenempatan" :key="ptj" :value="ptj">{{ ptj }}</option>
+          </select>
+          <select v-model="filterGred" class="bg-gray-50 border border-gray-200 text-gray-700 text-xs font-medium rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0F4C3A]/20">
+            <option value="">Semua Gred</option><option v-for="gred in senaraiGred" :key="gred" :value="gred">{{ gred }}</option>
+          </select>
+          <select v-model="filterPotongan" class="bg-gray-50 border border-gray-200 text-gray-700 text-xs font-medium rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0F4C3A]/20">
+            <option value="">Kaedah Potongan</option><option value="Potongan Biro angkasa">Biro Angkasa</option><option value="Bayar secara manual">Manual / FPX</option>
+          </select>
         </div>
-        <select v-model="filterStatus" class="bg-gray-50 border border-gray-200 text-gray-700 text-xs font-medium rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0F4C3A]/20">
-          <option value="">Semua Status</option><option value="aktif">Aktif</option><option value="tidak aktif">Tidak Aktif</option>
-        </select>
-        <select v-model="filterPenempatan" class="bg-gray-50 border border-gray-200 text-gray-700 text-xs font-medium rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0F4C3A]/20">
-          <option value="">Semua Penempatan</option><option v-for="ptj in senaraiPenempatan" :key="ptj" :value="ptj">{{ ptj }}</option>
-        </select>
-        <select v-model="filterGred" class="bg-gray-50 border border-gray-200 text-gray-700 text-xs font-medium rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0F4C3A]/20">
-          <option value="">Semua Gred</option><option v-for="gred in senaraiGred" :key="gred" :value="gred">{{ gred }}</option>
-        </select>
-        <select v-model="filterPotongan" class="bg-gray-50 border border-gray-200 text-gray-700 text-xs font-medium rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0F4C3A]/20">
-          <option value="">Kaedah Potongan</option><option value="Potongan Biro angkasa">Biro Angkasa</option><option value="Bayar secara manual">Manual / FPX</option>
-        </select>
-      </div>
-    </div>
-
-    <p class="text-gray-400 text-[11px]">
-      Menunjukkan <span class="text-gray-700 font-bold">{{ ahliTertapis.length }}</span> daripada <span class="text-gray-700 font-bold">{{ semuaAhli.length }}</span> rekod
-      <span v-if="jumlahBelumDaftar > 0" class="ml-2 text-amber-600 font-bold">· <span class="bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded">{{ jumlahBelumDaftar }} belum daftar apps</span> (baris kuning)</span>
-    </p>
-
-    <!-- JADUAL AHLI -->
-    <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-      <div class="overflow-x-auto">
-        <table class="w-full text-left">
-          <thead class="bg-gray-50 text-gray-400 text-[10px] uppercase tracking-wider border-b border-gray-200">
-            <tr>
-              <th class="px-4 py-3 font-bold">Nama Ahli</th>
-              <th class="px-3 py-3 font-bold hidden md:table-cell">No. Ahli</th>
-              <th class="px-3 py-3 font-bold hidden lg:table-cell">Jawatan Kelab</th>
-              <th class="px-3 py-3 font-bold hidden lg:table-cell">Penempatan</th>
-              <th class="px-3 py-3 font-bold hidden sm:table-cell">Gred / Potongan</th>
-              <th class="text-center px-3 py-3 font-bold">Status</th>
-              <th class="text-center px-3 py-3 font-bold">Tindakan</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-gray-100">
-            <tr v-if="loading"><td colspan="7" class="px-4 py-10 text-center text-gray-400"><div class="flex justify-center items-center gap-2 text-xs"><svg class="animate-spin w-4 h-4 text-[#0F4C3A]" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/></svg>Memuatkan...</div></td></tr>
-            <tr v-else-if="ahliTertapis.length === 0"><td colspan="7" class="px-4 py-12 text-center text-gray-400 text-xs">Tiada rekod dijumpai.</td></tr>
-            <tr v-for="ahli in ahliTerpapar" :key="ahli.no_kp"
-              :class="['transition-colors', !ahli.has_daftar ? 'bg-yellow-50 hover:bg-amber-50' : 'hover:bg-gray-50/80']">
-              <td class="px-4 py-2.5">
-                <div class="flex items-center gap-2.5">
-                  <div class="w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center shrink-0 border border-emerald-100 overflow-hidden">
-                    <img v-if="ahli.gambar" :src="`${apiBase}/uploads/images/${ahli.gambar}`" class="w-full h-full object-cover"/>
-                    <span v-else class="text-emerald-700 text-xs font-black">{{ (ahli.nama_pegawai || '?').charAt(0) }}</span>
-                  </div>
-                  <div>
-                    <p class="text-gray-800 font-bold text-xs leading-tight">{{ ahli.nama_pegawai || '—' }}</p>
-                    <p class="text-gray-400 text-[10px] font-mono">{{ ahli.no_kp }}</p>
-                    <span v-if="!ahli.has_daftar" class="inline-block text-[9px] bg-amber-100 text-amber-700 border border-amber-200 px-1.5 py-px rounded font-bold leading-none mt-0.5">Belum Daftar Apps</span>
-                  </div>
-                </div>
-              </td>
-              <td class="px-3 py-2.5 hidden md:table-cell">
-                <span class="text-gray-600 font-mono font-bold text-[10px] bg-gray-100 border border-gray-200 px-2 py-0.5 rounded">{{ ahli.no_ahli || 'BELUM JANA' }}</span>
-              </td>
-              <td class="px-3 py-2.5 hidden lg:table-cell">
-                <span v-if="ahli.jawatan_kelab" :class="['text-[10px] font-bold px-2 py-0.5 rounded border', badgeJawatan(ahli.jawatan_kelab)]">{{ ahli.jawatan_kelab }}</span>
-                <span v-else class="text-gray-300 text-[10px]">—</span>
-              </td>
-              <td class="px-3 py-2.5 hidden lg:table-cell">
-                <span class="text-gray-500 text-[11px] font-medium truncate max-w-40 block" :title="ahli.penempatan">{{ ahli.penempatan || '—' }}</span>
-              </td>
-              <td class="px-3 py-2.5 hidden sm:table-cell">
-                <p class="text-gray-800 text-xs font-bold">{{ ahli.gred_sspa || '—' }}</p>
-                <span v-if="ahli.jenis_potongan === 'Potongan Biro angkasa'" class="inline-flex items-center gap-1 text-[9px] text-blue-700 bg-blue-50 border border-blue-100 px-1.5 py-px rounded font-bold uppercase tracking-wide mt-0.5">
-                  <svg class="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>Biro Angkasa
-                </span>
-                <span v-else class="text-[9px] text-gray-400 font-medium mt-0.5 block">Manual / FPX</span>
-              </td>
-              <td class="px-3 py-2.5 text-center">
-                <span :class="['text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wide border', badgeStatus(ahli.status_ahli)]">{{ ahli.status_ahli || 'TIDAK AKTIF' }}</span>
-              </td>
-              <td class="px-3 py-2.5 text-center">
-                <div class="flex justify-center gap-1">
-                  <button @click="bukaDetails(ahli)" class="text-[10px] font-bold text-[#0F4C3A] bg-[#0F4C3A]/10 hover:bg-[#0F4C3A]/20 border border-[#0F4C3A]/20 px-2.5 py-1 rounded-lg transition-colors flex items-center gap-1">
-                    <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>360°
-                  </button>
-                  <button @click="bukaEdit(ahli)" class="text-[10px] font-bold text-gray-600 bg-gray-100 hover:bg-gray-200 border border-gray-200 px-2 py-1 rounded-lg transition-colors">
-                    <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
-                  </button>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="flex items-center justify-between px-4 py-3 border-t border-gray-100 bg-gray-50">
-        <p class="text-gray-400 text-[10px] font-medium">Halaman {{ halamanSemasa }} / {{ jumlahHalaman }}</p>
-        <div class="flex gap-1">
-          <button @click="halamanSemasa--" :disabled="halamanSemasa === 1" class="w-7 h-7 rounded-lg bg-white border border-gray-200 text-gray-500 hover:bg-gray-100 disabled:opacity-40 transition-colors flex items-center justify-center text-xs">‹</button>
-          <button v-for="p in halamanDipapar" :key="p" @click="halamanSemasa = p" :class="['w-7 h-7 rounded-lg text-[10px] font-bold transition-colors border flex items-center justify-center', p === halamanSemasa ? 'bg-[#0F4C3A] border-[#0F4C3A] text-white' : 'bg-white border-gray-200 text-gray-500 hover:bg-gray-100']">{{ p }}</button>
-          <button @click="halamanSemasa++" :disabled="halamanSemasa === jumlahHalaman" class="w-7 h-7 rounded-lg bg-white border border-gray-200 text-gray-500 hover:bg-gray-100 disabled:opacity-40 transition-colors flex items-center justify-center text-xs">›</button>
+        <!-- Quick filter chips -->
+        <div class="mt-2 flex flex-wrap gap-2">
+          <button @click="filterBelumBayar = !filterBelumBayar"
+            :class="['flex items-center gap-1.5 text-[10px] font-bold px-3 py-1.5 rounded-lg border transition-all', filterBelumBayar ? 'bg-rose-50 text-rose-700 border-rose-300' : 'bg-gray-50 text-gray-500 border-gray-200 hover:border-gray-300 hover:text-gray-700']">
+            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            Belum Bayar Sahaja
+            <span v-if="filterBelumBayar" class="bg-rose-600 text-white text-[8px] font-black px-1 py-px rounded-full leading-none">AKTIF</span>
+          </button>
         </div>
       </div>
-    </div>
+
+      <p class="text-gray-400 text-[11px]">
+        Menunjukkan <span class="text-gray-700 font-bold">{{ ahliTertapis.length }}</span> daripada <span class="text-gray-700 font-bold">{{ semuaAhli.length }}</span> rekod
+        <span v-if="jumlahBelumDaftar > 0" class="ml-2 text-amber-600 font-bold">· <span class="bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded">{{ jumlahBelumDaftar }} belum daftar apps</span> (baris kuning)</span>
+      </p>
+
+      <!-- JADUAL AHLI -->
+      <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left">
+            <thead class="bg-gray-50 text-gray-400 text-[10px] uppercase tracking-wider border-b border-gray-200">
+              <tr>
+                <th class="px-4 py-3 font-bold">Nama Ahli</th>
+                <th class="px-3 py-3 font-bold hidden md:table-cell">No. Ahli</th>
+                <th class="px-3 py-3 font-bold hidden lg:table-cell">Jawatan Kelab</th>
+                <th class="px-3 py-3 font-bold hidden lg:table-cell">Penempatan</th>
+                <th class="px-3 py-3 font-bold hidden sm:table-cell">Gred / Potongan</th>
+                <th class="text-center px-3 py-3 font-bold">Status</th>
+                <th class="text-center px-3 py-3 font-bold">Tindakan</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+              <tr v-if="loading"><td colspan="7" class="px-4 py-10 text-center text-gray-400"><div class="flex justify-center items-center gap-2 text-xs"><svg class="animate-spin w-4 h-4 text-[#0F4C3A]" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/></svg>Memuatkan...</div></td></tr>
+              <tr v-else-if="ahliTertapis.length === 0"><td colspan="7" class="px-4 py-12 text-center text-gray-400 text-xs">Tiada rekod dijumpai.</td></tr>
+              <tr v-for="ahli in ahliTerpapar" :key="ahli.no_kp"
+                :class="['transition-colors', !ahli.has_daftar ? 'bg-yellow-50 hover:bg-amber-50' : 'hover:bg-gray-50/80']">
+                <td class="px-4 py-2.5">
+                  <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center shrink-0 border border-emerald-100 overflow-hidden">
+                      <img v-if="ahli.gambar" :src="`${apiBase}/uploads/images/${ahli.gambar}`" class="w-full h-full object-cover"/>
+                      <span v-else class="text-emerald-700 text-xs font-black">{{ (ahli.nama_pegawai || '?').charAt(0) }}</span>
+                    </div>
+                    <div>
+                      <p class="text-gray-800 font-bold text-xs leading-tight uppercase">{{ ahli.nama_pegawai || '—' }}</p>
+                      <p class="text-gray-400 text-[10px] font-mono">{{ ahli.no_kp }}</p>
+                      <span v-if="!ahli.has_daftar" class="inline-block text-[9px] bg-amber-100 text-amber-700 border border-amber-200 px-1.5 py-px rounded font-bold leading-none mt-0.5">Belum Daftar Apps</span>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-3 py-2.5 hidden md:table-cell">
+                  <span class="text-gray-600 font-mono font-bold text-[10px] bg-gray-100 border border-gray-200 px-2 py-0.5 rounded">{{ ahli.no_ahli || 'BELUM JANA' }}</span>
+                </td>
+                <td class="px-3 py-2.5 hidden lg:table-cell">
+                  <span v-if="ahli.jawatan_kelab" :class="['text-[10px] font-bold px-2 py-0.5 rounded border', badgeJawatan(ahli.jawatan_kelab)]">{{ ahli.jawatan_kelab }}</span>
+                  <span v-else class="text-gray-300 text-[10px]">—</span>
+                </td>
+                <td class="px-3 py-2.5 hidden lg:table-cell">
+                  <span class="text-gray-500 text-[11px] font-medium truncate max-w-40 block" :title="ahli.penempatan">{{ ahli.penempatan || '—' }}</span>
+                </td>
+                <td class="px-3 py-2.5 hidden sm:table-cell">
+                  <p class="text-gray-800 text-xs font-bold">{{ ahli.gred_sspa || '—' }}</p>
+                  <span v-if="ahli.jenis_potongan === 'Potongan Biro angkasa'" class="inline-flex items-center gap-1 text-[9px] text-blue-700 bg-blue-50 border border-blue-100 px-1.5 py-px rounded font-bold uppercase tracking-wide mt-0.5">
+                    <svg class="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>Biro Angkasa
+                  </span>
+                  <span v-else class="text-[9px] text-gray-400 font-medium mt-0.5 block">Manual / FPX</span>
+                  <!-- Status yuran -->
+                  <span v-if="ahli.is_paid" class="inline-flex items-center gap-1 text-[9px] text-emerald-700 bg-emerald-50 border border-emerald-200 px-1.5 py-px rounded font-bold mt-0.5">
+                    <svg class="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>BERBAYAR
+                  </span>
+                  <span v-else class="inline-flex items-center gap-1 text-[9px] text-rose-700 bg-rose-50 border border-rose-200 px-1.5 py-px rounded font-bold mt-0.5">
+                    <svg class="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>BELUM BAYAR
+                  </span>
+                </td>
+                <td class="px-3 py-2.5 text-center">
+                  <span :class="['text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wide border', badgeStatus(ahli.status_ahli)]">{{ ahli.status_ahli || 'TIDAK AKTIF' }}</span>
+                </td>
+                <td class="px-3 py-2.5 text-center">
+                  <div class="flex justify-center gap-1">
+                    <button @click="bukaDetails(ahli)" class="text-[#0F4C3A] bg-[#0F4C3A]/10 hover:bg-[#0F4C3A]/20 border border-[#0F4C3A]/20 p-1.5 rounded-lg transition-colors">
+                      <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                    </button>
+                    <button @click="bukaEdit(ahli)" class="text-[10px] font-bold text-gray-600 bg-gray-100 hover:bg-gray-200 border border-gray-200 px-2 py-1 rounded-lg transition-colors">
+                      <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="flex items-center justify-between px-4 py-3 border-t border-gray-100 bg-gray-50">
+          <p class="text-gray-400 text-[10px] font-medium">Halaman {{ halamanSemasa }} / {{ jumlahHalaman }}</p>
+          <div class="flex gap-1">
+            <button @click="halamanSemasa--" :disabled="halamanSemasa === 1" class="w-7 h-7 rounded-lg bg-white border border-gray-200 text-gray-500 hover:bg-gray-100 disabled:opacity-40 transition-colors flex items-center justify-center text-xs">‹</button>
+            <button v-for="p in halamanDipapar" :key="p" @click="halamanSemasa = p" :class="['w-7 h-7 rounded-lg text-[10px] font-bold transition-colors border flex items-center justify-center', p === halamanSemasa ? 'bg-[#0F4C3A] border-[#0F4C3A] text-white' : 'bg-white border-gray-200 text-gray-500 hover:bg-gray-100']">{{ p }}</button>
+            <button @click="halamanSemasa++" :disabled="halamanSemasa === jumlahHalaman" class="w-7 h-7 rounded-lg bg-white border border-gray-200 text-gray-500 hover:bg-gray-100 disabled:opacity-40 transition-colors flex items-center justify-center text-xs">›</button>
+          </div>
+        </div>
+      </div>
+
+    </template>
+
+    <!-- ======================================== -->
+    <!-- TAB: JAWATANKUASA KELAB                  -->
+    <!-- ======================================== -->
+    <template v-else>
+
+      <!-- PENAPIS JAWATANKUASA -->
+      <div class="bg-white p-3 rounded-xl shadow-sm border border-gray-200">
+        <div class="flex flex-wrap gap-2 items-center">
+          <div class="relative flex-1 min-w-40">
+            <input v-model="carianAJK" type="text" placeholder="Cari nama ahli jawatankuasa..."
+              class="w-full bg-gray-50 border border-gray-200 text-gray-900 text-xs rounded-lg pl-8 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0F4C3A]/20 focus:border-[#0F4C3A] transition-all placeholder-gray-400"/>
+            <svg class="w-3.5 h-3.5 text-gray-400 absolute left-2.5 top-1/2 -translate-y-1/2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          </div>
+          <select v-model="filterJawatanAJK"
+            class="bg-gray-50 border border-gray-200 text-gray-700 text-xs font-medium rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0F4C3A]/20">
+            <option value="">Semua Jawatan AJK</option>
+            <option v-for="j in hierarkiJawatan" :key="j" :value="j">{{ j }}</option>
+          </select>
+          <select v-model="filterPenempatanAJK"
+            class="bg-gray-50 border border-gray-200 text-gray-700 text-xs font-medium rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0F4C3A]/20">
+            <option value="">Semua Penempatan</option>
+            <option v-for="ptj in senaraiPenempatan" :key="ptj" :value="ptj">{{ ptj }}</option>
+          </select>
+          <button @click="filterBelumBayarAJK = !filterBelumBayarAJK"
+            :class="['flex items-center gap-1.5 text-[10px] font-bold px-3 py-2 rounded-lg border transition-all shrink-0', filterBelumBayarAJK ? 'bg-rose-50 text-rose-700 border-rose-300' : 'bg-gray-50 text-gray-500 border-gray-200 hover:border-gray-300 hover:text-gray-700']">
+            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            Belum Bayar
+            <span v-if="filterBelumBayarAJK" class="bg-rose-600 text-white text-[8px] font-black px-1 py-px rounded-full leading-none">AKTIF</span>
+          </button>
+        </div>
+      </div>
+
+      <p class="text-gray-400 text-[11px]">
+        Menunjukkan <span class="text-gray-700 font-bold">{{ ahliJawatankuasaTertapis.length }}</span> daripada <span class="text-gray-700 font-bold">{{ ahliJawatankuasa.length }}</span> ahli jawatankuasa
+        <span v-if="jumlahBelumBayarAJK > 0" class="ml-2 text-rose-600 font-bold">· <span class="bg-rose-50 border border-rose-200 px-1.5 py-0.5 rounded">{{ jumlahBelumBayarAJK }} belum bayar</span></span>
+      </p>
+
+      <!-- HIERARKI VIEW -->
+      <div v-if="loading" class="bg-white rounded-xl border border-gray-200 shadow-sm p-10 text-center text-gray-400">
+        <div class="flex justify-center items-center gap-2 text-xs">
+          <svg class="animate-spin w-4 h-4 text-[#0F4C3A]" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/></svg>
+          Memuatkan...
+        </div>
+      </div>
+      <div v-else-if="ahliJawatankuasaTertapis.length === 0" class="bg-white rounded-xl border border-gray-200 shadow-sm p-12 text-center text-gray-400 text-xs">
+        Tiada ahli jawatankuasa dijumpai dengan penapis semasa.
+      </div>
+      <div v-else class="space-y-3">
+        <div v-for="jawatan in hierarkiDipapar" :key="jawatan" class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+          <!-- Section header -->
+          <div :class="['flex items-center justify-between px-4 py-2.5 border-b', bgSeksyenJawatan(jawatan)]">
+            <div class="flex items-center gap-2">
+              <span :class="['text-[10px] font-black uppercase tracking-wider', warnaTeksJawatan(jawatan)]">{{ jawatan }}</span>
+            </div>
+            <span :class="['text-[9px] font-bold px-2 py-0.5 rounded-full border', badgeJawatan(jawatan)]">
+              {{ ahliMengikutJawatan(jawatan).length }} orang
+            </span>
+          </div>
+          <!-- Members -->
+          <div class="divide-y divide-gray-50">
+            <div v-for="(ahli, idx) in ahliMengikutJawatan(jawatan)" :key="ahli.no_kp"
+              class="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50/70 transition-colors group">
+              <span class="text-[9px] text-gray-300 font-mono w-5 text-right shrink-0">{{ idx + 1 }}.</span>
+              <!-- Avatar -->
+              <div class="w-8 h-8 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center shrink-0 overflow-hidden">
+                <img v-if="ahli.gambar" :src="`${apiBase}/uploads/images/${ahli.gambar}`" class="w-full h-full object-cover"/>
+                <span v-else class="text-emerald-700 text-xs font-black">{{ (ahli.nama_pegawai || '?').charAt(0) }}</span>
+              </div>
+              <!-- Info utama -->
+              <div class="flex-1 min-w-0">
+                <p class="text-gray-800 font-bold text-xs leading-tight truncate uppercase">{{ ahli.nama_pegawai || '—' }}</p>
+                <p class="text-gray-400 text-[10px] mt-px">{{ ahli.penempatan || '—' }}<span v-if="ahli.gred_sspa"> · {{ ahli.gred_sspa }}</span></p>
+              </div>
+              <!-- No Ahli -->
+              <span class="text-[10px] font-mono text-gray-500 bg-gray-100 border border-gray-200 px-2 py-0.5 rounded hidden sm:inline shrink-0">{{ ahli.no_ahli || 'BELUM JANA' }}</span>
+              <!-- Status yuran -->
+              <span :class="['text-[9px] font-bold px-2 py-0.5 rounded border shrink-0', ahli.is_paid ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-rose-50 text-rose-700 border-rose-200']">
+                {{ ahli.is_paid ? 'BERBAYAR' : 'BELUM BAYAR' }}
+              </span>
+              <!-- Tindakan -->
+              <div class="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+                <button @click="bukaDetails(ahli)" class="text-[#0F4C3A] bg-[#0F4C3A]/10 hover:bg-[#0F4C3A]/20 border border-[#0F4C3A]/20 p-1.5 rounded-lg transition-colors">
+                  <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                </button>
+                <button @click="bukaEdit(ahli)" class="text-gray-500 bg-gray-100 hover:bg-gray-200 border border-gray-200 p-1.5 rounded-lg transition-colors">
+                  <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </template>
 
     <!-- MODAL PROFIL 360 -->
     <ProfilAhli360 :show="showDetails" :ahliBase="ahliDipilih" @close="showDetails = false" @edit="bukaEditDariProfil" />
@@ -145,7 +282,7 @@
     <!-- MODAL DAFTAR STAF -->
     <Teleport to="body">
       <Transition name="modal">
-        <div v-if="showDaftar" class="fixed inset-0 z-110 bg-black/60 backdrop-blur-sm flex items-center justify-center px-4" @click.self="showDaftar = false">
+        <div v-if="showDaftar" class="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center px-4" @click.self="showDaftar = false">
           <div class="bg-white border border-gray-200 rounded-2xl w-full max-w-4xl shadow-2xl flex flex-col max-h-[90vh]">
             <div class="flex justify-between items-start px-5 py-4 border-b border-gray-100 shrink-0">
               <div>
@@ -164,7 +301,7 @@
                     <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                   </button>
                   <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-                    <div>
+                    <div class="md:col-span-2">
                       <label class="field-lbl">Nama Penuh *</label>
                       <input v-model="row.nama_pegawai" type="text" placeholder="Nama Staf" required class="field-inp"/>
                     </div>
@@ -174,8 +311,20 @@
                     </div>
                     <div>
                       <label class="field-lbl">Cawangan / Penempatan *</label>
-                      <input v-model="row.penempatan" type="text" list="listPTJ" placeholder="Cth: Ibu Pejabat" required class="field-inp"/>
-                      <datalist id="listPTJ"><option v-for="ptj in senaraiPenempatanLengkap" :key="ptj.id" :value="ptj.nama_penempatan"></option></datalist>
+                      <input v-model="row.penempatan" type="text" :list="`listPTJ-${index}`" placeholder="Cth: Ibu Pejabat" required class="field-inp"/>
+                      <datalist :id="`listPTJ-${index}`"><option v-for="ptj in senaraiPenempatanLengkap" :key="ptj.id" :value="ptj.nama_penempatan"></option></datalist>
+                    </div>
+                    <div>
+                      <label class="field-lbl">Gred SSPA</label>
+                      <input v-model="row.gred_sspa" type="text" :list="`listGred-${index}`" placeholder="Cth: N19, VU5" class="field-inp uppercase"/>
+                      <datalist :id="`listGred-${index}`"><option v-for="g in senaraiGred" :key="g" :value="g"></option></datalist>
+                    </div>
+                    <div>
+                      <label class="field-lbl">Jawatan Dalam Kelab</label>
+                      <select v-model="row.jawatan_kelab" class="field-inp">
+                        <option value="">— Tiada Jawatan —</option>
+                        <option v-for="j in senaraiJawatan" :key="j" :value="j">{{ j }}</option>
+                      </select>
                     </div>
                   </div>
                 </div>
@@ -206,7 +355,7 @@
     <!-- MODAL EDIT PROFIL AHLI -->
     <Teleport to="body">
       <Transition name="modal">
-        <div v-if="showEdit" class="fixed inset-0 z-120 bg-black/50 backdrop-blur-sm flex items-center justify-center px-4" @click.self="showEdit = false">
+        <div v-if="showEdit" class="absolute inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center px-4" @click.self="showEdit = false">
           <div class="bg-white border border-gray-200 rounded-2xl w-full max-w-2xl shadow-2xl max-h-[92vh] flex flex-col">
 
             <!-- Header modal dengan avatar -->
@@ -339,6 +488,7 @@
 import { ref, computed, onMounted, watch } from 'vue';
 import api from '../../services/api';
 import ProfilAhli360 from '../../components/admin/ProfilAhli360.vue';
+import { KELAB } from '../../config/kelab';
 
 const semuaAhli = ref([]);
 const senaraiPenempatanLengkap = ref([]);
@@ -352,16 +502,33 @@ const senaraiJawatan = [
   'Ahli Jawatankuasa', 'Ahli Jawatankuasa Negeri', 'Ahli Kelab',
 ];
 
-// Filter
+// Hierarki untuk tab jawatankuasa (tanpa 'Ahli Kelab')
+const hierarkiJawatan = [
+  'Yang Dipertua', 'Naib Yang Dipertua', 'Setiausaha', 'Penolong Setiausaha',
+  'Bendahari', 'Penolong Bendahari', 'Auditor',
+  'Ahli Jawatankuasa', 'Ahli Jawatankuasa Negeri',
+];
+
+// ── Tab ──
+const tabAktif = ref('semua');
+
+// ── Filter: Semua Ahli ──
 const carian = ref('');
 const filterStatus = ref('');
 const filterPenempatan = ref('');
 const filterGred = ref('');
 const filterPotongan = ref('');
+const filterBelumBayar = ref(false);
 const halamanSemasa = ref(1);
 const hadPerHalaman = 20;
 
-// Modal edit
+// ── Filter: Jawatankuasa ──
+const carianAJK = ref('');
+const filterJawatanAJK = ref('');
+const filterPenempatanAJK = ref('');
+const filterBelumBayarAJK = ref(false);
+
+// ── Modal edit ──
 const showEdit = ref(false);
 const mesejEdit = ref(null);
 const formEdit = ref({
@@ -370,28 +537,21 @@ const formEdit = ref({
   no_ahli: '', jawatan_kelab: '', status_ahli: '', role: '', _gambar: ''
 });
 
-// Modal daftar
+// ── Modal daftar ──
 const showDaftar = ref(false);
 const mesejDaftar = ref(null);
-const borangDaftar = ref([{ nama_pegawai: '', no_kp: '', penempatan: '' }]);
+const borangDaftar = ref([{ nama_pegawai: '', no_kp: '', penempatan: '', gred_sspa: '', jawatan_kelab: '' }]);
 
-// Profil 360
+// ── Profil 360 ──
 const showDetails = ref(false);
 const ahliDipilih = ref(null);
 
-// Jana
+// ── Jana ──
 const janaLoading = ref(false);
 const mesejJana = ref(null);
 
+// ── Computed: Semua Ahli ──
 const jumlahBelumDaftar = computed(() => semuaAhli.value.filter(a => !a.has_daftar).length);
-
-const muatSenaraiPTJ = async () => {
-  try {
-    const { data } = await api.get('/user/senarai-ptj');
-    if (data.success) senaraiPenempatanLengkap.value = data.data;
-  } catch (e) { console.error(e); }
-};
-
 const senaraiPenempatan = computed(() => [...new Set(semuaAhli.value.map(a => a.penempatan).filter(Boolean))].sort());
 const senaraiGred = computed(() => [...new Set(semuaAhli.value.map(a => a.gred_sspa).filter(Boolean))].sort());
 
@@ -407,7 +567,8 @@ const ahliTertapis = computed(() => {
     const matchPenempatan = !filterPenempatan.value || a.penempatan === filterPenempatan.value;
     const matchGred = !filterGred.value || a.gred_sspa === filterGred.value;
     const matchPotongan = !filterPotongan.value || a.jenis_potongan === filterPotongan.value;
-    return matchCarian && matchStatus && matchPenempatan && matchGred && matchPotongan;
+    const matchBelumBayar = !filterBelumBayar.value || !a.is_paid;
+    return matchCarian && matchStatus && matchPenempatan && matchGred && matchPotongan && matchBelumBayar;
   });
 });
 
@@ -416,7 +577,6 @@ const ahliTerpapar = computed(() => {
   const start = (halamanSemasa.value - 1) * hadPerHalaman;
   return ahliTertapis.value.slice(start, start + hadPerHalaman);
 });
-
 const halamanDipapar = computed(() => {
   const total = jumlahHalaman.value; const semasa = halamanSemasa.value;
   if (total <= 5) return Array.from({ length: total }, (_, i) => i + 1);
@@ -425,8 +585,39 @@ const halamanDipapar = computed(() => {
   return [semasa - 2, semasa - 1, semasa, semasa + 1, semasa + 2];
 });
 
-watch([carian, filterStatus, filterPenempatan, filterGred, filterPotongan], () => { halamanSemasa.value = 1; });
+// ── Computed: Jawatankuasa ──
+const ahliJawatankuasa = computed(() =>
+  semuaAhli.value.filter(a => a.jawatan_kelab && hierarkiJawatan.includes(a.jawatan_kelab))
+);
 
+const jumlahBelumBayarAJK = computed(() =>
+  ahliJawatankuasa.value.filter(a => !a.is_paid).length
+);
+
+const ahliJawatankuasaTertapis = computed(() => {
+  const coc = carianAJK.value.toLowerCase();
+  return ahliJawatankuasa.value.filter(a => {
+    const matchCarian = !coc ||
+      (a.nama_pegawai || '').toLowerCase().includes(coc) ||
+      (a.no_kp || '').includes(coc);
+    const matchJawatan = !filterJawatanAJK.value || a.jawatan_kelab === filterJawatanAJK.value;
+    const matchPenempatan = !filterPenempatanAJK.value || a.penempatan === filterPenempatanAJK.value;
+    const matchBelumBayar = !filterBelumBayarAJK.value || !a.is_paid;
+    return matchCarian && matchJawatan && matchPenempatan && matchBelumBayar;
+  });
+});
+
+const hierarkiDipapar = computed(() =>
+  hierarkiJawatan.filter(j => ahliJawatankuasaTertapis.value.some(a => a.jawatan_kelab === j))
+);
+
+const ahliMengikutJawatan = (jawatan) =>
+  ahliJawatankuasaTertapis.value.filter(a => a.jawatan_kelab === jawatan);
+
+// ── Watcher ──
+watch([carian, filterStatus, filterPenempatan, filterGred, filterPotongan, filterBelumBayar], () => { halamanSemasa.value = 1; });
+
+// ── Badge helpers ──
 const badgeStatus = (s) => {
   const status = (s || '').toLowerCase();
   if (status === 'aktif') return 'bg-emerald-50 text-emerald-700 border-emerald-200';
@@ -443,6 +634,32 @@ const badgeJawatan = (j) => {
   if (j === 'Auditor') return 'bg-rose-100 text-rose-800 border-rose-200';
   if (['Ahli Jawatankuasa', 'Ahli Jawatankuasa Negeri'].includes(j)) return 'bg-teal-100 text-teal-800 border-teal-200';
   return 'bg-gray-100 text-gray-600 border-gray-200';
+};
+
+const bgSeksyenJawatan = (j) => {
+  if (j === 'Yang Dipertua') return 'bg-purple-50 border-purple-100';
+  if (j === 'Naib Yang Dipertua') return 'bg-indigo-50 border-indigo-100';
+  if (['Setiausaha', 'Penolong Setiausaha'].includes(j)) return 'bg-sky-50 border-sky-100';
+  if (['Bendahari', 'Penolong Bendahari'].includes(j)) return 'bg-amber-50 border-amber-100';
+  if (j === 'Auditor') return 'bg-rose-50 border-rose-100';
+  return 'bg-teal-50 border-teal-100';
+};
+
+const warnaTeksJawatan = (j) => {
+  if (j === 'Yang Dipertua') return 'text-purple-800';
+  if (j === 'Naib Yang Dipertua') return 'text-indigo-800';
+  if (['Setiausaha', 'Penolong Setiausaha'].includes(j)) return 'text-sky-800';
+  if (['Bendahari', 'Penolong Bendahari'].includes(j)) return 'text-amber-800';
+  if (j === 'Auditor') return 'text-rose-800';
+  return 'text-teal-800';
+};
+
+// ── API ──
+const muatSenaraiPTJ = async () => {
+  try {
+    const { data } = await api.get('/user/senarai-ptj');
+    if (data.success) senaraiPenempatanLengkap.value = data.data;
+  } catch (e) { console.error(e); }
 };
 
 const muatAhli = async () => {
@@ -470,6 +687,7 @@ const janaSemulaAhli = async () => {
   }
 };
 
+// ── Edit ──
 const bukaEdit = (ahli) => {
   mesejEdit.value = null;
   formEdit.value = {
@@ -526,44 +744,49 @@ const simpanEdit = async () => {
   }
 };
 
+// ── Daftar ──
 const bukaModalDaftar = () => {
-  borangDaftar.value = [{ nama_pegawai: '', no_kp: '', penempatan: '' }];
+  borangDaftar.value = [{ nama_pegawai: '', no_kp: '', penempatan: '', gred_sspa: '', jawatan_kelab: '' }];
   mesejDaftar.value = null;
   showDaftar.value = true;
 };
-const tambahBaris = () => borangDaftar.value.push({ nama_pegawai: '', no_kp: '', penempatan: '' });
+const tambahBaris = () => borangDaftar.value.push({ nama_pegawai: '', no_kp: '', penempatan: '', gred_sspa: '', jawatan_kelab: '' });
 const buangBaris = (idx) => borangDaftar.value.splice(idx, 1);
 
 const simpanDaftarPukal = async () => {
   for (const row of borangDaftar.value) {
     if (!row.nama_pegawai || !row.no_kp || !row.penempatan) {
-      mesejDaftar.value = { type: 'error', text: 'Sila lengkapkan semua medan (Nama, KP, Penempatan).' };
+      mesejDaftar.value = { type: 'error', text: 'Sila lengkapkan medan wajib: Nama, No. KP dan Penempatan.' };
       return;
     }
   }
   saving.value = true; mesejDaftar.value = null;
-  let berjaya = 0; let gagal = 0;
-  for (const row of borangDaftar.value) {
-    try {
-      await api.post('/admin/daftar-ahli', { no_kp: row.no_kp, nama_pegawai: row.nama_pegawai, penempatan: row.penempatan, pilihan_potongan: 'Potongan Biro angkasa', yuran_bulanan: 0 });
-      berjaya++;
-    } catch (e) { gagal++; }
-  }
-  if (gagal === 0) {
-    mesejDaftar.value = { type: 'success', text: `${berjaya} staf berjaya didaftarkan!` };
-    await muatAhli(); setTimeout(() => { showDaftar.value = false; }, 1500);
-  } else {
-    mesejDaftar.value = { type: 'error', text: `${berjaya} berjaya, ${gagal} gagal. Semak jika No KP wujud.` };
+  try {
+    const staffList = borangDaftar.value.map(row => ({
+      no_kp:        row.no_kp.trim(),
+      nama_pegawai: row.nama_pegawai.trim(),
+      penempatan:   row.penempatan.trim(),
+      gred_sspa:    row.gred_sspa.trim(),
+      jawatan_kelab: row.jawatan_kelab || '',
+    }));
+    const { data } = await api.post('/admin/tambah-staff-pukal', { staffList });
+    mesejDaftar.value = { type: data.gagal?.length ? 'error' : 'success', text: data.message };
     await muatAhli();
+    if (!data.gagal?.length) setTimeout(() => { showDaftar.value = false; }, 1500);
+  } catch (e) {
+    mesejDaftar.value = { type: 'error', text: e.response?.data?.message || 'Gagal menyimpan rekod.' };
+  } finally {
+    saving.value = false;
   }
-  saving.value = false;
 };
 
+// ── Details ──
 const bukaDetails = (ahliAsas) => {
   ahliDipilih.value = ahliAsas;
   showDetails.value = true;
 };
 
+// ── Eksport CSV ──
 const eksportCSV = () => {
   const headers = 'No KP,Nama,Gred,Jawatan Kelab,Penempatan,Jenis Potongan,No Ahli,Status\n';
   const rows = ahliTertapis.value.map(a =>
@@ -573,6 +796,101 @@ const eksportCSV = () => {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a'); a.href = url; a.download = 'Laporan_Ahli_Kelab.csv'; a.click();
   URL.revokeObjectURL(url);
+};
+
+// ── Cetak Jawatankuasa ──
+const cetakJawatankuasa = () => {
+  const tarikh = new Date().toLocaleDateString('ms-MY', { day: 'numeric', month: 'long', year: 'numeric' });
+
+  let rowsHtml = '';
+  let bil = 1;
+
+  for (const jawatan of hierarkiDipapar.value) {
+    const ahliDlm = ahliMengikutJawatan(jawatan);
+    rowsHtml += `
+      <tr class="section-row">
+        <td colspan="6" style="background:#0F4C3A;color:#ffffff;font-weight:bold;font-size:9px;text-transform:uppercase;letter-spacing:1px;padding:5px 10px;">
+          ${jawatan} &nbsp;(${ahliDlm.length} orang)
+        </td>
+      </tr>`;
+    for (const ahli of ahliDlm) {
+      const statusStyle = ahli.is_paid
+        ? 'color:#065f46;font-weight:bold;'
+        : 'color:#991b1b;font-weight:bold;';
+      rowsHtml += `
+        <tr>
+          <td style="text-align:center;color:#94a3b8;font-size:10px;">${bil++}</td>
+          <td style="font-weight:600;">${ahli.nama_pegawai || '—'}</td>
+          <td style="font-family:monospace;font-size:10px;color:#475569;">${ahli.no_ahli || '—'}</td>
+          <td>${ahli.penempatan || '—'}</td>
+          <td style="text-align:center;">${ahli.gred_sspa || '—'}</td>
+          <td style="${statusStyle}">${ahli.is_paid ? 'BERBAYAR' : 'BELUM BAYAR'}</td>
+        </tr>`;
+    }
+  }
+
+  const filterInfo = [
+    filterJawatanAJK.value ? `Jawatan: ${filterJawatanAJK.value}` : '',
+    filterPenempatanAJK.value ? `Penempatan: ${filterPenempatanAJK.value}` : '',
+    filterBelumBayarAJK.value ? 'Menunjukkan belum bayar sahaja' : '',
+  ].filter(Boolean).join(' &nbsp;·&nbsp; ');
+
+  const html = `<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <title>Senarai AJK — Kelab PERHILITAN</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; font-size: 11px; color: #1e293b; padding: 24px; }
+    .kop { text-align: center; border-bottom: 3px solid #0F4C3A; padding-bottom: 14px; margin-bottom: 18px; }
+    .kop-sub { font-size: 9px; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; color: #64748b; margin-bottom: 5px; }
+    .kop h1 { font-size: 15px; font-weight: bold; color: #0F4C3A; letter-spacing: 0.5px; }
+    .kop h2 { font-size: 12px; font-weight: bold; color: #1e293b; margin-top: 4px; letter-spacing: 0.5px; }
+    .kop-meta { font-size: 10px; color: #64748b; margin-top: 7px; }
+    .kop-filter { font-size: 9px; color: #94a3b8; margin-top: 4px; font-style: italic; }
+    table { width: 100%; border-collapse: collapse; margin-top: 4px; }
+    thead th { background: #1e293b; color: #ffffff; padding: 7px 10px; text-align: left; font-size: 9px; text-transform: uppercase; letter-spacing: 0.5px; }
+    tbody td { padding: 5px 10px; border-bottom: 1px solid #f1f5f9; font-size: 10.5px; }
+    tbody tr:not(.section-row):nth-child(even) { background: #f8fafc; }
+    .jumlah { margin-top: 16px; text-align: right; font-size: 10px; color: #64748b; }
+    @media print {
+      @page { size: A4 portrait; margin: 1.5cm; }
+      body { padding: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="kop">
+    <p class="kop-sub">${KELAB.namaPendek}</p>
+    <h1>KELAB PERHILITAN</h1>
+    <h2>SENARAI AHLI JAWATANKUASA KELAB</h2>
+    <p class="kop-meta">Dijana pada: ${tarikh}</p>
+    ${filterInfo ? `<p class="kop-filter">Penapis: ${filterInfo}</p>` : ''}
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th style="width:5%;">Bil.</th>
+        <th style="width:28%;">Nama</th>
+        <th style="width:14%;">No. Ahli</th>
+        <th style="width:27%;">Penempatan</th>
+        <th style="width:10%;text-align:center;">Gred</th>
+        <th style="width:16%;">Status Yuran</th>
+      </tr>
+    </thead>
+    <tbody>${rowsHtml}</tbody>
+  </table>
+  <p class="jumlah">Jumlah ahli jawatankuasa: <strong>${ahliJawatankuasaTertapis.value.length}</strong> orang</p>
+  <script>window.onload = () => window.print();<\/script>
+</body>
+</html>`;
+
+  const win = window.open('', '_blank', 'width=900,height=700');
+  if (win) {
+    win.document.write(html);
+    win.document.close();
+  }
 };
 
 onMounted(() => {
