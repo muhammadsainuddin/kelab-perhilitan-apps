@@ -145,7 +145,7 @@
             <!-- Baris: Pertimbangan JK (fixed, tidak boleh edit) -->
             <div class="flex items-center justify-between px-4 py-3 bg-amber-50/40">
               <div class="flex-1">
-                <p class="text-[12px] font-semibold text-gray-600">Bencana Alam - Lain-lain / Kes Kritikal</p>
+                <p class="text-[12px] font-semibold text-gray-600">Bencana - Lain-lain / Kes Kritikal</p>
                 <p class="text-[9px] text-gray-400 uppercase tracking-wide mt-0.5">Dinilai oleh Jawatankuasa</p>
               </div>
               <span class="text-[11px] font-black text-amber-700 bg-amber-100 border border-amber-200 px-2.5 py-1 rounded-lg">

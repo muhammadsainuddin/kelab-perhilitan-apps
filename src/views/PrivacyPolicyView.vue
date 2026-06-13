@@ -114,7 +114,7 @@ const seksyen_ms = [
     kandungan: `Maklumat yang dikumpul digunakan untuk tujuan berikut sahaja:<br><br>
     • Pengurusan keahlian dan rekod ahli kelab<br>
     • Pemprosesan pembayaran yuran tahunan<br>
-    • Pengurusan permohonan bantuan kebajikan (khairat kematian, kemalangan, bencana alam, persaraan)<br>
+    • Pengurusan permohonan bantuan kebajikan (khairat kematian, kemalangan, bencana, persaraan)<br>
     • Pengurusan penyertaan aktiviti dan sukan kelab<br>
     • Komunikasi rasmi berkaitan hal ehwal kelab<br>
     • Pematuhan keperluan undang-undang dan peraturan Jabatan PERHILITAN`

@@ -68,25 +68,36 @@
         </div>
       </nav>
 
-      <!-- KREDIT PEMBANGUN -->
+      <!-- PROFIL RINGKAS + KREDIT -->
       <Transition name="fade-text">
-        <div v-if="sidebarOpen" class="px-5 py-3 border-t border-white/10 text-center select-none">
-          <span class="inline-block text-[8px] font-black px-2 py-0.5 rounded-full mb-1.5" style="background: rgba(135,188,181,0.12); color: #87BCB5; border: 1px solid rgba(135,188,181,0.2);">
-            v{{ appVersion }}
-          </span>
-          <p class="text-[10px] font-bold tracking-wide text-[#567778]">
-            Develop by <span class="text-[#87BCB5] font-black">Muhammad.S</span>
-          </p>
-          <div class="flex items-center justify-center gap-1.5 mt-1 text-[8px] font-semibold uppercase tracking-[0.16em] text-[#567778]">
-            <span>Backend by</span>
-            <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-white/5 border border-white/10 text-[#87BCB5] font-black">
-              <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21s-7-4.35-7-10a7 7 0 1114 0c0 5.65-7 10-7 10z"/><circle cx="12" cy="11" r="2.2"/></svg>
-              AiGeo
-            </span>
+        <div v-if="sidebarOpen" class="px-4 py-3 border-t border-white/10 select-none">
+          <!-- Profil Ringkas -->
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-9 h-9 rounded-xl overflow-hidden shrink-0 border border-white/10">
+              <img v-if="adminPhoto" :src="adminPhoto" :alt="adminName"
+                class="w-full h-full object-cover"
+                @error="e => e.target.style.display='none'">
+              <div :class="['w-full h-full bg-gradient-to-br from-[#0F4C3A] to-[#0a2e23] flex items-center justify-center', adminPhoto ? 'hidden' : '']">
+                <span class="text-white text-sm font-black">{{ adminInitial }}</span>
+              </div>
+            </div>
+            <div class="min-w-0">
+              <p class="text-white text-xs font-bold truncate leading-tight">{{ adminName }}</p>
+              <p class="text-[#567778] text-[9px] uppercase tracking-wider mt-0.5">{{ authStore.user?.role || 'Admin' }}</p>
+            </div>
           </div>
-          <p class="text-[7px] text-[#567778]/70 font-medium tracking-wide mt-1 leading-relaxed">
-            AiGeo — Kepintaran Geospatial dikuasakan AI
-          </p>
+          <!-- Versi + Info -->
+          <div class="flex items-center justify-between pt-2 border-t border-white/10">
+            <span class="text-[9px] font-bold" style="color: #87BCB5;">
+              v{{ appVersion }} · {{ appBuildDate }}
+            </span>
+            <button @click="showInfoSistem = true" title="Maklumat Sistem"
+              class="w-6 h-6 flex items-center justify-center rounded-full text-[#567778] hover:text-[#87BCB5] hover:bg-white/10 transition-colors">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+            </button>
+          </div>
         </div>
       </Transition>
 
@@ -123,8 +134,13 @@
           <div class="relative" ref="dropdownRef">
             <button @click="dropdownOpen = !dropdownOpen"
               class="flex items-center gap-2 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-2xl px-2 py-1.5 transition-all shadow-sm">
-              <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-[#0F4C3A] to-[#08151D] flex items-center justify-center shadow-inner">
-                <span class="text-white text-xs font-bold">{{ adminInitial }}</span>
+              <div class="w-8 h-8 rounded-xl overflow-hidden shrink-0 shadow-inner">
+                <img v-if="adminPhoto" :src="adminPhoto" :alt="adminName"
+                  class="w-full h-full object-cover"
+                  @error="e => e.target.style.display='none'">
+                <div :class="['w-full h-full bg-gradient-to-br from-[#0F4C3A] to-[#08151D] flex items-center justify-center', adminPhoto ? 'hidden' : '']">
+                  <span class="text-white text-xs font-bold">{{ adminInitial }}</span>
+                </div>
               </div>
               <span class="text-gray-700 text-xs font-bold hidden sm:block px-1">{{ adminName }}</span>
               <svg class="w-3.5 h-3.5 text-gray-400 hidden sm:block mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -172,26 +188,104 @@
 
     </div>
   </div>
+
+  <!-- Modal Info Sistem -->
+  <Teleport to="body">
+    <Transition name="fade">
+      <div v-if="showInfoSistem" class="fixed inset-0 z-[70] flex items-center justify-center p-4"
+        style="background: rgba(0,0,0,0.55); backdrop-filter: blur(6px);"
+        @click.self="showInfoSistem = false">
+        <div class="bg-[#08151D] border border-white/10 rounded-2xl shadow-2xl w-full max-w-xs overflow-hidden">
+          <!-- Header -->
+          <div class="flex items-center justify-between px-5 py-4 border-b border-white/10">
+            <div class="flex items-center gap-2.5">
+              <div class="w-7 h-7 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center">
+                <svg class="w-3.5 h-3.5 text-[#87BCB5]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+              </div>
+              <span class="text-white text-sm font-bold">Maklumat Sistem</span>
+            </div>
+            <button @click="showInfoSistem = false"
+              class="w-7 h-7 flex items-center justify-center rounded-lg text-[#567778] hover:text-white hover:bg-white/10 transition-colors">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+            </button>
+          </div>
+          <!-- Body -->
+          <div class="p-5 space-y-4">
+            <!-- Versi -->
+            <div class="flex items-center justify-between">
+              <span class="text-[#567778] text-xs">Versi Sistem</span>
+              <span class="text-[8px] font-black px-2 py-1 rounded-full" style="background: rgba(135,188,181,0.12); color: #87BCB5; border: 1px solid rgba(135,188,181,0.2);">
+                v{{ appVersion }}
+              </span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-[#567778] text-xs">Tarikh Kemaskini</span>
+              <span class="text-[#87BCB5] text-xs font-bold">{{ appBuildDate }}</span>
+            </div>
+            <div class="h-px bg-white/10"></div>
+            <!-- Pembangun -->
+            <div class="flex items-center justify-between">
+              <span class="text-[#567778] text-xs">Dibangunkan oleh</span>
+              <span class="text-white text-xs font-bold">Muhammad.S</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-[#567778] text-xs">Backend & Infrastruktur</span>
+              <span class="inline-flex items-center gap-1 text-[#87BCB5] text-xs font-black">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21s-7-4.35-7-10a7 7 0 1114 0c0 5.65-7 10-7 10z"/><circle cx="12" cy="11" r="2.2"/></svg>
+                AiGeo
+              </span>
+            </div>
+            <div class="h-px bg-white/10"></div>
+            <p class="text-[10px] text-[#567778]/60 text-center leading-relaxed">
+              Sistem Pengurusan Kelab PERHILITAN<br/>Hak Cipta Terpelihara &copy; {{ new Date().getFullYear() }}
+            </p>
+          </div>
+        </div>
+      </div>
+    </Transition>
+  </Teleport>
 </template>
 
 <script setup>
 import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useAuthStore } from '../../stores/auth';
+import api from '../../services/api';
 
 const router    = useRouter();
 const route     = useRoute();
 const authStore = useAuthStore();
 
+const apiBase = (import.meta.env.VITE_API_URL || 'http://localhost:5001/api').replace('/api', '');
+
 // Semak peranti (Desktop/Mobile) untuk status awal sidebar
-const appVersion = __APP_VERSION__;
+const appVersion   = __APP_VERSION__;
+const appBuildDate = __APP_BUILD_DATE__;
 const isDesktop = typeof window !== 'undefined' && window.innerWidth >= 768;
-const sidebarOpen  = ref(isDesktop);
-const dropdownOpen = ref(false);
-const dropdownRef  = ref(null);
+const sidebarOpen    = ref(isDesktop);
+const dropdownOpen   = ref(false);
+const dropdownRef    = ref(null);
+const showInfoSistem = ref(false);
 
 const adminName    = computed(() => authStore.user?.name || 'Admin');
 const adminInitial = computed(() => adminName.value.charAt(0).toUpperCase());
+const adminPhoto   = computed(() => {
+  const g = authStore.user?.gambar;
+  return g ? `${apiBase}/uploads/images/${g}` : null;
+});
+
+const muatGambarProfil = async () => {
+  try {
+    const { data } = await api.get('/admin/profil-saya');
+    if (data.success && data.data?.gambar !== undefined) {
+      authStore.user = { ...authStore.user, gambar: data.data.gambar };
+    }
+  } catch { /* senyap */ }
+};
 
 const pageTitles = {
   '/admin':            { title: 'Dashboard Induk',      sub: 'Ringkasan menyeluruh status sistem' },
@@ -260,7 +354,10 @@ watch(() => route.path, () => {
   if (window.innerWidth < 768) sidebarOpen.value = false;
 });
 
-onMounted(() => document.addEventListener('click', handleClickOutside));
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside);
+  muatGambarProfil();
+});
 onBeforeUnmount(() => document.removeEventListener('click', handleClickOutside));
 </script>
 

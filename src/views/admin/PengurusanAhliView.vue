@@ -497,6 +497,7 @@ const saving = ref(false);
 const apiBase = (import.meta.env.VITE_API_URL || 'http://localhost:5001/api').replace('/api', '');
 
 const senaraiJawatan = [
+  'Penaung',
   'Yang Dipertua', 'Naib Yang Dipertua', 'Setiausaha', 'Penolong Setiausaha',
   'Bendahari', 'Penolong Bendahari', 'Auditor',
   'Ahli Jawatankuasa', 'Ahli Jawatankuasa Negeri', 'Ahli Kelab',
@@ -504,6 +505,7 @@ const senaraiJawatan = [
 
 // Hierarki untuk tab jawatankuasa (tanpa 'Ahli Kelab')
 const hierarkiJawatan = [
+  'Penaung',
   'Yang Dipertua', 'Naib Yang Dipertua', 'Setiausaha', 'Penolong Setiausaha',
   'Bendahari', 'Penolong Bendahari', 'Auditor',
   'Ahli Jawatankuasa', 'Ahli Jawatankuasa Negeri',
@@ -627,6 +629,7 @@ const badgeStatus = (s) => {
 
 const badgeJawatan = (j) => {
   if (!j) return '';
+  if (j === 'Penaung') return 'bg-yellow-100 text-yellow-800 border-yellow-300';
   if (j === 'Yang Dipertua') return 'bg-purple-100 text-purple-800 border-purple-200';
   if (j === 'Naib Yang Dipertua') return 'bg-indigo-100 text-indigo-800 border-indigo-200';
   if (['Setiausaha', 'Penolong Setiausaha'].includes(j)) return 'bg-sky-100 text-sky-800 border-sky-200';
@@ -637,6 +640,7 @@ const badgeJawatan = (j) => {
 };
 
 const bgSeksyenJawatan = (j) => {
+  if (j === 'Penaung') return 'bg-yellow-50 border-yellow-200';
   if (j === 'Yang Dipertua') return 'bg-purple-50 border-purple-100';
   if (j === 'Naib Yang Dipertua') return 'bg-indigo-50 border-indigo-100';
   if (['Setiausaha', 'Penolong Setiausaha'].includes(j)) return 'bg-sky-50 border-sky-100';
@@ -646,6 +650,7 @@ const bgSeksyenJawatan = (j) => {
 };
 
 const warnaTeksJawatan = (j) => {
+  if (j === 'Penaung') return 'text-yellow-800';
   if (j === 'Yang Dipertua') return 'text-purple-800';
   if (j === 'Naib Yang Dipertua') return 'text-indigo-800';
   if (['Setiausaha', 'Penolong Setiausaha'].includes(j)) return 'text-sky-800';

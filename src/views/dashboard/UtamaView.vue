@@ -144,7 +144,7 @@
             d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/>
         </svg>
         <span class="text-[9px] font-black uppercase tracking-[0.18em]"
-          style="color: rgba(149,213,178,0.4);">Tunjuk Kad QR Digital</span>
+          style="color: rgba(149,213,178,0.4);">Tunjuk Kod QR</span>
       </button>
     </div>
 
@@ -819,7 +819,7 @@
             </div>
             <div class="text-center px-6 mb-5">
               <p class="text-[9px] font-black uppercase tracking-[0.22em] mb-1" style="color: #52B788;">Pengesahan Digital</p>
-              <h3 class="text-[17px] font-black" style="color: #0F172A;">Kad Keahlian QR</h3>
+              <h3 class="text-[17px] font-black" style="color: #0F172A;">Kod QR Ahli</h3>
               <p class="text-[10px] font-medium mt-1" style="color: #94a3b8;">Tunjukkan kepada pengawal atau kerani kelab</p>
             </div>
             <div class="flex justify-center mb-5">

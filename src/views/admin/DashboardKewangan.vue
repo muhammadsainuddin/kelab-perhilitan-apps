@@ -136,23 +136,44 @@
       </div>
 
       <!-- Transaction Table Controls -->
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-5 py-3 border-b border-gray-100 bg-gray-50/50">
+      <div class="flex flex-col gap-2.5 px-5 py-3 border-b border-gray-100 bg-gray-50/50">
+        <!-- Row 1: Jenis + Carian -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider shrink-0">Jenis:</span>
+            <button v-for="j in filterJenisOps" :key="j.val" @click="setFilterJenis(j.val)"
+              :class="['px-2.5 py-1 rounded-md text-[11px] font-bold transition-colors border',
+                filterJenis === j.val
+                  ? 'bg-[#0F4C3A] text-white border-[#0F4C3A]'
+                  : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-100']">
+              {{ j.label }}
+            </button>
+          </div>
+          <div class="relative">
+            <input v-model="carian" @input="debounceSearch" type="text" placeholder="Cari rujukan, nota, pihak..."
+              class="w-56 bg-white border border-gray-300 text-gray-900 text-xs rounded-lg pl-8 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0F4C3A]/20 focus:border-[#0F4C3A] placeholder-gray-400"/>
+            <svg class="w-3.5 h-3.5 text-gray-400 absolute left-2.5 top-1/2 -translate-y-1/2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+          </div>
+        </div>
+        <!-- Row 2: Filter Bulan -->
         <div class="flex items-center gap-2 flex-wrap">
-          <span class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Tapis:</span>
-          <button v-for="j in filterJenisOps" :key="j.val" @click="setFilterJenis(j.val)"
+          <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider shrink-0">Bulan:</span>
+          <button @click="setFilterBulan(0)"
             :class="['px-2.5 py-1 rounded-md text-[11px] font-bold transition-colors border',
-              filterJenis === j.val
+              filterBulan === 0
+                ? 'bg-gray-800 text-white border-gray-800'
+                : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-100']">
+            Semua
+          </button>
+          <button v-for="b in senaraiMinggu" :key="b.val" @click="setFilterBulan(b.val)"
+            :class="['px-2.5 py-1 rounded-md text-[11px] font-bold transition-colors border',
+              filterBulan === b.val
                 ? 'bg-[#0F4C3A] text-white border-[#0F4C3A]'
                 : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-100']">
-            {{ j.label }}
+            {{ b.label }}
           </button>
-        </div>
-        <div class="relative">
-          <input v-model="carian" @input="debounceSearch" type="text" placeholder="Cari rujukan, nota, pihak..."
-            class="w-56 bg-white border border-gray-300 text-gray-900 text-xs rounded-lg pl-8 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0F4C3A]/20 focus:border-[#0F4C3A] placeholder-gray-400"/>
-          <svg class="w-3.5 h-3.5 text-gray-400 absolute left-2.5 top-1/2 -translate-y-1/2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-          </svg>
         </div>
       </div>
 
@@ -166,13 +187,14 @@
               <th class="px-4 py-3">Kategori</th>
               <th class="px-4 py-3">Nota / Rujukan</th>
               <th class="px-4 py-3">Pihak</th>
-              <th class="px-5 py-3 text-right text-rose-600">Debit (–)</th>
-              <th class="px-5 py-3 text-right text-emerald-600">Kredit (+)</th>
+              <th class="px-5 py-3 text-right text-rose-600">Debit (–) RM</th>
+              <th class="px-5 py-3 text-right text-emerald-600">Kredit (+) RM</th>
+              <th class="px-4 py-3 text-center">Tindakan</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-100">
             <tr v-if="transaksiLoading">
-              <td colspan="7" class="px-5 py-10 text-center">
+              <td colspan="8" class="px-5 py-10 text-center">
                 <div class="flex items-center justify-center gap-2 text-gray-500 text-xs">
                   <svg class="animate-spin w-4 h-4 text-[#0F4C3A]" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
@@ -183,7 +205,7 @@
               </td>
             </tr>
             <tr v-else-if="transaksi.length === 0">
-              <td colspan="7" class="px-5 py-14 text-center text-gray-400 text-xs">Tiada rekod transaksi dijumpai.</td>
+              <td colspan="8" class="px-5 py-14 text-center text-gray-400 text-xs">Tiada rekod transaksi dijumpai.</td>
             </tr>
             <tr v-for="tx in transaksi" :key="tx.id" class="hover:bg-gray-50/70 transition-colors group">
               <td class="px-5 py-2.5 text-gray-600 whitespace-nowrap font-mono text-[11px]">{{ tx.tarikh }}</td>
@@ -206,12 +228,28 @@
                 {{ tx.nama_ahli || tx.penerima_bayaran || '—' }}
               </td>
               <td class="px-5 py-2.5 text-right">
-                <span v-if="tx.jenis_aliran === 'KELUAR'" class="font-bold tabular-nums text-rose-600 text-[12px]">{{ fmt(tx.amaun) }}</span>
+                <span v-if="tx.jenis_aliran === 'KELUAR'" class="font-bold tabular-nums text-rose-600 text-[12px]">{{ num(tx.amaun) }}</span>
                 <span v-else class="text-gray-300 text-[11px]">—</span>
               </td>
               <td class="px-5 py-2.5 text-right">
-                <span v-if="tx.jenis_aliran === 'MASUK'" class="font-bold tabular-nums text-emerald-600 text-[12px]">{{ fmt(tx.amaun) }}</span>
+                <span v-if="tx.jenis_aliran === 'MASUK'" class="font-bold tabular-nums text-emerald-600 text-[12px]">{{ num(tx.amaun) }}</span>
                 <span v-else class="text-gray-300 text-[11px]">—</span>
+              </td>
+              <td class="px-4 py-2.5 text-center">
+                <div class="flex items-center justify-center gap-1">
+                  <button @click="bukaEdit(tx)" title="Edit rekod"
+                    class="w-7 h-7 rounded-md flex items-center justify-center text-blue-600 hover:bg-blue-50 border border-transparent hover:border-blue-200 transition-colors">
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                    </svg>
+                  </button>
+                  <button @click="padamTx(tx)" title="Padam rekod"
+                    class="w-7 h-7 rounded-md flex items-center justify-center text-rose-500 hover:bg-rose-50 border border-transparent hover:border-rose-200 transition-colors">
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                    </svg>
+                  </button>
+                </div>
               </td>
             </tr>
           </tbody>
@@ -385,9 +423,9 @@
             <tr class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">
               <th class="px-5 py-3 text-center w-10">#</th>
               <th class="px-4 py-3">Produk</th>
-              <th class="px-4 py-3 text-right">Harga Jual</th>
+              <th class="px-4 py-3 text-right">Harga Jual (RM)</th>
               <th class="px-4 py-3 text-right">Unit Terjual</th>
-              <th class="px-4 py-3 text-right">Hasil Jualan</th>
+              <th class="px-4 py-3 text-right">Hasil Jualan (RM)</th>
               <th class="px-4 py-3 text-right">Stok Baki</th>
               <th class="px-5 py-3 text-center">Status</th>
             </tr>
@@ -418,7 +456,7 @@
                   <span class="font-semibold text-gray-800 text-[11px]">{{ p.nama_produk }}</span>
                 </div>
               </td>
-              <td class="px-4 py-3 text-right font-mono text-[11px] text-gray-700">{{ fmt(p.harga_jual) }}</td>
+              <td class="px-4 py-3 text-right font-mono text-[11px] text-gray-700">{{ num(p.harga_jual) }}</td>
               <td class="px-4 py-3 text-right">
                 <span :class="['font-black text-sm tabular-nums', p.unit_terjual > 0 ? 'text-emerald-600' : 'text-gray-400']">
                   {{ p.unit_terjual }}
@@ -427,7 +465,7 @@
               </td>
               <td class="px-4 py-3 text-right font-bold tabular-nums text-[12px]"
                 :class="p.hasil_jualan > 0 ? 'text-emerald-600' : 'text-gray-400'">
-                {{ p.hasil_jualan > 0 ? fmt(p.hasil_jualan) : '—' }}
+                {{ p.hasil_jualan > 0 ? num(p.hasil_jualan) : '—' }}
               </td>
               <td class="px-4 py-3 text-right">
                 <span :class="['font-bold tabular-nums text-[11px]',
@@ -447,7 +485,7 @@
             <tr>
               <td colspan="4" class="px-4 py-3 text-right text-[10px] font-bold text-gray-600 uppercase tracking-wider">Jumlah Keseluruhan:</td>
               <td class="px-4 py-3 text-right font-black text-emerald-700 tabular-nums text-sm">
-                {{ fmt(produkLaris.reduce((a, b) => a + b.hasil_jualan, 0)) }}
+                {{ num(produkLaris.reduce((a, b) => a + b.hasil_jualan, 0)) }}
               </td>
               <td colspan="2" class="px-4 py-3 text-right text-[10px] text-gray-500">
                 {{ produkLaris.reduce((a, b) => a + b.unit_terjual, 0) }} unit terjual
@@ -562,13 +600,114 @@
               <td class="px-4 py-2.5 font-semibold text-gray-800 text-[11px]">{{ s.nama_penyumbang }}</td>
               <td class="px-4 py-2.5 text-gray-500 text-[11px]">{{ s.program || '—' }}</td>
               <td class="px-4 py-2.5 text-gray-500 text-[11px] font-mono">{{ s.tarikh }}</td>
-              <td class="px-5 py-2.5 text-right font-black text-amber-600 tabular-nums text-[12px]">{{ fmt(s.amaun) }}</td>
+              <td class="px-5 py-2.5 text-right font-black text-amber-600 tabular-nums text-[12px]">{{ num(s.amaun) }}</td>
             </tr>
           </tbody>
         </table>
       </div>
 
     </div>
+
+    <!-- ── Modal Edit Transaksi ── -->
+    <Teleport to="body">
+      <Transition name="fade">
+        <div v-if="showEditModal" class="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style="background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);"
+          @click.self="showEditModal = false">
+          <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden">
+
+            <!-- Header -->
+            <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+              <div>
+                <p class="text-[9px] font-black uppercase tracking-[0.2em] text-[#0F4C3A]">Lejar Kewangan</p>
+                <h3 class="text-[15px] font-black text-gray-900">Kemaskini Rekod</h3>
+              </div>
+              <button @click="showEditModal = false"
+                class="w-8 h-8 rounded-xl flex items-center justify-center text-gray-400 hover:bg-gray-100 transition-colors">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+              </button>
+            </div>
+
+            <!-- Form -->
+            <div class="px-6 py-5 space-y-4">
+
+              <!-- Jenis & Tarikh -->
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">Jenis Aliran *</label>
+                  <select v-model="formEdit.jenis_aliran"
+                    class="w-full bg-gray-50 border border-gray-300 text-gray-900 rounded-lg px-3 py-2 text-xs font-semibold focus:outline-none focus:border-[#0F4C3A]">
+                    <option value="MASUK">▲ KREDIT (Masuk)</option>
+                    <option value="KELUAR">▼ DEBIT (Keluar)</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">Tarikh *</label>
+                  <input v-model="formEdit.tarikh" type="date"
+                    class="w-full bg-gray-50 border border-gray-300 text-gray-900 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-[#0F4C3A]"/>
+                </div>
+              </div>
+
+              <!-- Kategori & Amaun -->
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">Kategori *</label>
+                  <select v-model="formEdit.kategori"
+                    class="w-full bg-gray-50 border border-gray-300 text-gray-900 rounded-lg px-3 py-2 text-xs font-semibold focus:outline-none focus:border-[#0F4C3A]">
+                    <option v-for="(label, key) in LABEL_KATEGORI" :key="key" :value="key">{{ label }}</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">Amaun (RM) *</label>
+                  <input v-model="formEdit.amaun" type="number" min="0.01" step="0.01" placeholder="0.00"
+                    class="w-full bg-gray-50 border border-gray-300 text-gray-900 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-[#0F4C3A]"/>
+                </div>
+              </div>
+
+              <!-- Pihak -->
+              <div>
+                <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">Nama Pihak / Penerima</label>
+                <input v-model="formEdit.penerima_bayaran" type="text" placeholder="Nama individu atau syarikat"
+                  class="w-full bg-gray-50 border border-gray-300 text-gray-900 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-[#0F4C3A]"/>
+              </div>
+
+              <!-- Rujukan -->
+              <div>
+                <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">Rujukan</label>
+                <input v-model="formEdit.rujukan" type="text" placeholder="No. resit, invois, dll."
+                  class="w-full bg-gray-50 border border-gray-300 text-gray-900 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-[#0F4C3A]"/>
+              </div>
+
+              <!-- Nota -->
+              <div>
+                <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">Nota / Keterangan</label>
+                <textarea v-model="formEdit.nota" rows="2" placeholder="Huraian transaksi..."
+                  class="w-full bg-gray-50 border border-gray-300 text-gray-900 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-[#0F4C3A] resize-none"></textarea>
+              </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="flex items-center justify-end gap-2 px-6 py-4 border-t border-gray-100 bg-gray-50/50">
+              <button @click="showEditModal = false"
+                class="px-4 py-2 rounded-lg text-[11px] font-bold text-gray-600 hover:bg-gray-100 transition-colors border border-gray-300">
+                Batal
+              </button>
+              <button @click="simpanEdit" :disabled="savingEdit"
+                class="flex items-center gap-1.5 px-5 py-2 rounded-lg text-[11px] font-bold text-white bg-[#0F4C3A] hover:bg-[#155d47] transition-colors disabled:opacity-60">
+                <span v-if="savingEdit" class="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                <svg v-else class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                </svg>
+                Simpan Kemaskini
+              </button>
+            </div>
+
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
 
     <!-- ── Full-Screen Form Modal ── -->
     <ModalBorangKewangan
@@ -619,6 +758,7 @@ const senaraiAhli      = ref([]);
 const meta             = ref({ total: 0, page: 1, limit: 20 });
 const tahunPilihan     = ref(new Date().getFullYear());
 const filterJenis      = ref('');
+const filterBulan      = ref(0);
 const carian           = ref('');
 const halamanSemasa    = ref(1);
 const chartRef         = ref(null);
@@ -639,6 +779,12 @@ const menjanaPdf       = ref({ harian: false, bulanan: false });
 // Produk laris
 const produkLaris      = ref([]);
 const loadingProduk    = ref(false);
+
+// Edit transaksi
+const showEditModal  = ref(false);
+const savingEdit     = ref(false);
+const editingId      = ref(null);
+const formEdit       = ref({ jenis_aliran: 'KELUAR', kategori: '', amaun: '', nota: '', rujukan: '', penerima_bayaran: '', tarikh: '' });
 
 // Sumbangan
 const showFormSumbangan = ref(false);
@@ -683,8 +829,15 @@ const setFilterJenis = (val) => {
   muatTransaksi();
 };
 
+const setFilterBulan = (val) => {
+  filterBulan.value = val;
+  halamanSemasa.value = 1;
+  muatTransaksi();
+};
+
 const onTahunBertukar = async () => {
   halamanSemasa.value = 1;
+  filterBulan.value = 0;
   await muatData();
   await muatTransaksi();
   if (tabAktif.value === 'sumbangan') await muatSumbangan();
@@ -696,6 +849,59 @@ const onTransaksiBerjaya = async () => {
   await muatData();
   await muatTransaksi();
   if (tabAktif.value === 'sumbangan') await muatSumbangan();
+};
+
+// ── Edit & Padam Transaksi ──
+const bukaEdit = (tx) => {
+  editingId.value = tx.id;
+  const tarikhRaw = tx.tarikh ? tx.tarikh.substring(0, 10).split('-').reverse().join('-') : '';
+  const [dd, mm, yyyy] = tarikhRaw.split('-');
+  formEdit.value = {
+    jenis_aliran:    tx.jenis_aliran,
+    kategori:        tx.kategori,
+    amaun:           tx.amaun,
+    nota:            tx.nota || '',
+    rujukan:         tx.rujukan || '',
+    penerima_bayaran: tx.penerima_bayaran || tx.nama_ahli || '',
+    tarikh:          yyyy && mm && dd ? `${yyyy}-${mm}-${dd}` : new Date().toISOString().split('T')[0],
+  };
+  showEditModal.value = true;
+};
+
+const simpanEdit = async () => {
+  if (!formEdit.value.kategori || !formEdit.value.amaun || parseFloat(formEdit.value.amaun) <= 0) {
+    return alert('Sila isi kategori dan amaun yang sah.');
+  }
+  savingEdit.value = true;
+  try {
+    const { data } = await api.put(`/admin/kewangan/transaksi/${editingId.value}`, formEdit.value);
+    if (data.success) {
+      showEditModal.value = false;
+      await muatData();
+      await muatTransaksi();
+    } else {
+      alert(data.message || 'Gagal mengemaskini rekod.');
+    }
+  } catch (e) {
+    alert(e.response?.data?.message || 'Ralat mengemaskini rekod.');
+  } finally {
+    savingEdit.value = false;
+  }
+};
+
+const padamTx = async (tx) => {
+  if (!confirm(`Padam rekod ${tx.jenis_aliran === 'MASUK' ? 'KREDIT' : 'DEBIT'} ${fmt(tx.amaun)}?\n\nTindakan ini tidak boleh dibatalkan.`)) return;
+  try {
+    const { data } = await api.delete(`/admin/kewangan/transaksi/${tx.id}`);
+    if (data.success) {
+      await muatData();
+      await muatTransaksi();
+    } else {
+      alert(data.message || 'Gagal memadam rekod.');
+    }
+  } catch (e) {
+    alert(e.response?.data?.message || 'Ralat memadam rekod.');
+  }
 };
 
 // ── Muat data ──
@@ -735,6 +941,8 @@ const muatTransaksi = async () => {
   try {
     const params = new URLSearchParams({
       page: halamanSemasa.value, limit: 20,
+      tahun: tahunPilihan.value,
+      ...(filterBulan.value && { bulan: filterBulan.value }),
       ...(filterJenis.value && { jenis: filterJenis.value }),
       ...(carian.value && { cari: carian.value }),
     });
@@ -1093,3 +1301,8 @@ onMounted(async () => {
   muatBakiTerkumpul();
 });
 </script>
+
+<style scoped>
+.fade-enter-active, .fade-leave-active { transition: opacity 0.2s ease; }
+.fade-enter-from, .fade-leave-to { opacity: 0; }
+</style>

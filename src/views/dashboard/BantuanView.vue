@@ -5,9 +5,9 @@
     <div class="px-1 pt-1 flex items-start justify-between gap-3">
       <div>
         <p class="text-[9px] font-bold uppercase tracking-[0.22em]" style="color: #52B788;">Program Kebajikan</p>
-        <h2 class="text-[22px] font-black leading-tight mt-0.5" style="color: #0F172A;">Kebajikan &amp; Tabung</h2>
+        <h2 class="text-[22px] font-black leading-tight mt-0.5" style="color: #0F172A;">Bantuan kebajikan</h2>
         <p class="text-[11px] font-medium mt-0.5" style="color: #64748B;">
-          Mohon bantuan kebajikan luar jangka khas untuk kakitangan berdaftar.
+          Mohon bantuan, khas untuk ahli berbayar sahaja.
         </p>
       </div>
       <button @click="showInfoBantuan = true"
@@ -71,7 +71,7 @@
       <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
       </svg>
-      Permohonan Baru
+      Permohonan Baharu
     </button>
 
     <!-- HISTORY LIST -->
@@ -79,8 +79,10 @@
       <div class="flex items-center justify-between px-5 py-4" style="border-bottom: 1px solid #F1F5F9;">
         <p class="text-[9px] font-black uppercase tracking-[0.18em]" style="color: #94a3b8;">Rekod Permohonan</p>
         <button @click="fetchSejarahBantuan"
-          class="text-[9px] font-black uppercase tracking-wide" style="color: #52B788;">
-          Muat Semula
+          class="w-7 h-7 flex items-center justify-center rounded-lg transition-all active:scale-90" style="color: #52B788;">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+          </svg>
         </button>
       </div>
 
@@ -217,7 +219,7 @@
                 </div>
               </div>
 
-              <!-- Bencana Alam -->
+              <!-- Bencana -->
               <div class="px-5 py-4">
                 <div class="flex items-center gap-3 mb-3">
                   <div class="w-8 h-8 rounded-xl flex items-center justify-center shrink-0" style="background: rgba(59,130,246,0.1);">
@@ -225,7 +227,7 @@
                       <path stroke-linecap="round" stroke-linejoin="round" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"/>
                     </svg>
                   </div>
-                  <p class="text-[13px] font-black" style="color: #0F172A;">Bencana Alam</p>
+                  <p class="text-[13px] font-black" style="color: #0F172A;">Bencana</p>
                 </div>
                 <div class="pl-11 space-y-2.5">
                   <div class="flex items-center justify-between">
@@ -313,7 +315,7 @@
             </div>
             <div class="px-6">
               <p class="text-[9px] font-black uppercase tracking-[0.2em] mb-0.5" style="color: #52B788;">Kebajikan Kelab</p>
-              <h3 class="text-[17px] font-black mb-4" style="color: #0F172A;">Permohonan Baru</h3>
+              <h3 class="text-[17px] font-black mb-4" style="color: #0F172A;">Permohonan Baharu</h3>
 
               <form @submit.prevent="hantarPermohonan" class="space-y-4">
                 <div class="space-y-1.5">
@@ -329,10 +331,10 @@
                       <option value="Kemalangan - Rawatan Luar (Tanpa Wad)">Kemalangan: Rawatan Luar (Tanpa Wad) — RM100</option>
                       <option value="Kemalangan - Dimasukkan Wad">Kemalangan: Dimasukkan Wad — RM100</option>
                     </optgroup>
-                    <optgroup label="Bencana Alam">
-                      <option value="Bencana Alam - Banjir">Bencana Alam: Banjir — RM300</option>
-                      <option value="Bencana Alam - Kebakaran">Bencana Alam: Kebakaran — RM300</option>
-                      <option value="Bencana Alam - Lain-lain">Bencana Alam: Lain-lain (nyatakan dalam butiran)</option>
+                    <optgroup label="Bencana">
+                      <option value="Bencana Alam - Banjir">Bencana: Banjir — RM300</option>
+                      <option value="Bencana Alam - Kebakaran">Bencana: Kebakaran — RM300</option>
+                      <option value="Bencana Alam - Lain-lain">Bencana: Lain-lain (nyatakan dalam butiran)</option>
                     </optgroup>
                     <optgroup label="Lain-lain">
                       <option value="Kes Kritikal / Luar Jangka">Kes Kritikal / Luar Jangka (nyatakan jenis)</option>

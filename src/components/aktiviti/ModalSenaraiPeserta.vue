@@ -175,6 +175,7 @@
                 <th class="px-4 py-3 text-center">Saiz</th>
                 <th class="px-4 py-3">Sukan Dipilih</th>
                 <th class="px-4 py-3 text-center">Yuran</th>
+                <th class="px-4 py-3 text-center">Aksi</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-gray-100">
@@ -228,6 +229,15 @@
                     </svg>
                     BELUM
                   </span>
+                </td>
+                <td class="px-4 py-3 text-center">
+                  <button @click="padamPeserta(p)"
+                    class="inline-flex items-center gap-1 px-2.5 py-1.5 text-[10px] font-bold text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-lg transition-colors whitespace-nowrap">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                    </svg>
+                    Buang
+                  </button>
                 </td>
               </tr>
             </tbody>
@@ -365,7 +375,7 @@ const props = defineProps({
   senarai: { type: Array, default: () => [] }
 });
 
-const emit = defineEmits(['tutup', 'pesertaDitambah']);
+const emit = defineEmits(['tutup', 'pesertaDitambah', 'pesertaDipadam']);
 
 // ── Filter state ──
 const carian        = ref('');
@@ -525,6 +535,21 @@ const hitungUmur = (no_kp) => {
   if (today.getMonth() < lahir.getMonth() ||
     (today.getMonth() === lahir.getMonth() && today.getDate() < lahir.getDate())) umur--;
   return (isNaN(umur) || umur < 0 || umur > 120) ? '—' : umur + ' thn';
+};
+
+// ── Padam peserta ──
+const padamPeserta = async (p) => {
+  if (!confirm(`Buang "${p.nama_pegawai}" daripada acara ini?\n\nTindakan ini tidak boleh dibatalkan.`)) return;
+  try {
+    const res = await api.delete(`/acara/admin/padam-peserta/${p.id}`);
+    if (res.data.success) {
+      emit('pesertaDitambah');
+    } else {
+      alert(res.data.message || 'Gagal memadam peserta.');
+    }
+  } catch (err) {
+    alert(err.response?.data?.message || 'Ralat semasa memadam peserta.');
+  }
 };
 
 // ── Cetak senarai yang ditapis ──
