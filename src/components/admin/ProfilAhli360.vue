@@ -210,6 +210,11 @@
                     Bantuan
                     <span v-if="rekodBantuan.length > 0" :class="['text-[8px] font-black px-1.5 py-px rounded-full leading-none', tab === 'kebajikan' ? 'bg-[#0F4C3A] text-white' : 'bg-gray-200 text-gray-600']">{{ rekodBantuan.length }}</span>
                   </button>
+                  <button v-if="isBiroAngkasa" @click="tab = 'resitba'" :class="['flex items-center gap-1.5 px-5 py-3 text-[10px] font-black border-b-2 whitespace-nowrap transition-all uppercase tracking-widest', tab === 'resitba' ? 'border-blue-600 text-blue-700 bg-white' : 'border-transparent text-gray-400 hover:text-gray-700']">
+                    <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    Resit Biro Angkasa
+                    <span v-if="rekodResitBA.length > 0" :class="['text-[8px] font-black px-1.5 py-px rounded-full leading-none', tab === 'resitba' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600']">{{ rekodResitBA.length }}</span>
+                  </button>
                 </div>
 
                 <!-- TAB: Sejarah FPX -->
@@ -274,6 +279,64 @@
                   </table>
                 </div>
 
+                <!-- TAB: Resit Biro Angkasa -->
+                <div v-else-if="tab === 'resitba'">
+                  <!-- Header filter -->
+                  <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100 bg-gray-50/60">
+                    <div class="flex items-center gap-2">
+                      <span class="text-[9px] font-black uppercase tracking-wider text-gray-500">Tapis Tahun:</span>
+                      <select v-model="filterTahunBA"
+                        class="text-[10px] font-bold border border-gray-200 rounded-lg px-2.5 py-1.5 bg-white focus:outline-none focus:border-blue-400 text-gray-700">
+                        <option v-for="t in senaraíTahunBA" :key="t" :value="t">{{ t }}</option>
+                      </select>
+                      <span class="text-[9px] text-gray-400 font-mono">{{ rekodResitBATertapis.length }} resit</span>
+                    </div>
+                    <div class="text-right">
+                      <span class="text-[9px] font-bold text-gray-500">Jumlah: </span>
+                      <span class="text-[11px] font-black text-blue-700">RM {{ rekodResitBATertapis.reduce((s,r) => s + parseFloat(r.amaun), 0).toFixed(2) }}</span>
+                    </div>
+                  </div>
+                  <!-- Jadual -->
+                  <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                      <thead class="bg-gray-50 text-gray-400 text-[9px] uppercase tracking-wider border-b border-gray-100">
+                        <tr>
+                          <th class="px-4 py-3 font-bold">No. Resit</th>
+                          <th class="px-4 py-3 font-bold">Bulan Potongan</th>
+                          <th class="px-4 py-3 font-bold text-right">Amaun (RM)</th>
+                          <th class="px-4 py-3 font-bold text-center">Cetak</th>
+                        </tr>
+                      </thead>
+                      <tbody class="divide-y divide-gray-50">
+                        <tr v-if="rekodResitBATertapis.length === 0">
+                          <td colspan="4" class="px-4 py-10 text-center text-gray-400 text-xs">
+                            {{ rekodResitBA.length === 0 ? 'Resit belum dijana untuk ahli ini.' : `Tiada resit untuk tahun ${filterTahunBA}.` }}
+                          </td>
+                        </tr>
+                        <tr v-for="r in rekodResitBATertapis" :key="r.no_resit" class="hover:bg-blue-50/30 transition-colors">
+                          <td class="px-4 py-3 font-mono text-[10px] font-bold text-blue-700">{{ r.no_resit }}</td>
+                          <td class="px-4 py-3 text-[11px] font-bold text-gray-800">{{ namaBulan(r.bulan_potongan) }}</td>
+                          <td class="px-4 py-3 text-right font-black text-sm tabular-nums text-emerald-600">{{ parseFloat(r.amaun).toFixed(2) }}</td>
+                          <td class="px-4 py-3 text-center">
+                            <button @click="cetakResitBA(r)"
+                              class="text-[9px] font-bold text-blue-700 bg-blue-50 border border-blue-200 px-2.5 py-1 rounded-lg hover:bg-blue-100 transition-colors inline-flex items-center gap-1">
+                              <svg class="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                              Cetak
+                            </button>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <!-- Info tiada resit -->
+                  <div v-if="rekodResitBA.length === 0" class="px-4 pb-4">
+                    <div class="bg-blue-50 border border-blue-100 rounded-xl p-3 flex items-start gap-2.5 mt-2">
+                      <svg class="w-4 h-4 text-blue-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                      <p class="text-blue-700 text-[10px] font-medium">Resit belum dijana. Gunakan butang <strong>Jana Resit</strong> di halaman pengurusan resit untuk menjana resit bulanan.</p>
+                    </div>
+                  </div>
+                </div>
+
                 <!-- TAB: Kebajikan -->
                 <div v-else-if="tab === 'kebajikan'" class="p-4 space-y-2.5">
                   <div v-if="rekodBantuan.length === 0" class="text-center py-10 text-gray-400 text-xs">Tiada rekod permohonan bantuan kebajikan.</div>
@@ -302,7 +365,7 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, computed, watch } from 'vue';
 import api from '../../services/api';
 import { headerResitHTML, footerResitHTML } from '../../config/kelab';
 
@@ -316,8 +379,22 @@ const tab = ref('kewangan');
 const rekodTransaksi = ref([]);
 const rekodBantuan = ref([]);
 const rekodAcara = ref([]);
+const rekodResitBA = ref([]);
+const filterTahunBA = ref(new Date().getFullYear().toString());
 const jumlahSumbangan = ref(0);
 const tuntutBajuPercuma = ref(false);
+
+const isBiroAngkasa = computed(() => ahliLengkap.value?.jenis_potongan === 'Potongan Biro angkasa');
+
+const senaraíTahunBA = computed(() => {
+  const tahunSet = new Set(rekodResitBA.value.map(r => r.bulan_potongan?.substring(0, 4)).filter(Boolean));
+  const list = [...tahunSet].sort((a, b) => b - a);
+  return list.length ? list : [new Date().getFullYear().toString()];
+});
+
+const rekodResitBATertapis = computed(() =>
+  rekodResitBA.value.filter(r => r.bulan_potongan?.startsWith(filterTahunBA.value))
+);
 
 const badgeStatus = (s) => {
   const status = (s || '').toLowerCase();
@@ -353,6 +430,7 @@ watch(() => props.show, async (newVal) => {
     rekodTransaksi.value = [];
     rekodBantuan.value = [];
     rekodAcara.value = [];
+    rekodResitBA.value = [];
 
     try {
       const resProfil = await api.get(`/admin/profil-ahli/${props.ahliBase.no_kp}`);
@@ -376,6 +454,14 @@ watch(() => props.show, async (newVal) => {
         if (resAcara.data?.success) rekodAcara.value = resAcara.data.data;
       } catch (e) {}
 
+      try {
+        const resBA = await api.get('/admin/resit-biro-angkasa', { params: { no_kp: props.ahliBase.no_kp } });
+        if (resBA.data?.success) {
+          rekodResitBA.value = resBA.data.data;
+          filterTahunBA.value = new Date().getFullYear().toString();
+        }
+      } catch (e) {}
+
     } catch (e) {
       console.error('Gagal muat profil 360', e);
     } finally {
@@ -383,6 +469,46 @@ watch(() => props.show, async (newVal) => {
     }
   }
 });
+
+const namaBulan = (dateStr) => {
+  if (!dateStr) return '—';
+  const d = new Date(dateStr);
+  return d.toLocaleDateString('ms-MY', { year: 'numeric', month: 'long' });
+};
+
+const cetakResitBA = (r) => {
+  const w = window.open('', '_blank', 'width=600,height=520');
+  const tarikh = new Date().toLocaleDateString('ms-MY', { day: '2-digit', month: 'long', year: 'numeric' });
+  w.document.write(`
+    <html><head><title>Resit ${r.no_resit}</title>
+    <style>
+      body{font-family:Arial,sans-serif;padding:30px;color:#333}
+      .row{display:flex;justify-content:space-between;margin:8px 0;font-size:12px}
+      .divider{border:none;border-top:1px dashed #ccc;margin:14px 0}
+      .badge{display:inline-block;background:#EFF6FF;color:#1D4ED8;border:1px solid #BFDBFE;padding:2px 10px;border-radius:20px;font-size:10px;font-weight:bold}
+    </style></head><body>
+    ${headerResitHTML('Resit Potongan Yuran — Biro Angkasa')}
+    <div style="background:#f9f9f9;padding:15px;border-radius:8px;margin-top:8px">
+      <div class="row"><span style="color:#888">No. Resit:</span><strong style="font-family:monospace;letter-spacing:.5px">${r.no_resit}</strong></div>
+      <div class="row"><span style="color:#888">Kaedah:</span><span class="badge">Potongan Biro Angkasa</span></div>
+      <hr class="divider"/>
+      <div class="row"><span style="color:#888">Nama:</span><strong style="text-transform:uppercase">${ahliLengkap.value?.nama_pegawai || '—'}</strong></div>
+      <div class="row"><span style="color:#888">No. Ahli:</span><strong>${ahliLengkap.value?.no_ahli || '—'}</strong></div>
+      <div class="row"><span style="color:#888">No. KP:</span><strong>${ahliLengkap.value?.no_kp || '—'}</strong></div>
+      <div class="row"><span style="color:#888">Penempatan:</span><strong>${ahliLengkap.value?.penempatan || '—'}</strong></div>
+      <hr class="divider"/>
+      <div class="row"><span style="color:#888">Bulan Potongan:</span><strong>${namaBulan(r.bulan_potongan)}</strong></div>
+      <div class="row"><span style="color:#888">Keterangan:</span><strong>Yuran Kelab PERHILITAN</strong></div>
+      <div class="row" style="margin-top:12px;font-size:15px"><span style="color:#888">JUMLAH (RM):</span><strong style="color:#0F4C3A">${parseFloat(r.amaun).toFixed(2)}</strong></div>
+      <hr class="divider"/>
+      <p style="font-size:9px;color:#aaa;text-align:center;margin:0">Dicetak: ${tarikh}</p>
+    </div>
+    ${footerResitHTML()}
+    </body></html>
+  `);
+  w.document.close();
+  setTimeout(() => w.print(), 400);
+};
 
 const cetakResit = (tx) => {
   const w = window.open('', '_blank', 'width=600,height=500');
