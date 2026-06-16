@@ -77,6 +77,7 @@ const routes = [
       { path: 'bantuan',  name: 'Bantuan',  component: () => import('../views/dashboard/BantuanView.vue') },
       { path: 'profil',           name: 'Profil',           component: () => import('../views/dashboard/ProfilView.vue') },
       { path: 'kempen-sumbangan', name: 'KempenSumbangan',  component: () => import('../views/dashboard/KempenSumbanganView.vue') },
+      { path: 'ajk',             name: 'AJK',             component: () => import('../views/dashboard/AJKView.vue') },
     ]
   },
 
@@ -138,6 +139,11 @@ const routes = [
         path: 'sumbangan',
         name: 'AdminSumbangan',
         component: () => import('../views/admin/PengurusanSumbanganView.vue')
+      },
+      {
+        path: 'penempatan',
+        name: 'AdminPenempatan',
+        component: () => import('../views/admin/PengurusanPenempatanView.vue')
       },
       {
         path: 'tetapan',

@@ -175,6 +175,7 @@
                 <th class="px-4 py-3 text-center">Saiz</th>
                 <th class="px-4 py-3">Sukan Dipilih</th>
                 <th class="px-4 py-3 text-center">Yuran</th>
+                <th class="px-4 py-3 text-center">Pergerakan</th>
                 <th class="px-4 py-3 text-center">Aksi</th>
               </tr>
             </thead>
@@ -230,6 +231,28 @@
                     BELUM
                   </span>
                 </td>
+                <!-- Pergerakan -->
+                <td class="px-4 py-3 text-center">
+                  <button @click="bukaModalPergerakan(p)"
+                    :class="['inline-flex items-center gap-1 px-2.5 py-1.5 text-[10px] font-bold rounded-lg transition-colors whitespace-nowrap border',
+                      p.kaedah_pergerakan
+                        ? p.kaedah_pergerakan === 'Penerbangan'
+                          ? 'bg-sky-50 text-sky-700 border-sky-200 hover:bg-sky-100'
+                          : 'bg-violet-50 text-violet-700 border-violet-200 hover:bg-violet-100'
+                        : 'bg-gray-50 text-gray-400 border-gray-200 hover:bg-gray-100 hover:text-gray-600']">
+                    <svg v-if="p.kaedah_pergerakan === 'Penerbangan'" class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+                    </svg>
+                    <svg v-else-if="p.kaedah_pergerakan" class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
+                    </svg>
+                    <svg v-else class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+                    </svg>
+                    {{ p.kaedah_pergerakan || 'Isi' }}
+                  </button>
+                </td>
+                <!-- Aksi -->
                 <td class="px-4 py-3 text-center">
                   <button @click="padamPeserta(p)"
                     class="inline-flex items-center gap-1 px-2.5 py-1.5 text-[10px] font-bold text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-lg transition-colors whitespace-nowrap">
@@ -355,6 +378,116 @@
             </button>
           </div>
 
+        </div>
+      </div>
+    </Transition>
+  </Teleport>
+
+  <!-- ═══════ MODAL PERGERAKAN PESERTA ═══════ -->
+  <Teleport to="body">
+    <Transition name="modal-fade">
+      <div v-if="modalPergerakan.show" class="fixed inset-0 z-[70] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden">
+
+          <!-- Header -->
+          <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-start">
+            <div>
+              <p class="text-[10px] font-bold uppercase tracking-[0.18em] text-sky-600">Maklumat Pergerakan</p>
+              <h4 class="text-sm font-black text-gray-900 leading-tight">{{ modalPergerakan.peserta?.nama_pegawai }}</h4>
+            </div>
+            <button @click="modalPergerakan.show = false" class="w-8 h-8 flex items-center justify-center rounded-xl bg-gray-100 text-gray-400 hover:bg-gray-200 transition-colors">✕</button>
+          </div>
+
+          <div class="p-5 space-y-4">
+            <!-- Ralat -->
+            <div v-if="modalPergerakan.ralat" class="p-3 bg-rose-50 border border-rose-200 rounded-xl text-xs font-bold text-rose-700">
+              {{ modalPergerakan.ralat }}
+            </div>
+
+            <!-- Kaedah Pergerakan -->
+            <div>
+              <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-wide mb-2">Kaedah Pergerakan</label>
+              <div class="flex gap-2">
+                <button v-for="k in ['Darat','Bot','Penerbangan']" :key="k" type="button"
+                  @click="modalPergerakan.form.kaedah_pergerakan = modalPergerakan.form.kaedah_pergerakan === k ? '' : k"
+                  :class="['flex-1 py-2.5 text-xs font-bold rounded-xl border transition-all',
+                    modalPergerakan.form.kaedah_pergerakan === k
+                      ? k === 'Penerbangan' ? 'bg-sky-600 text-white border-sky-600'
+                      : k === 'Bot' ? 'bg-violet-600 text-white border-violet-600'
+                      : 'bg-emerald-600 text-white border-emerald-600'
+                      : 'bg-white text-gray-500 border-gray-200 hover:border-gray-300']">
+                  {{ k === 'Penerbangan' ? '✈ Penerbangan' : k === 'Bot' ? '⛵ Bot' : '🚗 Darat' }}
+                </button>
+              </div>
+            </div>
+
+            <!-- Tarikh Pergi & Balik -->
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-wide mb-1.5">Tarikh Pergi</label>
+                <input type="date" v-model="modalPergerakan.form.tarikh_pergi"
+                  class="w-full border border-gray-200 rounded-xl p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-500">
+              </div>
+              <div>
+                <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-wide mb-1.5">Tarikh Balik</label>
+                <input type="date" v-model="modalPergerakan.form.tarikh_balik"
+                  class="w-full border border-gray-200 rounded-xl p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-500">
+              </div>
+            </div>
+
+            <!-- Butiran Penerbangan (hanya tunjuk kalau pilih Penerbangan) -->
+            <Transition name="modal-fade">
+              <div v-if="modalPergerakan.form.kaedah_pergerakan === 'Penerbangan'" class="space-y-3 p-4 bg-sky-50 border border-sky-100 rounded-xl">
+                <p class="text-[10px] font-black text-sky-700 uppercase tracking-widest">Butiran Penerbangan</p>
+
+                <!-- Pergi -->
+                <div class="grid grid-cols-2 gap-3">
+                  <div>
+                    <label class="block text-[10px] font-bold text-sky-600 mb-1">No. Penerbangan (Pergi)</label>
+                    <input type="text" v-model="modalPergerakan.form.no_penerbangan_pergi"
+                      placeholder="cth: AK123"
+                      class="w-full border border-sky-200 rounded-lg p-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-500 uppercase">
+                  </div>
+                  <div>
+                    <label class="block text-[10px] font-bold text-sky-600 mb-1">Masa Berlepas (Pergi)</label>
+                    <input type="time" v-model="modalPergerakan.form.masa_penerbangan_pergi"
+                      class="w-full border border-sky-200 rounded-lg p-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-500">
+                  </div>
+                </div>
+
+                <!-- Balik -->
+                <div class="grid grid-cols-2 gap-3">
+                  <div>
+                    <label class="block text-[10px] font-bold text-sky-600 mb-1">No. Penerbangan (Balik)</label>
+                    <input type="text" v-model="modalPergerakan.form.no_penerbangan_balik"
+                      placeholder="cth: AK456"
+                      class="w-full border border-sky-200 rounded-lg p-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-500 uppercase">
+                  </div>
+                  <div>
+                    <label class="block text-[10px] font-bold text-sky-600 mb-1">Masa Berlepas (Balik)</label>
+                    <input type="time" v-model="modalPergerakan.form.masa_penerbangan_balik"
+                      class="w-full border border-sky-200 rounded-lg p-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-500">
+                  </div>
+                </div>
+              </div>
+            </Transition>
+          </div>
+
+          <!-- Footer -->
+          <div class="px-6 pb-5 flex gap-2">
+            <button @click="modalPergerakan.show = false"
+              class="flex-1 py-2.5 text-xs font-bold text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors">
+              Batal
+            </button>
+            <button @click="simpanPergerakan" :disabled="modalPergerakan.menyimpan"
+              class="flex-1 py-2.5 text-xs font-bold text-white bg-sky-600 hover:bg-sky-700 disabled:opacity-60 rounded-xl transition-colors flex items-center justify-center gap-1.5">
+              <svg v-if="modalPergerakan.menyimpan" class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+              </svg>
+              Simpan
+            </button>
+          </div>
         </div>
       </div>
     </Transition>
@@ -535,6 +668,60 @@ const hitungUmur = (no_kp) => {
   if (today.getMonth() < lahir.getMonth() ||
     (today.getMonth() === lahir.getMonth() && today.getDate() < lahir.getDate())) umur--;
   return (isNaN(umur) || umur < 0 || umur > 120) ? '—' : umur + ' thn';
+};
+
+// ── Modal Pergerakan ──
+const formPergerakanKosong = () => ({
+  kaedah_pergerakan: '',
+  tarikh_pergi: '',
+  tarikh_balik: '',
+  no_penerbangan_pergi: '',
+  masa_penerbangan_pergi: '',
+  no_penerbangan_balik: '',
+  masa_penerbangan_balik: '',
+});
+
+const modalPergerakan = ref({
+  show: false,
+  peserta: null,
+  form: formPergerakanKosong(),
+  menyimpan: false,
+  ralat: '',
+});
+
+const bukaModalPergerakan = (p) => {
+  modalPergerakan.value = {
+    show: true,
+    peserta: p,
+    form: {
+      kaedah_pergerakan:      p.kaedah_pergerakan      || '',
+      tarikh_pergi:           p.tarikh_pergi ? p.tarikh_pergi.substring(0, 10) : '',
+      tarikh_balik:           p.tarikh_balik ? p.tarikh_balik.substring(0, 10) : '',
+      no_penerbangan_pergi:   p.no_penerbangan_pergi   || '',
+      masa_penerbangan_pergi: p.masa_penerbangan_pergi || '',
+      no_penerbangan_balik:   p.no_penerbangan_balik   || '',
+      masa_penerbangan_balik: p.masa_penerbangan_balik || '',
+    },
+    menyimpan: false,
+    ralat: '',
+  };
+};
+
+const simpanPergerakan = async () => {
+  const mp = modalPergerakan.value;
+  mp.menyimpan = true;
+  mp.ralat = '';
+  try {
+    const res = await api.put(`/acara/admin/pergerakan-peserta/${mp.peserta.id}`, mp.form);
+    if (res.data.success) {
+      mp.show = false;
+      emit('pesertaDitambah');
+    }
+  } catch (err) {
+    mp.ralat = err.response?.data?.message || 'Gagal menyimpan maklumat pergerakan.';
+  } finally {
+    mp.menyimpan = false;
+  }
 };
 
 // ── Padam peserta ──

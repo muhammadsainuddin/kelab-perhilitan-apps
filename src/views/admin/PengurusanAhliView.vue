@@ -8,7 +8,7 @@
         <p class="text-gray-400 text-[11px] mt-0.5">Urus data ahli, jawatan, pendaftaran dan jejak profil 360°.</p>
       </div>
       <div class="flex flex-wrap gap-2">
-        <button v-if="tabAktif === 'semua'" @click="janaSemulaAhli" :disabled="janaLoading"
+        <button v-if="tabAktif === 'semua' && isSuperAdmin" @click="janaSemulaAhli" :disabled="janaLoading"
           class="flex items-center gap-1.5 text-[11px] bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 text-white font-bold px-3 py-2 rounded-lg transition-all shadow-sm">
           <svg v-if="!janaLoading" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
           <span v-else class="animate-spin w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full"></span>
@@ -19,6 +19,16 @@
           <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
           Eksport CSV
         </button>
+        <button v-if="tabAktif === 'semua' && filterPenempatan" @click="cetakAhliPenempatan"
+          class="flex items-center gap-1.5 text-[11px] bg-white hover:bg-gray-50 text-gray-700 font-bold px-3 py-2 rounded-lg transition-all border border-gray-200 shadow-sm">
+          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+          Cetak Senarai
+        </button>
+        <button @click="showDirektoriAJK = true"
+          class="flex items-center gap-1.5 text-[11px] bg-emerald-700 hover:bg-emerald-600 text-white font-bold px-3 py-2 rounded-lg transition-all shadow-sm">
+          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+          Direktori AJK
+        </button>
         <button v-if="tabAktif === 'jawatankuasa'" @click="cetakJawatankuasa"
           class="flex items-center gap-1.5 text-[11px] bg-white hover:bg-gray-50 text-gray-700 font-bold px-3 py-2 rounded-lg transition-all border border-gray-200 shadow-sm">
           <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
@@ -27,7 +37,7 @@
         <button @click="bukaModalDaftar"
           class="flex items-center gap-1.5 text-[11px] bg-[#0F4C3A] hover:bg-[#155d47] text-white font-bold px-3 py-2 rounded-lg transition-all shadow-sm">
           <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-          Daftar Staf Baharu
+          Daftar Ahli Baru
         </button>
       </div>
     </div>
@@ -70,7 +80,14 @@
             <option value="">Semua Status</option><option value="aktif">Aktif</option><option value="tidak aktif">Tidak Aktif</option>
           </select>
           <select v-model="filterPenempatan" class="bg-gray-50 border border-gray-200 text-gray-700 text-xs font-medium rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0F4C3A]/20">
-            <option value="">Semua Penempatan</option><option v-for="ptj in senaraiPenempatan" :key="ptj" :value="ptj">{{ ptj }}</option>
+            <option value="">Semua Penempatan</option>
+            <template v-for="induk in ptjInduk" :key="induk.id">
+              <optgroup v-if="ptjAnak[induk.id]?.length" :label="induk.nama_penempatan">
+                <option :value="induk.id">Semua {{ induk.nama_penempatan }}</option>
+                <option v-for="anak in ptjAnak[induk.id]" :key="anak.id" :value="anak.id">↳ {{ anak.nama_penempatan }}</option>
+              </optgroup>
+              <option v-else :value="induk.id">{{ induk.nama_penempatan }}</option>
+            </template>
           </select>
           <select v-model="filterGred" class="bg-gray-50 border border-gray-200 text-gray-700 text-xs font-medium rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0F4C3A]/20">
             <option value="">Semua Gred</option><option v-for="gred in senaraiGred" :key="gred" :value="gred">{{ gred }}</option>
@@ -202,7 +219,13 @@
           <select v-model="filterPenempatanAJK"
             class="bg-gray-50 border border-gray-200 text-gray-700 text-xs font-medium rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0F4C3A]/20">
             <option value="">Semua Penempatan</option>
-            <option v-for="ptj in senaraiPenempatan" :key="ptj" :value="ptj">{{ ptj }}</option>
+            <template v-for="induk in ptjInduk" :key="induk.id">
+              <optgroup v-if="ptjAnak[induk.id]?.length" :label="induk.nama_penempatan">
+                <option :value="induk.id">Semua {{ induk.nama_penempatan }}</option>
+                <option v-for="anak in ptjAnak[induk.id]" :key="anak.id" :value="anak.id">↳ {{ anak.nama_penempatan }}</option>
+              </optgroup>
+              <option v-else :value="induk.id">{{ induk.nama_penempatan }}</option>
+            </template>
           </select>
           <button @click="filterBelumBayarAJK = !filterBelumBayarAJK"
             :class="['flex items-center gap-1.5 text-[10px] font-bold px-3 py-2 rounded-lg border transition-all shrink-0', filterBelumBayarAJK ? 'bg-rose-50 text-rose-700 border-rose-300' : 'bg-gray-50 text-gray-500 border-gray-200 hover:border-gray-300 hover:text-gray-700']">
@@ -254,8 +277,21 @@
                 <p class="text-gray-800 font-bold text-xs leading-tight truncate uppercase">{{ ahli.nama_pegawai || '—' }}</p>
                 <p class="text-gray-400 text-[10px] mt-px">{{ ahli.penempatan || '—' }}<span v-if="ahli.gred_sspa"> · {{ ahli.gred_sspa }}</span></p>
               </div>
-              <!-- No Ahli -->
-              <span class="text-[10px] font-mono text-gray-500 bg-gray-100 border border-gray-200 px-2 py-0.5 rounded hidden sm:inline shrink-0">{{ ahli.no_ahli || 'BELUM JANA' }}</span>
+              <!-- Kontak -->
+              <div class="hidden md:flex items-center gap-1 shrink-0">
+                <a v-if="ahli.no_tel" :href="`tel:${ahli.no_tel}`" :title="ahli.no_tel"
+                  class="w-7 h-7 flex items-center justify-center rounded-lg bg-blue-50 text-blue-600 border border-blue-100 hover:bg-blue-100 transition-colors">
+                  <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+                </a>
+                <a v-if="ahli.no_tel" :href="waLink(ahli.no_tel)" target="_blank" rel="noopener" title="WhatsApp"
+                  class="w-7 h-7 flex items-center justify-center rounded-lg bg-green-50 text-green-600 border border-green-100 hover:bg-green-100 transition-colors">
+                  <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                </a>
+                <a v-if="ahli.email" :href="`mailto:${ahli.email}`" :title="ahli.email"
+                  class="w-7 h-7 flex items-center justify-center rounded-lg bg-gray-50 text-gray-500 border border-gray-200 hover:bg-gray-100 transition-colors">
+                  <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                </a>
+              </div>
               <!-- Status yuran -->
               <span :class="['text-[9px] font-bold px-2 py-0.5 rounded border shrink-0', ahli.is_paid ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-rose-50 text-rose-700 border-rose-200']">
                 {{ ahli.is_paid ? 'BERBAYAR' : 'BELUM BAYAR' }}
@@ -276,6 +312,69 @@
 
     </template>
 
+    <!-- MODAL DIREKTORI AJK -->
+    <Teleport to="body">
+      <Transition name="modal">
+        <div v-if="showDirektoriAJK" class="fixed inset-0 z-[60] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-sm" @click.self="showDirektoriAJK = false">
+          <div class="bg-white rounded-t-2xl sm:rounded-2xl w-full sm:max-w-md shadow-2xl flex flex-col max-h-[85vh]">
+            <div class="flex items-center gap-3 px-5 py-4 border-b border-gray-100 shrink-0">
+              <div class="w-8 h-8 rounded-xl bg-emerald-100 flex items-center justify-center shrink-0">
+                <svg class="w-4 h-4 text-emerald-700" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+              </div>
+              <div class="flex-1">
+                <h3 class="text-gray-900 font-black text-sm">Direktori AJK</h3>
+                <p class="text-gray-400 text-[10px]">{{ ahliJawatankuasa.length }} ahli jawatankuasa</p>
+              </div>
+              <button @click="showDirektoriAJK = false" class="text-gray-400 hover:text-red-500 p-1.5 rounded-full hover:bg-red-50 transition-all">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+              </button>
+            </div>
+            <div class="px-4 pt-3 pb-2 shrink-0">
+              <div class="relative">
+                <input v-model="cariDirektoriAJK" type="text" placeholder="Cari nama atau jawatan..."
+                  class="w-full bg-gray-50 border border-gray-200 text-gray-900 text-xs rounded-xl pl-8 pr-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500"/>
+                <svg class="w-3.5 h-3.5 text-gray-400 absolute left-2.5 top-1/2 -translate-y-1/2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+              </div>
+            </div>
+            <div class="flex-1 overflow-y-auto divide-y divide-gray-50">
+              <div v-if="direktoriAJKTertapis.length === 0" class="p-8 text-center text-gray-400 text-xs">Tiada rekod dijumpai.</div>
+              <div v-for="ahli in direktoriAJKTertapis" :key="ahli.no_kp" class="px-4 py-3 hover:bg-gray-50 transition-colors">
+                <div class="flex items-center gap-3">
+                  <div class="w-9 h-9 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center shrink-0 overflow-hidden">
+                    <img v-if="ahli.gambar" :src="`${apiBase}/uploads/images/${ahli.gambar}`" class="w-full h-full object-cover"/>
+                    <span v-else class="text-emerald-700 text-sm font-black">{{ (ahli.nama_pegawai || '?').charAt(0) }}</span>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <p class="text-gray-900 font-bold text-xs uppercase truncate">{{ ahli.nama_pegawai || '—' }}</p>
+                    <p class="text-gray-400 text-[10px]">{{ ahli.jawatan_kelab }}</p>
+                    <p v-if="ahli.penempatan" class="text-gray-400 text-[10px] truncate">{{ ahli.penempatan }}</p>
+                  </div>
+                </div>
+                <div class="mt-2 flex flex-wrap gap-2 pl-12">
+                  <a v-if="ahli.no_tel" :href="`tel:${ahli.no_tel}`"
+                    class="flex items-center gap-1 text-[10px] font-bold px-2.5 py-1.5 rounded-lg bg-blue-50 text-blue-700 border border-blue-100 hover:bg-blue-100 transition-colors">
+                    <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+                    {{ ahli.no_tel }}
+                  </a>
+                  <a v-if="ahli.no_tel" :href="waLink(ahli.no_tel)" target="_blank" rel="noopener"
+                    class="flex items-center gap-1 text-[10px] font-bold px-2.5 py-1.5 rounded-lg bg-green-50 text-green-700 border border-green-100 hover:bg-green-100 transition-colors">
+                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                    WhatsApp
+                  </a>
+                  <a v-if="ahli.email" :href="`mailto:${ahli.email}`"
+                    class="flex items-center gap-1 text-[10px] font-bold px-2.5 py-1.5 rounded-lg bg-gray-50 text-gray-600 border border-gray-200 hover:bg-gray-100 transition-colors truncate max-w-[160px]">
+                    <svg class="w-3 h-3 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                    <span class="truncate">{{ ahli.email }}</span>
+                  </a>
+                  <span v-if="!ahli.no_tel && !ahli.email" class="text-[10px] text-gray-300 italic">Tiada maklumat hubungan</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
+
     <!-- MODAL PROFIL 360 -->
     <ProfilAhli360 :show="showDetails" :ahliBase="ahliDipilih" @close="showDetails = false" @edit="bukaEditDariProfil" />
 
@@ -286,8 +385,8 @@
           <div class="bg-white border border-gray-200 rounded-2xl w-full max-w-4xl shadow-2xl flex flex-col max-h-[90vh]">
             <div class="flex justify-between items-start px-5 py-4 border-b border-gray-100 shrink-0">
               <div>
-                <h3 class="text-gray-900 font-black text-sm">Daftar Staf Baharu</h3>
-                <p class="text-gray-400 text-[11px] mt-0.5">Tambah staf secara tunggal atau serentak. Nama, No. KP dan Penempatan diwajibkan.</p>
+                <h3 class="text-gray-900 font-black text-sm">Daftar Ahli Baru</h3>
+                <p class="text-gray-400 text-[11px] mt-0.5">Tambah ahli secara tunggal atau serentak. Nama, No. KP dan Penempatan diwajibkan.</p>
               </div>
               <button @click="showDaftar = false" class="text-gray-400 hover:text-red-500 bg-gray-50 hover:bg-red-50 p-1.5 rounded-full transition-all">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
@@ -489,6 +588,10 @@ import { ref, computed, onMounted, watch } from 'vue';
 import api from '../../services/api';
 import ProfilAhli360 from '../../components/admin/ProfilAhli360.vue';
 import { KELAB } from '../../config/kelab';
+import { useAuthStore } from '../../stores/auth';
+
+const authStore = useAuthStore();
+const isSuperAdmin = computed(() => authStore.user?.role === 'Super Admin');
 
 const semuaAhli = ref([]);
 const senaraiPenempatanLengkap = ref([]);
@@ -552,9 +655,40 @@ const ahliDipilih = ref(null);
 const janaLoading = ref(false);
 const mesejJana = ref(null);
 
+// ── Computed: Hierarki Penempatan ──
+const ptjInduk = computed(() =>
+  senaraiPenempatanLengkap.value.filter(p => !p.induk_id)
+);
+const ptjAnak = computed(() => {
+  const map = {};
+  senaraiPenempatanLengkap.value.forEach(p => {
+    if (p.induk_id) {
+      if (!map[p.induk_id]) map[p.induk_id] = [];
+      map[p.induk_id].push(p);
+    }
+  });
+  return map;
+});
+
+// Dapatkan Set ID yang dibenarkan: PTJ yang dipilih + semua anaknya
+const idPenempatanDibenarkan = computed(() => {
+  if (!filterPenempatan.value) return null;
+  const id = Number(filterPenempatan.value);
+  const ids = new Set([id]);
+  (ptjAnak.value[id] || []).forEach(a => ids.add(a.id));
+  return ids;
+});
+
+const idPenempatanAJKDibenarkan = computed(() => {
+  if (!filterPenempatanAJK.value) return null;
+  const id = Number(filterPenempatanAJK.value);
+  const ids = new Set([id]);
+  (ptjAnak.value[id] || []).forEach(a => ids.add(a.id));
+  return ids;
+});
+
 // ── Computed: Semua Ahli ──
 const jumlahBelumDaftar = computed(() => semuaAhli.value.filter(a => !a.has_daftar).length);
-const senaraiPenempatan = computed(() => [...new Set(semuaAhli.value.map(a => a.penempatan).filter(Boolean))].sort());
 const senaraiGred = computed(() => [...new Set(semuaAhli.value.map(a => a.gred_sspa).filter(Boolean))].sort());
 
 const ahliTertapis = computed(() => {
@@ -566,7 +700,8 @@ const ahliTertapis = computed(() => {
       (a.no_ahli || '').toLowerCase().includes(coc) ||
       (a.jawatan_kelab || '').toLowerCase().includes(coc);
     const matchStatus = !filterStatus.value || (a.status_ahli || '').toLowerCase() === filterStatus.value;
-    const matchPenempatan = !filterPenempatan.value || a.penempatan === filterPenempatan.value;
+    const matchPenempatan = !filterPenempatan.value
+      || (idPenempatanDibenarkan.value && idPenempatanDibenarkan.value.has(a.penempatan_id));
     const matchGred = !filterGred.value || a.gred_sspa === filterGred.value;
     const matchPotongan = !filterPotongan.value || a.jenis_potongan === filterPotongan.value;
     const matchBelumBayar = !filterBelumBayar.value || !a.is_paid;
@@ -603,7 +738,8 @@ const ahliJawatankuasaTertapis = computed(() => {
       (a.nama_pegawai || '').toLowerCase().includes(coc) ||
       (a.no_kp || '').includes(coc);
     const matchJawatan = !filterJawatanAJK.value || a.jawatan_kelab === filterJawatanAJK.value;
-    const matchPenempatan = !filterPenempatanAJK.value || a.penempatan === filterPenempatanAJK.value;
+    const matchPenempatan = !filterPenempatanAJK.value
+      || (idPenempatanAJKDibenarkan.value && idPenempatanAJKDibenarkan.value.has(a.penempatan_id));
     const matchBelumBayar = !filterBelumBayarAJK.value || !a.is_paid;
     return matchCarian && matchJawatan && matchPenempatan && matchBelumBayar;
   });
@@ -785,6 +921,24 @@ const simpanDaftarPukal = async () => {
   }
 };
 
+// ── Direktori AJK ──
+const showDirektoriAJK   = ref(false);
+const cariDirektoriAJK   = ref('');
+
+const direktoriAJKTertapis = computed(() => {
+  const q = cariDirektoriAJK.value.toLowerCase();
+  return ahliJawatankuasa.value.filter(a =>
+    !q || (a.nama_pegawai || '').toLowerCase().includes(q) || (a.jawatan_kelab || '').toLowerCase().includes(q)
+  );
+});
+
+const waLink = (no) => {
+  if (!no) return '#';
+  const cleaned = (no || '').replace(/\D/g, '');
+  const num = cleaned.startsWith('60') ? cleaned : '60' + cleaned.replace(/^0/, '');
+  return `https://wa.me/${num}`;
+};
+
 // ── Details ──
 const bukaDetails = (ahliAsas) => {
   ahliDipilih.value = ahliAsas;
@@ -801,6 +955,141 @@ const eksportCSV = () => {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a'); a.href = url; a.download = 'Laporan_Ahli_Kelab.csv'; a.click();
   URL.revokeObjectURL(url);
+};
+
+// ── Cetak Ahli Mengikut Penempatan ──
+const cetakAhliPenempatan = () => {
+  const tarikh = new Date().toLocaleDateString('ms-MY', { day: 'numeric', month: 'long', year: 'numeric' });
+
+  const penempatanId = Number(filterPenempatan.value);
+  const namaPenempatan = senaraiPenempatanLengkap.value.find(p => p.id === penempatanId)?.nama_penempatan || 'Penempatan';
+
+  // Pecah gred_sspa kepada { skim, gred } — nilai uppercase
+  const pecahGred = (val) => {
+    const g = (val || '').trim().toUpperCase();
+    if (!g) return { skim: '', gred: -1 };
+    // JUSA A / JUSA B / JUSA C
+    const jusa = g.match(/^JUSA\s+([ABC])$/);
+    if (jusa) return { skim: 'JUSA', gred: { A: 3, B: 2, C: 1 }[jusa[1]] ?? 0 };
+    // Skim + nombor: N19, VU7, G14, F41 dsb
+    const biasa = g.match(/^([A-Z]+)(\d+)$/);
+    if (biasa) return { skim: biasa[1], gred: parseInt(biasa[2]) };
+    return { skim: g, gred: 0 };
+  };
+
+  // Urutan: JUSA dahulu → skim A-Z → gred tertinggi dalam skim → tiada gred paling bawah
+  const sortGred = (a, b) => {
+    const ga = (a.gred_sspa || '').trim().toUpperCase();
+    const gb = (b.gred_sspa || '').trim().toUpperCase();
+    if (!ga && !gb) return 0;
+    if (!ga) return 1;
+    if (!gb) return -1;
+    const pA = pecahGred(ga);
+    const pB = pecahGred(gb);
+    // JUSA sentiasa paling atas
+    if (pA.skim === 'JUSA' && pB.skim !== 'JUSA') return -1;
+    if (pB.skim === 'JUSA' && pA.skim !== 'JUSA') return 1;
+    // Sama skim → gred tertinggi dahulu
+    if (pA.skim === pB.skim) return pB.gred - pA.gred;
+    // Skim berlainan → ikut abjad skim
+    return pA.skim.localeCompare(pB.skim);
+  };
+
+  const senarai = [...ahliTertapis.value].sort(sortGred);
+  const jumlahBerbayar = senarai.filter(a => a.is_paid).length;
+  const jumlahBelumBayar = senarai.filter(a => !a.is_paid).length;
+
+  let rowsHtml = '';
+  let skimSemasa = null;
+  senarai.forEach((ahli, i) => {
+    const { skim } = pecahGred(ahli.gred_sspa);
+    if (skim !== skimSemasa) {
+      skimSemasa = skim;
+      const bil = senarai.filter(x => pecahGred(x.gred_sspa).skim === skimSemasa).length;
+      const label = skimSemasa || 'TIDAK DITETAPKAN';
+      rowsHtml += `<tr><td colspan="6" style="background:#1e293b;color:#fff;font-weight:bold;font-size:9px;text-transform:uppercase;letter-spacing:1px;padding:5px 10px;">SKIM ${label} &nbsp;(${bil} orang)</td></tr>`;
+    }
+    const bayarStyle = ahli.is_paid ? 'color:#065f46;font-weight:bold;' : 'color:#991b1b;font-weight:bold;';
+    rowsHtml += `<tr>
+      <td style="text-align:center;color:#94a3b8;font-size:10px;">${i + 1}</td>
+      <td style="font-weight:600;text-transform:uppercase;">${ahli.nama_pegawai || '—'}</td>
+      <td style="font-family:monospace;font-size:10px;color:#475569;">${ahli.no_ahli || '—'}</td>
+      <td style="text-align:center;font-weight:bold;">${(ahli.gred_sspa || '').toUpperCase() || '—'}</td>
+      <td>${ahli.penempatan || '—'}</td>
+      <td style="${bayarStyle}">${ahli.is_paid ? '✓ BERBAYAR' : '✗ BELUM BAYAR'}</td>
+    </tr>`;
+  });
+
+  const filterInfo = [
+    filterStatus.value ? `Status: ${filterStatus.value}` : '',
+    filterGred.value ? `Gred: ${filterGred.value}` : '',
+    filterBelumBayar.value ? 'Belum bayar sahaja' : '',
+  ].filter(Boolean).join(' · ');
+
+  const html = `<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <title>Senarai Ahli — ${namaPenempatan}</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; font-size: 11px; color: #1e293b; padding: 24px; }
+    .kop { text-align: center; border-bottom: 3px solid #0F4C3A; padding-bottom: 14px; margin-bottom: 18px; }
+    .kop-sub { font-size: 9px; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; color: #64748b; margin-bottom: 5px; }
+    .kop h1 { font-size: 15px; font-weight: bold; color: #0F4C3A; letter-spacing: 0.5px; }
+    .kop h2 { font-size: 12px; font-weight: bold; color: #1e293b; margin-top: 4px; }
+    .kop h3 { font-size: 11px; color: #0F4C3A; margin-top: 3px; }
+    .kop-meta { font-size: 10px; color: #64748b; margin-top: 7px; }
+    .kop-filter { font-size: 9px; color: #94a3b8; margin-top: 4px; font-style: italic; }
+    .stat-bar { display: flex; justify-content: center; gap: 24px; margin: 12px 0 16px; }
+    .stat { text-align: center; }
+    .stat-num { font-size: 18px; font-weight: bold; }
+    .stat-lbl { font-size: 9px; color: #64748b; text-transform: uppercase; letter-spacing: 1px; }
+    .stat-berbayar .stat-num { color: #065f46; }
+    .stat-belum .stat-num { color: #991b1b; }
+    .stat-jumlah .stat-num { color: #1e293b; }
+    table { width: 100%; border-collapse: collapse; }
+    thead th { background: #0F4C3A; color: #fff; padding: 7px 10px; text-align: left; font-size: 9px; text-transform: uppercase; letter-spacing: 0.5px; }
+    tbody td { padding: 5px 10px; border-bottom: 1px solid #f1f5f9; font-size: 10.5px; }
+    tbody tr:not([class]):nth-child(even) { background: #f8fafc; }
+    .footer { margin-top: 20px; font-size: 9px; color: #94a3b8; text-align: right; }
+    @media print { @page { size: A4 portrait; margin: 1.5cm; } body { padding: 0; } }
+  </style>
+</head>
+<body>
+  <div class="kop">
+    <p class="kop-sub">${KELAB.namaPendek}</p>
+    <h1>KELAB PERHILITAN</h1>
+    <h2>SENARAI AHLI MENGIKUT PENEMPATAN</h2>
+    <h3>${namaPenempatan.toUpperCase()}</h3>
+    <p class="kop-meta">Dijana pada: ${tarikh}</p>
+    ${filterInfo ? `<p class="kop-filter">Penapis: ${filterInfo}</p>` : ''}
+  </div>
+  <div class="stat-bar">
+    <div class="stat stat-jumlah"><div class="stat-num">${senarai.length}</div><div class="stat-lbl">Jumlah Ahli</div></div>
+    <div class="stat stat-berbayar"><div class="stat-num">${jumlahBerbayar}</div><div class="stat-lbl">Berbayar</div></div>
+    <div class="stat stat-belum"><div class="stat-num">${jumlahBelumBayar}</div><div class="stat-lbl">Belum Bayar</div></div>
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th style="width:5%;">Bil.</th>
+        <th style="width:28%;">Nama</th>
+        <th style="width:14%;">No. Ahli</th>
+        <th style="width:8%;text-align:center;">Gred</th>
+        <th style="width:27%;">Penempatan</th>
+        <th style="width:18%;">Status Yuran</th>
+      </tr>
+    </thead>
+    <tbody>${rowsHtml}</tbody>
+  </table>
+  <div class="footer">Dokumen ini dijana secara automatik oleh sistem Kelab PERHILITAN</div>
+  <script>window.onload = () => window.print();<\/script>
+</body>
+</html>`;
+
+  const win = window.open('', '_blank', 'width=900,height=700');
+  if (win) { win.document.write(html); win.document.close(); }
 };
 
 // ── Cetak Jawatankuasa ──
@@ -836,7 +1125,7 @@ const cetakJawatankuasa = () => {
 
   const filterInfo = [
     filterJawatanAJK.value ? `Jawatan: ${filterJawatanAJK.value}` : '',
-    filterPenempatanAJK.value ? `Penempatan: ${filterPenempatanAJK.value}` : '',
+    filterPenempatanAJK.value ? `Penempatan: ${senaraiPenempatanLengkap.value.find(p => p.id === Number(filterPenempatanAJK.value))?.nama_penempatan || filterPenempatanAJK.value}` : '',
     filterBelumBayarAJK.value ? 'Menunjukkan belum bayar sahaja' : '',
   ].filter(Boolean).join(' &nbsp;·&nbsp; ');
 

@@ -177,12 +177,20 @@
                   placeholder="cth: Stadium MSN Bukit Jalil, Kuala Lumpur"
                   class="w-full border border-gray-200 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500">
               </div>
-              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wide mb-1.5">Tarikh Acara Mula</label>
+                  <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wide mb-1.5">Tarikh Mula Acara</label>
                   <input type="date" v-model="form.tarikh_acara"
                     class="w-full border border-gray-200 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500">
                 </div>
+                <div>
+                  <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wide mb-1.5">Tarikh Tamat Acara</label>
+                  <input type="date" v-model="form.tarikh_tamat"
+                    :min="form.tarikh_acara || undefined"
+                    class="w-full border border-gray-200 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500">
+                </div>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wide mb-1.5">Tarikh Tutup Pendaftaran</label>
                   <input type="date" v-model="form.tarikh_tutup"
@@ -196,7 +204,7 @@
                       class="w-full border border-gray-200 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 pr-10">
                     <span class="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-gray-400">org</span>
                   </div>
-                  <p class="text-[10px] text-gray-400 mt-1">Kosongkan jika tiada had. Ahli tidak boleh daftar bila penuh.</p>
+                  <p class="text-[10px] text-gray-400 mt-1">Kosongkan jika tiada had.</p>
                 </div>
               </div>
 
@@ -406,6 +414,7 @@ const formKosong = () => ({
   keterangan: '',
   lokasi: '',
   tarikh_acara: '',
+  tarikh_tamat: '',
   tarikh_tutup: '',
   had_peserta: null,
   emel_urusetia: '',
@@ -425,7 +434,7 @@ watch(() => props.show, (val) => {
   failGambar.value = [];
 
   if (props.modEdit && props.formAsal) {
-    form.value = { ...props.formAsal, senarai_sukan: [...(props.formAsal.senarai_sukan || [])], had_peserta: props.formAsal.had_peserta ?? null, kategori_jantina: props.formAsal.kategori_jantina || 'Semua' };
+    form.value = { ...props.formAsal, senarai_sukan: [...(props.formAsal.senarai_sukan || [])], had_peserta: props.formAsal.had_peserta ?? null, kategori_jantina: props.formAsal.kategori_jantina || 'Semua', tarikh_tamat: props.formAsal.tarikh_tamat || '' };
     try {
       const p = props.formAsal.poster;
       const parsed = p ? (typeof p === 'string' ? JSON.parse(p) : p) : [];
@@ -490,6 +499,7 @@ const simpan = async () => {
   fd.append('keterangan', form.value.keterangan || '');
   fd.append('lokasi', form.value.lokasi || '');
   fd.append('tarikh_acara', form.value.tarikh_acara || '');
+  fd.append('tarikh_tamat', form.value.tarikh_tamat || '');
   fd.append('tarikh_tutup', form.value.tarikh_tutup || '');
   fd.append('emel_urusetia', form.value.emel_urusetia || '');
   fd.append('no_tel_urusetia', form.value.no_tel_urusetia || '');

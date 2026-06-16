@@ -161,8 +161,10 @@
 
               <!-- Tarikh -->
               <td class="px-4 py-3.5">
-                <p class="text-sm font-semibold text-gray-700">{{ formatTarikh(acara.tarikh_acara) }}</p>
-                <p v-if="acara.tarikh_tutup" class="text-[11px] text-gray-400 mt-0.5">Tutup: {{ formatTarikh(acara.tarikh_tutup) }}</p>
+                <p class="text-sm font-semibold text-gray-700">
+                  {{ formatTarikh(acara.tarikh_acara) }}<span v-if="acara.tarikh_tamat" class="text-gray-400 font-normal"> – {{ formatTarikh(acara.tarikh_tamat) }}</span>
+                </p>
+                <p v-if="acara.tarikh_tutup" class="text-[11px] text-gray-400 mt-0.5">Tutup daftar: {{ formatTarikh(acara.tarikh_tutup) }}</p>
               </td>
 
               <!-- Atlet -->
@@ -320,9 +322,12 @@
                     </div>
                     <div>
                       <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wide">Tarikh Acara</p>
-                      <p class="text-sm font-bold text-gray-800 mt-0.5">{{ formatTarikh(acaraDipilihDetail.tarikh_acara) }}</p>
+                      <p class="text-sm font-bold text-gray-800 mt-0.5">
+                        {{ formatTarikh(acaraDipilihDetail.tarikh_acara) }}
+                        <span v-if="acaraDipilihDetail.tarikh_tamat" class="text-gray-400 font-normal"> – {{ formatTarikh(acaraDipilihDetail.tarikh_tamat) }}</span>
+                      </p>
                       <p v-if="acaraDipilihDetail.tarikh_tutup" class="text-[11px] text-gray-400 mt-0.5">
-                        Tutup Pendaftaran: {{ formatTarikh(acaraDipilihDetail.tarikh_tutup) }}
+                        Tutup daftar: {{ formatTarikh(acaraDipilihDetail.tarikh_tutup) }}
                       </p>
                     </div>
                   </div>
@@ -559,6 +564,7 @@ const bukaBorangEdit = (acara) => {
     keterangan: acara.keterangan || '',
     lokasi: acara.lokasi || '',
     tarikh_acara: isoDate(acara.tarikh_acara),
+    tarikh_tamat: isoDate(acara.tarikh_tamat),
     tarikh_tutup: isoDate(acara.tarikh_tutup),
     emel_urusetia: acara.emel_urusetia || '',
     no_tel_urusetia: acara.no_tel_urusetia || '',
