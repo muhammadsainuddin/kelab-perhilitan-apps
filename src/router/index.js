@@ -146,6 +146,11 @@ const routes = [
         component: () => import('../views/admin/PengurusanPenempatanView.vue')
       },
       {
+        path: 'resit-biro-angkasa',
+        name: 'AdminResitBiroAngkasa',
+        component: () => import('../views/admin/PengurusanResitBiroAngkasaView.vue')
+      },
+      {
         path: 'tetapan',
         name: 'AdminTetapan',
         component: () => import('../views/admin/TetapanSistemView.vue')

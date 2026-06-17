@@ -1,5 +1,6 @@
 <template>
   <div class="font-sans min-h-screen selection:bg-[#52B788]/30">
+  <main>
 
     <!-- ═══════════════════════════════════
          MOBILE — Green gradient top + card
@@ -26,9 +27,10 @@
 
         <!-- Butang balik -->
         <button @click="router.push('/')"
-          class="relative z-10 mt-12 ml-5 w-9 h-9 flex items-center justify-center rounded-xl transition-all active:scale-95"
+          aria-label="Kembali ke halaman utama"
+          class="relative z-10 mt-12 ml-5 w-11 h-11 flex items-center justify-center rounded-xl transition-all active:scale-95"
           style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); color: #95D5B2;">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/>
           </svg>
         </button>
@@ -43,7 +45,7 @@
           <div>
             <h1 class="font-hago text-white text-[20px] tracking-widest leading-tight">Kelab PERHILITAN</h1>
             <p class="text-[9px] font-black uppercase tracking-[0.22em] mt-1"
-              style="color: rgba(149,213,178,0.5);">Sistem Pengurusan Ahli</p>
+              style="color: #95D5B2;">Sistem Pengurusan Ahli</p>
           </div>
         </div>
       </div>
@@ -109,12 +111,13 @@
                 @focus="e => { e.target.style.borderColor='#0F4C3A'; e.target.style.background='white'; }"
                 @blur="e => { e.target.style.borderColor='#E8EEF4'; e.target.style.background='#F1F5F9'; }" />
               <button type="button" @click="showPassword = !showPassword"
-                class="absolute right-4 top-1/2 -translate-y-1/2" style="color: #94A3B8;">
-                <svg v-if="!showPassword" class="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                :aria-label="showPassword ? 'Sembunyikan kata laluan' : 'Tunjukkan kata laluan'"
+                class="absolute right-3 top-1/2 -translate-y-1/2 w-11 h-11 flex items-center justify-center" style="color: #64748B;">
+                <svg v-if="!showPassword" class="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                 </svg>
-                <svg v-else class="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg v-else class="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
                 </svg>
               </button>
@@ -203,7 +206,7 @@
             <img src="/logo.png" alt="Logo" class="w-full h-full object-contain" />
           </div>
           <div>
-            <p class="text-[9px] font-black uppercase tracking-[0.22em]" style="color: rgba(149,213,178,0.7);">Kelab Sukan & Kebajikan</p>
+            <p class="text-[9px] font-black uppercase tracking-[0.22em]" style="color: #95D5B2;">Kelab Sukan & Kebajikan</p>
             <span class="font-hago text-xl tracking-wide text-white leading-tight">Kelab PERHILITAN</span>
           </div>
         </div>
@@ -215,7 +218,7 @@
             <span style="color: #95D5B2;">Pengurusan</span><br>
             Bersepadu Ahli
           </h2>
-          <p class="text-sm leading-relaxed max-w-sm" style="color: rgba(208,215,215,0.7);">
+          <p class="text-sm leading-relaxed max-w-sm" style="color: rgba(208,215,215,0.9);">
             Akses penuh kepada yuran, bantuan kebajikan, aktiviti sukan, dan kedai kelab dalam satu platform berpusat yang moden.
           </p>
         </div>
@@ -343,6 +346,7 @@
       </div>
 
     </div>
+  </main>
   </div>
 </template>
 

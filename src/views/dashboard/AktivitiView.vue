@@ -74,6 +74,8 @@
             <div v-for="(img, si) in dapatkanSemuaPoster(acara.poster)" :key="si"
               class="relative shrink-0 w-full h-full snap-start">
               <img :src="`${uploadBase}/uploads/images/${img}`"
+                alt="Poster aktiviti"
+                loading="lazy"
                 class="w-full h-full object-cover" />
             </div>
           </div>
@@ -244,6 +246,8 @@
                 <div v-for="(img, si) in detailImages" :key="si"
                   class="relative shrink-0 w-full h-full snap-start">
                   <img :src="`${uploadBase}/uploads/images/${img}`"
+                    alt="Gambar aktiviti"
+                    loading="lazy"
                     class="w-full h-full object-cover" />
                 </div>
               </div>
@@ -439,6 +443,7 @@
               </svg>
             </button>
             <img :src="`${uploadBase}/uploads/images/${modalGaleri.images[modalGaleri.currentIndex]}`"
+              alt="Gambar galeri"
               class="max-w-full max-h-[85vh] object-contain rounded-xl" />
             <button v-if="modalGaleri.images.length > 1" @click="nextGambar"
               class="absolute right-3 w-10 h-10 flex items-center justify-center rounded-full transition-all active:scale-90 z-10"

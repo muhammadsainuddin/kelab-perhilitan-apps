@@ -116,7 +116,7 @@ onMounted(async () => {
   transition: color 0.25s ease;
 }
 .tab-on  { color: #87BCB5; }
-.tab-off { color: #567778; }
+.tab-off { color: #7AABAB; }
 .tab-off:hover { color: #A9D2CC; }
 
 .tab-icon-wrap {

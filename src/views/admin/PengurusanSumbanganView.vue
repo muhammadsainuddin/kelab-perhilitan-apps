@@ -80,6 +80,7 @@
               <p class="text-xs text-gray-500 mt-0.5">Penerima: <span class="font-bold text-gray-700">{{ k.nama_penerima }}</span></p>
             </div>
             <img v-if="k.qr_code" :src="`${uploadBase}/uploads/images/${k.qr_code}`"
+              alt="Kod QR sumbangan"
               class="w-14 h-14 rounded-xl object-cover border border-gray-200 shrink-0" />
             <div v-else class="w-14 h-14 rounded-xl bg-gray-100 flex items-center justify-center shrink-0">
               <svg class="w-6 h-6 text-gray-300" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
@@ -265,6 +266,7 @@
                   </label>
                   <img v-if="qrPreview || (editId && form.qr_code_sedia)"
                     :src="qrPreview || `${uploadBase}/uploads/images/${form.qr_code_sedia}`"
+                    alt="Pratonton QR"
                     class="w-14 h-14 rounded-xl object-cover border border-gray-200" />
                 </div>
               </div>
@@ -318,6 +320,7 @@
                 <div v-if="editId && galeriSedia.length" class="grid grid-cols-4 sm:grid-cols-6 gap-2 mb-3">
                   <div v-for="g in galeriSedia" :key="g.id" class="relative group">
                     <img :src="`${uploadBase}/uploads/images/${g.filename}`"
+                      alt="Gambar galeri"
                       class="w-full aspect-square object-cover rounded-xl border border-gray-200" />
                     <button type="button" @click="hapusGambarSedia(g)"
                       class="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow">
@@ -342,7 +345,7 @@
                 <!-- Preview gambar baharu -->
                 <div v-if="gambarPending.length" class="grid grid-cols-4 sm:grid-cols-6 gap-2 mt-2">
                   <div v-for="(p, i) in gambarPending" :key="i" class="relative group">
-                    <img :src="p.preview" class="w-full aspect-square object-cover rounded-xl border border-gray-200" />
+                    <img :src="p.preview" alt="Pratonton gambar" class="w-full aspect-square object-cover rounded-xl border border-gray-200" />
                     <button type="button" @click="buangGambarPending(i)"
                       class="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow">
                       <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">

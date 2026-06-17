@@ -1,5 +1,6 @@
 <template>
   <div class="font-sans min-h-screen selection:bg-[#52B788]/30">
+  <main>
 
     <!-- ═══════════════════════════════════
          MOBILE
@@ -14,9 +15,10 @@
         <div class="absolute top-0 left-0 right-0" style="height: 1.5px; background: linear-gradient(90deg, transparent, #52B788 25%, #D4AF37 55%, #95D5B2 80%, transparent);"></div>
 
         <button @click="router.push('/login')"
-          class="relative z-10 mt-12 ml-5 w-9 h-9 flex items-center justify-center rounded-xl transition-all active:scale-95"
+          aria-label="Kembali ke log masuk"
+          class="relative z-10 mt-12 ml-5 w-11 h-11 flex items-center justify-center rounded-xl transition-all active:scale-95"
           style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); color: #95D5B2;">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="w-4 h-4" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/>
           </svg>
         </button>
@@ -26,7 +28,7 @@
             style="box-shadow: 0 4px 20px rgba(0,0,0,0.35);" />
           <div>
             <h1 class="font-hago text-white text-[20px] tracking-widest leading-tight">Kelab PERHILITAN</h1>
-            <p class="text-[9px] font-black uppercase tracking-[0.22em] mt-1" style="color: rgba(149,213,178,0.5);">Sistem Pengurusan Ahli</p>
+            <p class="text-[9px] font-black uppercase tracking-[0.22em] mt-1" style="color: #95D5B2;">Sistem Pengurusan Ahli</p>
           </div>
         </div>
       </div>
@@ -37,7 +39,7 @@
 
           <div class="pt-1 pb-0.5">
             <h2 class="text-[21px] font-black" style="color: #0F172A;">Pengaktifan Akaun</h2>
-            <p class="text-[11px] font-medium mt-0.5" style="color: #94A3B8;">Sahkan No. KP anda untuk mengaktifkan keahlian</p>
+            <p class="text-[11px] font-medium mt-0.5" style="color: #64748B;">Sahkan No. KP anda untuk mengaktifkan keahlian</p>
           </div>
 
           <transition name="slide-down">
@@ -165,8 +167,8 @@
       <div class="w-1/2 bg-white flex items-center justify-center p-12 overflow-y-auto">
         <div class="w-full max-w-md">
           <div class="mb-8">
-            <button @click="router.push('/login')" class="text-gray-400 hover:text-[#0F4C3A] transition-colors mb-5 flex items-center gap-1 text-xs font-bold">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+            <button @click="router.push('/login')" class="text-gray-600 hover:text-[#0F4C3A] transition-colors mb-5 flex items-center gap-1 text-xs font-bold">
+              <svg class="w-4 h-4" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
               Kembali Log Masuk
             </button>
             <h3 class="text-gray-900 text-3xl font-bold mb-2">Pengaktifan Akaun</h3>
@@ -234,6 +236,7 @@
       </div>
     </div>
 
+  </main>
   </div>
 </template>
 

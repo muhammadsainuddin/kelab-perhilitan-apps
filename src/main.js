@@ -17,3 +17,14 @@ app.use(router)
 
 // 4. Mount (pasang) aplikasi ke dalam DOM
 app.mount('#app')
+
+// Apabila service worker baru mengambil alih, clear semua cache & reload
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.addEventListener('controllerchange', async () => {
+    await Promise.all(
+      (await caches.keys()).map(key => caches.delete(key))
+    );
+    sessionStorage.setItem('pwa_updated', '1');
+    window.location.reload();
+  });
+}

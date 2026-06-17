@@ -135,7 +135,7 @@
                 <td class="px-4 py-2.5">
                   <div class="flex items-center gap-2.5">
                     <div class="w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center shrink-0 border border-emerald-100 overflow-hidden">
-                      <img v-if="ahli.gambar" :src="`${apiBase}/uploads/images/${ahli.gambar}`" class="w-full h-full object-cover"/>
+                      <img v-if="ahli.gambar" :src="`${apiBase}/uploads/images/${ahli.gambar}`" :alt="ahli.nama_pegawai || 'Foto ahli'" loading="lazy" class="w-full h-full object-cover"/>
                       <span v-else class="text-emerald-700 text-xs font-black">{{ (ahli.nama_pegawai || '?').charAt(0) }}</span>
                     </div>
                     <div>
@@ -460,7 +460,7 @@
             <!-- Header modal dengan avatar -->
             <div class="flex items-center gap-3 px-5 py-4 border-b border-gray-100 shrink-0 bg-linear-to-r from-[#0F4C3A]/5 to-transparent rounded-t-2xl">
               <div class="w-9 h-9 rounded-full bg-emerald-100 border-2 border-emerald-200 flex items-center justify-center shrink-0 overflow-hidden">
-                <img v-if="formEdit._gambar" :src="`${apiBase}/uploads/images/${formEdit._gambar}`" class="w-full h-full object-cover"/>
+                <img v-if="formEdit._gambar" :src="`${apiBase}/uploads/images/${formEdit._gambar}`" :alt="formEdit.nama_pegawai || 'Foto ahli'" class="w-full h-full object-cover"/>
                 <span v-else class="text-emerald-700 text-sm font-black">{{ (formEdit.nama_pegawai || '?').charAt(0) }}</span>
               </div>
               <div class="flex-1 min-w-0">

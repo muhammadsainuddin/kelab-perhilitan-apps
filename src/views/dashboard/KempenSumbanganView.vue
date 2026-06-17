@@ -82,6 +82,8 @@
         <div v-if="gambarList(k).length" class="flex overflow-x-auto no-scrollbar gap-1.5 p-3 pb-0">
           <img v-for="g in gambarList(k).slice(0,4)" :key="g"
             :src="`${uploadBase}/uploads/images/${g}`"
+            :alt="k.nama || 'Gambar kempen'"
+            loading="lazy"
             class="h-28 w-28 shrink-0 rounded-xl object-cover" />
           <div v-if="gambarList(k).length > 4"
             class="h-28 w-28 shrink-0 rounded-xl flex items-center justify-center font-black text-lg"
@@ -152,6 +154,8 @@
                 class="flex overflow-x-auto no-scrollbar snap-x snap-mandatory gap-2 px-4 pt-3 pb-2">
                 <img v-for="g in gambarList(kempenDetail)" :key="g"
                   :src="`${uploadBase}/uploads/images/${g}`"
+                  :alt="kempenDetail?.nama || 'Gambar kempen'"
+                  loading="lazy"
                   class="snap-start h-44 shrink-0 rounded-2xl object-cover"
                   :class="gambarList(kempenDetail).length === 1 ? 'w-full' : 'w-64'" />
               </div>

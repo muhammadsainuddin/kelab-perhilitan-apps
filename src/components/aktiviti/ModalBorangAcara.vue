@@ -301,7 +301,7 @@
                   <div class="grid grid-cols-5 gap-1.5">
                     <div v-for="(fn, i) in gambarSedia" :key="i"
                       class="aspect-square rounded-lg overflow-hidden bg-sky-100 border border-sky-200">
-                      <img :src="`${apiBase}/uploads/images/${fn}`" class="w-full h-full object-cover"
+                      <img :src="`${apiBase}/uploads/images/${fn}`" alt="Gambar acara" class="w-full h-full object-cover"
                         @error="e => { e.target.style.display='none'; }">
                     </div>
                   </div>

@@ -129,8 +129,138 @@
       </div>
     </div>
 
-    <!-- TRANSACTION HISTORY -->
-    <div class="rounded-[20px] overflow-hidden bg-white" style="border: 1px solid #F1F5F9; box-shadow: 0 1px 8px rgba(15,23,42,0.04);">
+    <!-- RESIT BIRO ANGKASA -->
+    <div v-if="profil.pilihan_potongan === 'Potongan Biro angkasa'"
+      class="rounded-[20px] overflow-hidden bg-white"
+      style="border: 1px solid #F1F5F9; box-shadow: 0 1px 8px rgba(15,23,42,0.04);">
+
+      <!-- Header — selaras gaya FPX -->
+      <div class="flex items-center justify-between px-5 py-4" style="border-bottom: 1px solid #F1F5F9;">
+        <div>
+          <p class="text-[9px] font-black uppercase tracking-[0.18em]" style="color: #94a3b8;">Rekod Potongan Gaji</p>
+          <p class="text-[13px] font-black mt-0.5" style="color: #0F172A;">Biro Angkasa</p>
+        </div>
+        <div class="flex items-center gap-2.5">
+          <!-- Kod Majikan chip -->
+          <span class="text-[10px] font-black font-mono px-2.5 py-1 rounded-lg"
+            style="background: rgba(82,183,136,0.08); color: #2D6A4F; border: 1px solid rgba(82,183,136,0.18);">
+            {{ profil.kod_majikan || 'N/A' }}
+          </span>
+          <button @click="fetchResitBA"
+            class="w-8 h-8 rounded-xl flex items-center justify-center transition-all active:scale-90"
+            style="background: rgba(82,183,136,0.1); color: #2D6A4F;"
+            title="Muat Semula">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Loading -->
+      <div v-if="muatResitBA" class="py-10 flex flex-col items-center gap-3">
+        <svg class="animate-spin w-5 h-5" style="color: #52B788;" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+        </svg>
+        <p class="text-[11px] font-medium uppercase tracking-wider" style="color: #94a3b8;">Memuatkan resit...</p>
+      </div>
+
+      <!-- Empty state -->
+      <div v-else-if="senaraiResitBA.length === 0" class="py-10 text-center">
+        <p class="text-[11px] font-medium uppercase tracking-wider" style="color: #94a3b8;">Tiada rekod resit</p>
+      </div>
+
+      <!-- Senarai dengan filter -->
+      <div v-else>
+
+        <!-- Filter bar — sama gaya header FPX -->
+        <div class="flex items-center justify-between px-5 py-3" style="border-bottom: 1px solid #F8FAFC; background: #FAFAFA;">
+          <label class="flex items-center gap-1.5 cursor-pointer">
+            <svg class="w-3.5 h-3.5 shrink-0" style="color: #94a3b8;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+            </svg>
+            <select v-model="filterTahunBA"
+              class="text-[11px] font-black outline-none bg-transparent cursor-pointer"
+              style="color: #0F172A;">
+              <option v-for="t in senaraiTahunBA" :key="t" :value="t">{{ t }}</option>
+            </select>
+            <span class="text-[9px] font-black px-1.5 py-0.5 rounded-md" style="background: rgba(82,183,136,0.1); color: #2D6A4F;">
+              {{ resitBATertapis.length }}
+            </span>
+          </label>
+          <button @click="cetakBulkPDFBA" :disabled="!resitBATertapis.length"
+            class="flex items-center gap-1 text-[9px] font-black uppercase tracking-wide transition-all active:scale-95 disabled:opacity-40"
+            style="color: #52B788;">
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+            </svg>
+            PDF Tahun
+          </button>
+        </div>
+
+        <!-- Tiada resit untuk tahun -->
+        <div v-if="!resitBATertapis.length" class="py-8 text-center">
+          <p class="text-[11px] font-medium uppercase tracking-wider" style="color: #94a3b8;">Tiada resit untuk {{ filterTahunBA }}</p>
+        </div>
+
+        <!-- Baris resit — ikut gaya baris FPX -->
+        <div v-else class="divide-y" style="border-color: #F8FAFC;">
+          <div v-for="r in resitBATertapis" :key="r.no_resit"
+            class="flex items-center gap-3 px-4 py-3.5">
+
+            <!-- Icon avatar — warna hijau -->
+            <div class="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0"
+              style="background: rgba(82,183,136,0.1);">
+              <svg class="w-5 h-5" style="color: #2D6A4F;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+              </svg>
+            </div>
+
+            <!-- Teks utama -->
+            <div class="flex-1 min-w-0">
+              <p class="text-[11px] font-black uppercase truncate" style="color: #0F172A;">
+                {{ new Date(r.bulan_potongan).toLocaleDateString('ms-MY', { month: 'long', year: 'numeric' }) }}
+              </p>
+              <p class="text-[9px] font-mono mt-0.5" style="color: #94a3b8;">{{ r.no_resit }} · Biro Angkasa</p>
+            </div>
+
+            <!-- Amaun + butang resit -->
+            <div class="text-right shrink-0 flex items-center gap-2">
+              <div>
+                <p class="text-[13px] font-black tabular-nums" style="color: #0F172A;">RM {{ parseFloat(r.amaun).toFixed(2) }}</p>
+                <span class="text-[7px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full inline-block mt-0.5"
+                  style="background: rgba(82,183,136,0.1); color: #2D6A4F;">POTONGAN GAJI</span>
+              </div>
+              <button @click="lihatResitBA(r)"
+                class="text-[9px] font-black uppercase tracking-wide flex items-center gap-1 px-2.5 py-1.5 rounded-xl transition-all active:scale-95"
+                style="color: #2D6A4F; background: rgba(82,183,136,0.1); border: 1px solid rgba(82,183,136,0.18);">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+                Resit
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Jumlah footer -->
+        <div v-if="resitBATertapis.length" class="flex items-center justify-between px-5 py-3.5"
+          style="border-top: 1px solid #F1F5F9; background: #FAFAFA;">
+          <p class="text-[9px] font-black uppercase tracking-[0.18em]" style="color: #94a3b8;">
+            Jumlah Potongan {{ filterTahunBA }}
+          </p>
+          <p class="text-[15px] font-black tabular-nums" style="color: #0F172A;">
+            RM {{ resitBATertapis.reduce((a, r) => a + parseFloat(r.amaun || 0), 0).toFixed(2) }}
+          </p>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- TRANSACTION HISTORY — disembunyikan untuk ahli Biro Angkasa -->
+    <div v-if="profil.pilihan_potongan !== 'Potongan Biro angkasa'"
+      class="rounded-[20px] overflow-hidden bg-white" style="border: 1px solid #F1F5F9; box-shadow: 0 1px 8px rgba(15,23,42,0.04);">
       <div class="flex items-center justify-between px-5 py-4" style="border-bottom: 1px solid #F1F5F9;">
         <p class="text-[9px] font-black uppercase tracking-[0.18em]" style="color: #94a3b8;">Sejarah Transaksi FPX</p>
         <button @click="fetchSejarah"
@@ -188,12 +318,10 @@
       </div>
     </div>
 
-  </div>
-
-  <!-- ── MODAL RESIT (mobile / native) ── -->
-  <Teleport to="body">
-    <Transition name="resit-sheet">
-      <div v-if="showResitModal"
+    <!-- ── MODAL RESIT (mobile / native) ── -->
+    <Teleport to="body">
+      <Transition name="resit-sheet">
+        <div v-if="showResitModal"
         class="fixed inset-0 z-9999 flex flex-col"
         style="background: #F8FAFC;">
 
@@ -228,17 +356,53 @@
           </button>
         </div>
 
-      </div>
-    </Transition>
-  </Teleport>
+        </div>
+      </Transition>
+    </Teleport>
 
+    <!-- ── MODAL RESIT BIRO ANGKASA (mobile / native) ── -->
+    <Teleport to="body">
+      <Transition name="resit-sheet">
+        <div v-if="showResitBAModal"
+          class="fixed inset-0 z-9999 flex flex-col"
+          style="background: #F8FAFC;">
+          <div class="flex items-center justify-between px-4 py-3 shrink-0"
+            style="background: #1D4ED8; padding-top: max(12px, env(safe-area-inset-top));">
+            <div class="flex items-center gap-2.5">
+              <svg class="w-4 h-4 text-blue-200" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+              </svg>
+              <span class="text-[13px] font-black text-white uppercase tracking-wide">Resit Biro Angkasa</span>
+            </div>
+            <button @click="showResitBAModal = false"
+              class="w-8 h-8 rounded-full flex items-center justify-center transition-all active:scale-90"
+              style="background: rgba(255,255,255,0.15);">
+              <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+            </button>
+          </div>
+          <iframe class="flex-1 w-full border-0" :srcdoc="resitBAHtml"></iframe>
+          <div class="px-4 py-3 shrink-0"
+            style="background: white; border-top: 1px solid #F1F5F9; padding-bottom: max(12px, env(safe-area-inset-bottom));">
+            <button @click="showResitBAModal = false"
+              class="w-full py-3.5 rounded-2xl text-[11px] font-black uppercase tracking-wider transition-all active:scale-[0.98]"
+              style="background: #1D4ED8; color: white;">
+              Tutup Resit
+            </button>
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
+
+  </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { Capacitor } from '@capacitor/core';
 import api from '../../services/api';
-import { cetakResitTransaksi, buatHtmlResit } from '../../config/kelab';
+import { KELAB, cetakResitTransaksi, buatHtmlResit, headerResitHTML, footerResitHTML } from '../../config/kelab';
 
 const profil = ref({});
 const showResitModal = ref(false);
@@ -253,9 +417,155 @@ const lihatResit = (tx) => {
   }
 };
 const sejarahBayaran = ref([]);
-const isProcessing = ref(false);
-const tahunSemasa = new Date().getFullYear();
+const isProcessing   = ref(false);
+const tahunSemasa    = new Date().getFullYear();
 let autoPollInterval = null;
+
+// ── Resit Biro Angkasa ──
+const senaraiResitBA   = ref([]);
+const muatResitBA      = ref(false);
+const resitBAHtml      = ref('');
+const showResitBAModal = ref(false);
+const filterTahunBA    = ref(String(new Date().getFullYear()));
+
+const senaraiTahunBA = computed(() => {
+  const set = new Set(senaraiResitBA.value.map(r => (r.bulan_potongan || '').substring(0, 4)).filter(Boolean));
+  const list = [...set].sort((a, b) => b - a);
+  return list.length ? list : [String(new Date().getFullYear())];
+});
+
+const resitBATertapis = computed(() =>
+  senaraiResitBA.value.filter(r => (r.bulan_potongan || '').startsWith(filterTahunBA.value))
+);
+
+const labelBulanBA = (val) => {
+  if (!val) return '—';
+  return new Date(val).toLocaleDateString('ms-MY', { month: 'long', year: 'numeric' });
+};
+
+const fetchResitBA = async () => {
+  muatResitBA.value = true;
+  try {
+    const { data } = await api.get('/user/resit-biro-angkasa');
+    if (data.success) senaraiResitBA.value = data.data;
+  } catch { /* senyap */ }
+  finally { muatResitBA.value = false; }
+};
+
+const buatHtmlResitBA = (r) => {
+  const tarikh = new Date().toLocaleDateString('ms-MY', { day: '2-digit', month: 'long', year: 'numeric' });
+  return `<html><head><title>Resit ${r.no_resit}</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:Arial,sans-serif;padding:28px;color:#222;max-width:540px;margin:auto}
+    .row{display:flex;justify-content:space-between;margin:8px 0;font-size:12px}
+    .divider{border:none;border-top:1px dashed #ddd;margin:14px 0}
+    .badge{display:inline-block;background:#EFF6FF;color:#1D4ED8;border:1px solid #BFDBFE;padding:3px 12px;border-radius:20px;font-size:10px;font-weight:bold}
+    .total-box{background:#0F4C3A;color:white;border-radius:10px;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;margin-top:14px}
+    @media print{body{padding:14px}}
+  </style></head><body>
+  ${headerResitHTML('Resit Potongan Yuran — Biro Angkasa')}
+  <div style="background:#f9fafb;border:1px solid #eee;border-radius:10px;padding:16px;margin-top:12px">
+    <div class="row"><span style="color:#888">No. Resit</span><strong style="font-family:monospace">${r.no_resit}</strong></div>
+    <div class="row"><span style="color:#888">Kaedah Potongan</span><span class="badge">Biro Angkasa</span></div>
+    <hr class="divider"/>
+    <div class="row"><span style="color:#888">Nama</span><strong style="text-transform:uppercase">${profil.value.nama_penuh || profil.value.nama_pegawai || '—'}</strong></div>
+    <div class="row"><span style="color:#888">No. Kad Pengenalan</span><strong style="font-family:monospace">${profil.value.no_kp || '—'}</strong></div>
+    <hr class="divider"/>
+    <div class="row"><span style="color:#888">Bulan Potongan</span><strong>${labelBulanBA(r.bulan_potongan)}</strong></div>
+    <div class="row"><span style="color:#888">Keterangan</span><strong>Yuran Kelab PERHILITAN</strong></div>
+    <div class="row"><span style="color:#888">Kod Majikan</span><strong style="font-family:monospace">${profil.value.kod_majikan || 'N/A'}</strong></div>
+  </div>
+  <div class="total-box">
+    <span style="font-size:11px;text-transform:uppercase;letter-spacing:1px">Jumlah Potongan</span>
+    <strong style="font-size:22px">RM ${parseFloat(r.amaun).toFixed(2)}</strong>
+  </div>
+  <p style="font-size:9px;color:#aaa;text-align:center;margin-top:10px">Dicetak: ${tarikh}</p>
+  ${footerResitHTML()}
+  </body></html>`;
+};
+
+const lihatResitBA = (r) => {
+  if (Capacitor.isNativePlatform()) {
+    resitBAHtml.value = buatHtmlResitBA(r);
+    showResitBAModal.value = true;
+  } else {
+    const w = window.open('', '_blank', 'width=620,height=580');
+    w.document.write(buatHtmlResitBA(r));
+    w.document.close();
+    setTimeout(() => w.print(), 400);
+  }
+};
+
+const cetakBulkPDFBA = () => {
+  const senarai = resitBATertapis.value;
+  if (!senarai.length) return;
+  const tarikh = new Date().toLocaleDateString('ms-MY', { day: '2-digit', month: 'long', year: 'numeric' });
+  const jumlah = senarai.reduce((a, r) => a + parseFloat(r.amaun || 0), 0);
+
+  const baris = senarai.map((r, i) => `
+    <tr style="border-bottom:1px solid #f1f5f9;">
+      <td style="padding:8px 10px;font-size:12px;color:#64748b;">${i + 1}</td>
+      <td style="padding:8px 10px;font-size:12px;font-family:monospace;color:#1D4ED8;">${r.no_resit}</td>
+      <td style="padding:8px 10px;font-size:12px;">${labelBulanBA(r.bulan_potongan)}</td>
+      <td style="padding:8px 10px;font-size:12px;text-align:right;font-weight:700;color:#0F4C3A;">RM ${parseFloat(r.amaun).toFixed(2)}</td>
+    </tr>
+  `).join('');
+
+  const html = `<!DOCTYPE html><html lang="ms"><head>
+    <meta charset="UTF-8"/>
+    <title>Penyata Potongan Biro Angkasa — ${filterTahunBA.value}</title>
+    <style>
+      *{box-sizing:border-box;}
+      body{font-family:Arial,sans-serif;margin:0;padding:24px;color:#0F172A;background:white;}
+      table{width:100%;border-collapse:collapse;margin-top:16px;}
+      th{background:#1D4ED8;color:white;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:9px 10px;text-align:left;}
+      tr:nth-child(even){background:#f8fafc;}
+      .info p{margin:0 0 4px;font-size:12px;color:#334155;}
+      .info span{font-weight:700;color:#0F172A;}
+      .jumlah-row td{background:#0F4C3A;color:white;font-weight:700;font-size:13px;padding:9px 10px;}
+      .badge{display:inline-block;background:#EFF6FF;color:#1D4ED8;border:1px solid #BFDBFE;padding:2px 10px;border-radius:12px;font-size:11px;font-weight:bold;}
+      @media print{body{padding:12px;}}
+    </style>
+  </head><body>
+    ${headerResitHTML(`Penyata Potongan Biro Angkasa &mdash; Tahun ${filterTahunBA.value}`)}
+    <div class="info" style="margin:14px 0;padding:12px 14px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;">
+      <p>Nama: <span>${profil.value.nama_penuh || profil.value.nama_pegawai || '—'}</span></p>
+      <p>No. KP: <span>${profil.value.no_kp || '—'}</span></p>
+      <p>No. Ahli: <span>${profil.value.no_ahli || '—'}</span></p>
+      <p>Kaedah Potongan: <span class="badge">Potongan Biro Angkasa</span></p>
+      <p>Kod Majikan: <span style="font-family:monospace;">${profil.value.kod_majikan || 'N/A'}</span></p>
+      <p>Dicetak: <span>${tarikh}</span></p>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:36px">#</th>
+          <th style="width:160px">No. Resit</th>
+          <th>Bulan Potongan</th>
+          <th style="width:120px;text-align:right">Amaun (RM)</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${baris}
+        <tr>
+          <td colspan="3" class="jumlah-row" style="text-align:right;padding:9px 10px;">JUMLAH POTONGAN TAHUN ${filterTahunBA.value}</td>
+          <td class="jumlah-row" style="text-align:right;">RM ${jumlah.toFixed(2)}</td>
+        </tr>
+      </tbody>
+    </table>
+    ${footerResitHTML()}
+    <script>window.onload=function(){window.print();}<\/script>
+  </body></html>`;
+
+  if (Capacitor.isNativePlatform()) {
+    resitBAHtml.value = html;
+    showResitBAModal.value = true;
+  } else {
+    const w = window.open('', '_blank', 'width=820,height=640');
+    if (w) { w.document.write(html); w.document.close(); }
+  }
+};
 
 // Mengira kadar bulanan pintar (Fallback) jika database bernilai 0.00
 const kadarYuranBulanan = computed(() => {
@@ -264,14 +574,14 @@ const kadarYuranBulanan = computed(() => {
 
   const gred = (profil.value.gred_sspa || '').toUpperCase();
   if (gred.includes('JUSA') || gred.includes('VU') || gred.includes('VK') || gred.includes('UTAMA')) return 15.00;
-  
+
   const match = gred.match(/\d+/);
   if (match) {
     const num = parseInt(match[0], 10);
     if (num >= 9 && num <= 14) return 10.00;
     if (num >= 1 && num <= 8) return 5.00;
   }
-  return 5.00; 
+  return 5.00;
 });
 
 const jumlahPerluBayar = computed(() => kadarYuranBulanan.value * 12);
@@ -279,7 +589,7 @@ const hasPendingTx = computed(() => sejarahBayaran.value.some(tx => tx.status ==
 
 const fetchProfil = async () => {
   try {
-    const res = await api.get('/user/profil'); 
+    const res = await api.get('/user/profil');
     profil.value = res.data.data;
   } catch (e) { console.error(e); }
 };
@@ -310,7 +620,7 @@ const mulakanAutoPolling = () => {
         await fetchProfil();
       }
     } catch (e) {}
-  }, 10000); 
+  }, 10000);
 };
 
 const hentikanAutoPolling = () => {
@@ -336,8 +646,9 @@ const bayarYuran = async () => {
   } finally { isProcessing.value = false; }
 };
 
-onMounted(() => {
-  fetchProfil();
+onMounted(async () => {
+  await fetchProfil();
+  if (profil.value.pilihan_potongan === 'Potongan Biro angkasa') fetchResitBA();
   fetchSejarah();
 });
 

@@ -35,6 +35,7 @@
               style="box-shadow: 0 0 0 2.5px #081C15, 0 0 28px rgba(82,183,136,0.25);">
               <img v-if="profil.gambar"
                 :src="`${uploadBase}/uploads/images/${profil.gambar}`"
+                :alt="profil.nama_penuh || 'Foto profil'"
                 class="w-full h-full object-cover" />
               <div v-else class="w-full h-full flex items-center justify-center bg-[#1B4332] text-[2rem] font-black leading-none"
                 style="color: #95D5B2;">
@@ -113,7 +114,7 @@
       <div class="rounded-[24px] overflow-hidden" style="background: #0F172A; box-shadow: 0 4px 24px rgba(8,28,21,0.15);">
         <div class="p-5">
           <div class="flex items-start justify-between mb-1">
-            <p class="text-[9px] font-black uppercase tracking-[0.2em]" style="color: rgba(148,163,184,0.7);">Jumlah Perbelanjaan FPX</p>
+            <p class="text-[9px] font-black uppercase tracking-[0.2em]" style="color: #94A3B8;">Jumlah Perbelanjaan FPX</p>
             <div class="w-8 h-8 rounded-xl flex items-center justify-center shrink-0" style="background: rgba(82,183,136,0.12);">
               <svg class="w-4 h-4" style="color: #52B788;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
@@ -123,7 +124,7 @@
           <p class="text-[34px] font-black text-white tabular-nums leading-none tracking-tight">
             {{ fmtRM(jumlahPerbelanjaan) }}
           </p>
-          <p class="text-[10px] font-medium mt-2" style="color: rgba(100,116,139,0.8);">
+          <p class="text-[10px] font-medium mt-2" style="color: #94A3B8;">
             {{ txBerjaya.length }} transaksi berjaya sepanjang masa
           </p>
 
@@ -137,14 +138,14 @@
             <div class="rounded-xl p-3" style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06);">
               <div class="flex items-center gap-1.5 mb-1.5">
                 <div class="w-1.5 h-1.5 rounded-full" style="background: #52B788;"></div>
-                <p class="text-[8px] font-black uppercase tracking-wider" style="color: rgba(100,116,139,0.8);">Yuran Keahlian</p>
+                <p class="text-[8px] font-black uppercase tracking-wider" style="color: #94A3B8;">Yuran Keahlian</p>
               </div>
               <p class="text-[13px] font-black text-white tabular-nums">{{ fmtRM(jumlahYuran) }}</p>
             </div>
             <div class="rounded-xl p-3" style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06);">
               <div class="flex items-center gap-1.5 mb-1.5">
                 <div class="w-1.5 h-1.5 rounded-full" style="background: #D4AF37;"></div>
-                <p class="text-[8px] font-black uppercase tracking-wider" style="color: rgba(100,116,139,0.8);">Belian Kedai</p>
+                <p class="text-[8px] font-black uppercase tracking-wider" style="color: #94A3B8;">Belian Kedai</p>
               </div>
               <p class="text-[13px] font-black text-white tabular-nums">{{ fmtRM(jumlahKedai) }}</p>
             </div>
@@ -168,7 +169,7 @@
             </svg>
           </div>
           <p class="text-[11px] font-black text-white uppercase tracking-wider leading-tight">Kemas Kini</p>
-          <p class="text-[9px] font-medium mt-0.5" style="color: rgba(149,213,178,0.5);">Data profil</p>
+          <p class="text-[9px] font-medium mt-0.5" style="color: #95D5B2;">Data profil</p>
         </button>
 
         <!-- Mohon Berhenti -->
@@ -194,7 +195,7 @@
                : statusBerhenti?.status_permohonan === 'DITOLAK' ? 'Mohon Semula'
                : 'Mohon Berhenti' }}
           </p>
-          <p class="text-[9px] font-medium mt-0.5 text-amber-600/60">
+          <p class="text-[9px] font-medium mt-0.5 text-amber-700">
             {{ statusBerhenti?.status_permohonan === 'MENUNGGU' ? 'Menunggu keputusan admin'
                : statusBerhenti?.status_permohonan === 'DITOLAK' ? 'Permohonan ditolak'
                : 'Penamatan keahlian' }}
@@ -224,11 +225,11 @@
           </div>
           <div class="px-4 pb-4 grid grid-cols-2 gap-3">
             <div class="rounded-xl p-3" style="background: #F8FAFC; border: 1px solid #E2E8F0;">
-              <p class="text-[8px] font-bold uppercase tracking-wider mb-1" style="color: #94a3b8;">Nama Bank</p>
+              <p class="text-[8px] font-bold uppercase tracking-wider mb-1" style="color: #64748B;">Nama Bank</p>
               <p class="text-[12px] font-black uppercase leading-snug" style="color: #0F172A;">{{ profil.bank_ahli || '—' }}</p>
             </div>
             <div class="rounded-xl p-3" style="background: #F8FAFC; border: 1px solid #E2E8F0;">
-              <p class="text-[8px] font-bold uppercase tracking-wider mb-1" style="color: #94a3b8;">No. Akaun</p>
+              <p class="text-[8px] font-bold uppercase tracking-wider mb-1" style="color: #64748B;">No. Akaun</p>
               <p class="text-[12px] font-black font-mono leading-snug truncate" style="color: #0F172A;">{{ profil.no_acc_bank || '—' }}</p>
             </div>
           </div>
@@ -255,7 +256,7 @@
               <p class="text-[12px] font-black font-mono leading-snug" style="color: #0F172A;">{{ profil.no_tel_waris || '—' }}</p>
             </div>
             <div class="rounded-xl p-3" style="background: #F8FAFC; border: 1px solid #E2E8F0;">
-              <p class="text-[8px] font-bold uppercase tracking-wider mb-1" style="color: #94a3b8;">Nama Bank</p>
+              <p class="text-[8px] font-bold uppercase tracking-wider mb-1" style="color: #64748B;">Nama Bank</p>
               <p class="text-[12px] font-black uppercase leading-snug" style="color: #0F172A;">{{ profil.bank_waris || '—' }}</p>
             </div>
             <div class="col-span-2 rounded-xl p-3" style="background: #F8FAFC; border: 1px solid #E2E8F0;">
@@ -644,167 +645,187 @@
     </Teleport>
 
     <!-- ═══════════════════════════════════════
-         FULLSCREEN — SEJARAH TRANSAKSI
+         MODAL — SEJARAH TRANSAKSI (Bottom Sheet)
          ═══════════════════════════════════════ -->
     <Teleport to="body">
-      <div v-if="modalTransaksi" class="fixed inset-0 z-9999 flex flex-col" style="background: #F8FAFC;">
+      <Transition name="modal">
+        <div v-if="modalTransaksi"
+          class="fixed inset-0 z-9999 flex items-end justify-center"
+          style="background: rgba(8,28,21,0.55); backdrop-filter: blur(6px);"
+          @click.self="modalTransaksi = false">
 
-        <!-- Header -->
-        <div class="shrink-0 px-4 pt-5 pb-3" style="background: white; border-bottom: 1px solid #F1F5F9;">
-          <div class="flex items-center gap-3 mb-4">
-            <button @click="modalTransaksi = false"
-              class="w-9 h-9 flex items-center justify-center rounded-xl transition-colors active:scale-95"
-              style="background: #F1F5F9; color: #0F172A;">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/>
-              </svg>
-            </button>
-            <div>
-              <h3 class="text-[14px] font-black uppercase tracking-wide" style="color: #0F172A;">Sejarah Transaksi FPX</h3>
-              <p class="text-[10px] font-medium" style="color: #94a3b8;">{{ txTertapis.length }} rekod dijumpai</p>
+          <div class="bg-white w-full max-w-xl flex flex-col overflow-hidden"
+            style="border-radius: 28px 28px 0 0; max-height: 90dvh;">
+
+            <!-- Drag handle -->
+            <div class="flex justify-center pt-3 pb-2 shrink-0">
+              <div class="w-10 h-1 rounded-full bg-gray-200"></div>
             </div>
-          </div>
 
-          <!-- Search -->
-          <div class="relative mb-3">
-            <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4" style="color: #94a3b8;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-            </svg>
-            <input v-model="cariTx" type="text" placeholder="Cari keterangan atau kod bil..."
-              class="w-full pl-10 pr-10 py-2.5 text-xs font-medium rounded-2xl outline-none transition-all"
-              style="background: #F8FAFC; border: 1.5px solid #E2E8F0; color: #0F172A;" />
-            <button v-if="cariTx" @click="cariTx = ''"
-              class="absolute right-3.5 top-1/2 -translate-y-1/2"
-              style="color: #94a3b8;">
-              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
-              </svg>
-            </button>
-          </div>
-
-          <!-- Filters -->
-          <div class="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
-            <select v-model="filterBulan"
-              class="shrink-0 text-[11px] font-bold rounded-xl px-3 py-2 outline-none"
-              style="background: #F8FAFC; border: 1px solid #E2E8F0; color: #0F172A;">
-              <option value="">Semua Bulan</option>
-              <option v-for="b in senaraibulan" :key="b.nilai" :value="b.nilai">{{ b.label }}</option>
-            </select>
-            <select v-model="filterTahun"
-              class="shrink-0 text-[11px] font-bold rounded-xl px-3 py-2 outline-none"
-              style="background: #F8FAFC; border: 1px solid #E2E8F0; color: #0F172A;">
-              <option value="">Semua Tahun</option>
-              <option v-for="t in senaraiTahun" :key="t" :value="t">{{ t }}</option>
-            </select>
-            <button v-for="s in ['SEMUA','BERJAYA','PENDING','GAGAL']" :key="s"
-              @click="filterStatus = s"
-              class="shrink-0 text-[10px] font-black uppercase tracking-wide px-3 py-2 rounded-xl transition-all"
-              :style="filterStatus === s
-                ? 'background: #081C15; color: #95D5B2; border: 1px solid #081C15;'
-                : 'background: #F8FAFC; color: #64748B; border: 1px solid #E2E8F0;'">
-              {{ s }}
-            </button>
-          </div>
-        </div>
-
-        <!-- Stats mini -->
-        <div v-if="!loadingTransaksi && txTertapis.length > 0"
-          class="shrink-0 px-4 py-3 flex gap-2.5" style="background: white; border-bottom: 1px solid #F1F5F9;">
-          <div class="flex-1 rounded-xl p-2.5 text-center" style="background: rgba(82,183,136,0.08); border: 1px solid rgba(82,183,136,0.15);">
-            <p class="text-[7px] font-black uppercase tracking-wider mb-0.5" style="color: #2D6A4F;">Jumlah Ditapis</p>
-            <p class="text-[12px] font-black tabular-nums" style="color: #1B4332;">
-              {{ fmtRM(txTertapis.filter(t => t.status === 'BERJAYA').reduce((a,t) => a + parseFloat(t.amaun||0), 0)) }}
-            </p>
-          </div>
-          <div class="flex-1 rounded-xl p-2.5 text-center" style="background: #F8FAFC; border: 1px solid #E2E8F0;">
-            <p class="text-[7px] font-black uppercase tracking-wider mb-0.5" style="color: #94a3b8;">Berjaya</p>
-            <p class="text-[12px] font-black tabular-nums" style="color: #0F172A;">{{ txTertapis.filter(t => t.status === 'BERJAYA').length }}</p>
-          </div>
-          <div class="flex-1 rounded-xl p-2.5 text-center" style="background: #fffbeb; border: 1px solid rgba(245,158,11,0.2);">
-            <p class="text-[7px] font-black uppercase tracking-wider mb-0.5" style="color: #92400e;">Pending</p>
-            <p class="text-[12px] font-black tabular-nums text-amber-700">{{ txTertapis.filter(t => t.status === 'PENDING').length }}</p>
-          </div>
-        </div>
-
-        <!-- List -->
-        <div class="flex-1 overflow-y-auto custom-scrollbar">
-          <!-- Loading -->
-          <div v-if="loadingTransaksi" class="flex flex-col items-center justify-center h-full gap-3">
-            <div class="w-8 h-8 rounded-full border-2 border-t-transparent animate-spin" style="border-color: #E2E8F0; border-top-color: #52B788;"></div>
-            <p class="text-xs font-bold" style="color: #94a3b8;">Memuatkan rekod...</p>
-          </div>
-
-          <!-- Empty -->
-          <div v-else-if="txTertapis.length === 0" class="flex flex-col items-center justify-center h-full gap-4 p-8">
-            <div class="w-16 h-16 rounded-2xl flex items-center justify-center" style="background: #F1F5F9;">
-              <svg class="w-8 h-8" style="color: #CBD5E1;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-              </svg>
-            </div>
-            <div class="text-center">
-              <p class="text-[13px] font-black uppercase" style="color: #0F172A;">Tiada Rekod</p>
-              <p class="text-[10px] font-medium mt-1" style="color: #94a3b8;">Cuba ubah carian atau penapis anda</p>
-            </div>
-            <button @click="resetFilter"
-              class="text-[10px] font-black uppercase tracking-wider px-5 py-2.5 rounded-xl transition-all active:scale-95"
-              style="background: rgba(82,183,136,0.1); color: #1B4332; border: 1px solid rgba(82,183,136,0.2);">
-              Reset Penapis
-            </button>
-          </div>
-
-          <!-- Transaction items -->
-          <div v-else class="p-4 space-y-2.5 pb-8">
-            <div v-for="tx in txTertapis" :key="tx.billCode"
-              class="bg-white rounded-[18px] overflow-hidden"
-              style="border: 1px solid #F1F5F9; box-shadow: 0 1px 4px rgba(15,23,42,0.04);">
-              <div class="flex items-center gap-3 px-4 py-3.5">
-                <!-- status icon -->
-                <div class="w-10 h-10 rounded-2xl shrink-0 flex items-center justify-center"
-                  :style="tx.status === 'BERJAYA'
-                    ? 'background: rgba(82,183,136,0.1); color: #2D6A4F;'
-                    : tx.status === 'PENDING'
-                      ? 'background: rgba(245,158,11,0.1); color: #92400e;'
-                      : 'background: rgba(239,68,68,0.1); color: #991b1b;'">
-                  <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                  </svg>
+            <!-- Header -->
+            <div class="shrink-0 px-5 pb-3" style="border-bottom: 1px solid #F1F5F9;">
+              <div class="flex items-center justify-between mb-3">
+                <div>
+                  <h3 class="text-base font-black uppercase tracking-wide" style="color: #0F172A;">Sejarah Transaksi FPX</h3>
+                  <p class="text-xs font-medium mt-0.5" style="color: #94a3b8;">{{ txTertapis.length }} rekod dijumpai</p>
                 </div>
-                <div class="flex-1 min-w-0">
-                  <p class="text-[11px] font-black uppercase leading-tight truncate" style="color: #0F172A;">{{ tx.keterangan }}</p>
-                  <p class="text-[9px] font-mono mt-0.5" style="color: #94a3b8;">{{ tx.billCode }}</p>
-                  <p class="text-[9px] font-medium mt-0.5" style="color: #94a3b8;">{{ formatTarikh(tx.tarikh) }}</p>
-                </div>
-                <div class="text-right shrink-0">
-                  <p class="text-[13px] font-black tabular-nums" style="color: #0F172A;">RM {{ parseFloat(tx.amaun).toFixed(2) }}</p>
-                  <span class="text-[7px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full inline-block mt-1"
-                    :style="tx.status === 'BERJAYA'
-                      ? 'background: rgba(82,183,136,0.1); color: #2D6A4F;'
-                      : tx.status === 'PENDING'
-                        ? 'background: rgba(245,158,11,0.1); color: #92400e;'
-                        : 'background: rgba(239,68,68,0.1); color: #991b1b;'">
-                    {{ tx.status }}
-                  </span>
+                <div class="flex items-center gap-2">
+                  <!-- PDF Bulanan -->
+                  <button @click="cetakPDF('bulan')" title="PDF bulan dipilih"
+                    class="text-xs font-bold px-3 py-2 rounded-xl flex items-center gap-1.5 transition-all active:scale-95"
+                    style="background: rgba(82,183,136,0.1); color: #2D6A4F; border: 1px solid rgba(82,183,136,0.25);">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                    </svg>
+                    Bulan
+                  </button>
+                  <!-- PDF Tahunan -->
+                  <button @click="cetakPDF('tahun')" title="PDF keseluruhan tahun"
+                    class="text-xs font-bold px-3 py-2 rounded-xl flex items-center gap-1.5 transition-all active:scale-95"
+                    style="background: rgba(15,76,58,0.08); color: #0F4C3A; border: 1px solid rgba(15,76,58,0.2);">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    Tahun
+                  </button>
+                  <!-- Tutup -->
+                  <button @click="modalTransaksi = false"
+                    class="w-9 h-9 flex items-center justify-center rounded-xl shrink-0"
+                    style="background: #F1F5F9; color: #0F172A;">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                  </button>
                 </div>
               </div>
-              <div v-if="tx.status === 'BERJAYA'"
-                class="px-4 py-2.5 flex justify-end"
-                style="background: #F8FAFC; border-top: 1px solid #F1F5F9;">
-                <button @click="lihatResit(tx)"
-                  class="text-[9px] font-black uppercase tracking-wide flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-all active:scale-95"
-                  style="color: #2D6A4F; background: rgba(82,183,136,0.1); border: 1px solid rgba(82,183,136,0.2);">
-                  <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+
+              <!-- Search -->
+              <div class="relative mb-2.5">
+                <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4" style="color: #94a3b8;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+                <input v-model="cariTx" type="text" placeholder="Cari keterangan atau kod bil..."
+                  class="w-full pl-10 pr-10 py-2.5 text-sm rounded-2xl outline-none"
+                  style="background: #F8FAFC; border: 1.5px solid #E2E8F0; color: #0F172A;" />
+                <button v-if="cariTx" @click="cariTx = ''" class="absolute right-3.5 top-1/2 -translate-y-1/2" style="color: #94a3b8;">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
                   </svg>
-                  Lihat Resit
+                </button>
+              </div>
+
+              <!-- Filters -->
+              <div class="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
+                <select v-model="filterBulan" class="shrink-0 text-sm font-bold rounded-xl px-3 py-2 outline-none"
+                  style="background: #F8FAFC; border: 1px solid #E2E8F0; color: #0F172A;">
+                  <option value="">Semua Bulan</option>
+                  <option v-for="b in senaraibulan" :key="b.nilai" :value="b.nilai">{{ b.label }}</option>
+                </select>
+                <select v-model="filterTahun" class="shrink-0 text-sm font-bold rounded-xl px-3 py-2 outline-none"
+                  style="background: #F8FAFC; border: 1px solid #E2E8F0; color: #0F172A;">
+                  <option value="">Semua Tahun</option>
+                  <option v-for="t in senaraiTahun" :key="t" :value="t">{{ t }}</option>
+                </select>
+                <button v-for="s in ['SEMUA','BERJAYA','PENDING','GAGAL']" :key="s"
+                  @click="filterStatus = s"
+                  class="shrink-0 text-xs font-black uppercase tracking-wide px-3 py-2 rounded-xl transition-all"
+                  :style="filterStatus === s
+                    ? 'background: #081C15; color: #95D5B2; border: 1px solid #081C15;'
+                    : 'background: #F8FAFC; color: #64748B; border: 1px solid #E2E8F0;'">
+                  {{ s }}
                 </button>
               </div>
             </div>
+
+            <!-- Stats mini -->
+            <div v-if="!loadingTransaksi && txTertapis.length > 0"
+              class="shrink-0 px-4 py-2.5 flex gap-2.5" style="background: white; border-bottom: 1px solid #F1F5F9;">
+              <div class="flex-1 rounded-xl p-2.5 text-center" style="background: rgba(82,183,136,0.08); border: 1px solid rgba(82,183,136,0.15);">
+                <p class="text-xs font-bold uppercase tracking-wider mb-0.5" style="color: #2D6A4F;">Jumlah Berjaya</p>
+                <p class="text-sm font-black tabular-nums" style="color: #1B4332;">
+                  {{ fmtRM(txTertapis.filter(t => t.status === 'BERJAYA').reduce((a,t) => a + parseFloat(t.amaun||0), 0)) }}
+                </p>
+              </div>
+              <div class="flex-1 rounded-xl p-2.5 text-center" style="background: #F8FAFC; border: 1px solid #E2E8F0;">
+                <p class="text-xs font-bold uppercase tracking-wider mb-0.5" style="color: #94a3b8;">Berjaya</p>
+                <p class="text-sm font-black tabular-nums" style="color: #0F172A;">{{ txTertapis.filter(t => t.status === 'BERJAYA').length }}</p>
+              </div>
+              <div class="flex-1 rounded-xl p-2.5 text-center" style="background: #fffbeb; border: 1px solid rgba(245,158,11,0.2);">
+                <p class="text-xs font-bold uppercase tracking-wider mb-0.5" style="color: #92400e;">Pending</p>
+                <p class="text-sm font-black tabular-nums text-amber-700">{{ txTertapis.filter(t => t.status === 'PENDING').length }}</p>
+              </div>
+            </div>
+
+            <!-- List -->
+            <div class="flex-1 overflow-y-auto custom-scrollbar">
+              <div v-if="loadingTransaksi" class="flex flex-col items-center justify-center py-16 gap-3">
+                <div class="w-8 h-8 rounded-full border-2 border-t-transparent animate-spin" style="border-color: #E2E8F0; border-top-color: #52B788;"></div>
+                <p class="text-sm font-bold" style="color: #94a3b8;">Memuatkan rekod...</p>
+              </div>
+
+              <div v-else-if="txTertapis.length === 0" class="flex flex-col items-center justify-center py-16 gap-4 px-8">
+                <div class="w-16 h-16 rounded-2xl flex items-center justify-center" style="background: #F1F5F9;">
+                  <svg class="w-8 h-8" style="color: #CBD5E1;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                  </svg>
+                </div>
+                <div class="text-center">
+                  <p class="text-sm font-black uppercase" style="color: #0F172A;">Tiada Rekod</p>
+                  <p class="text-xs font-medium mt-1" style="color: #94a3b8;">Cuba ubah carian atau penapis anda</p>
+                </div>
+                <button @click="resetFilter" class="text-sm font-black uppercase tracking-wider px-5 py-2.5 rounded-xl transition-all active:scale-95"
+                  style="background: rgba(82,183,136,0.1); color: #1B4332; border: 1px solid rgba(82,183,136,0.2);">
+                  Reset Penapis
+                </button>
+              </div>
+
+              <div v-else class="p-4 space-y-2.5 pb-8">
+                <div v-for="tx in txTertapis" :key="tx.billCode"
+                  class="bg-white rounded-[18px] overflow-hidden"
+                  style="border: 1px solid #F1F5F9; box-shadow: 0 1px 4px rgba(15,23,42,0.04);">
+                  <div class="flex items-center gap-3 px-4 py-3.5">
+                    <div class="w-10 h-10 rounded-2xl shrink-0 flex items-center justify-center"
+                      :style="tx.status === 'BERJAYA' ? 'background: rgba(82,183,136,0.1); color: #2D6A4F;'
+                        : tx.status === 'PENDING' ? 'background: rgba(245,158,11,0.1); color: #92400e;'
+                        : 'background: rgba(239,68,68,0.1); color: #991b1b;'">
+                      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                      </svg>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                      <p class="text-sm font-black leading-tight truncate" style="color: #0F172A;">{{ tx.keterangan }}</p>
+                      <p class="text-xs font-mono mt-0.5" style="color: #94a3b8;">{{ tx.billCode }}</p>
+                      <p class="text-xs font-medium mt-0.5" style="color: #94a3b8;">{{ formatTarikh(tx.tarikh) }}</p>
+                    </div>
+                    <div class="text-right shrink-0">
+                      <p class="text-sm font-black tabular-nums" style="color: #0F172A;">RM {{ parseFloat(tx.amaun).toFixed(2) }}</p>
+                      <span class="text-xs font-black uppercase tracking-wide px-2 py-0.5 rounded-full inline-block mt-1"
+                        :style="tx.status === 'BERJAYA' ? 'background: rgba(82,183,136,0.1); color: #2D6A4F;'
+                          : tx.status === 'PENDING' ? 'background: rgba(245,158,11,0.1); color: #92400e;'
+                          : 'background: rgba(239,68,68,0.1); color: #991b1b;'">
+                        {{ tx.status }}
+                      </span>
+                    </div>
+                  </div>
+                  <div v-if="tx.status === 'BERJAYA'" class="px-4 py-2.5 flex justify-end"
+                    style="background: #F8FAFC; border-top: 1px solid #F1F5F9;">
+                    <button @click="lihatResit(tx)"
+                      class="text-xs font-black uppercase tracking-wide flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-all active:scale-95"
+                      style="color: #2D6A4F; background: rgba(82,183,136,0.1); border: 1px solid rgba(82,183,136,0.2);">
+                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                      </svg>
+                      Lihat Resit
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
           </div>
         </div>
-      </div>
+      </Transition>
     </Teleport>
 
   <!-- ═══════════════════════════════════════
@@ -948,7 +969,7 @@ import { useAuthStore } from '../../stores/auth';
 
 const uploadBase = import.meta.env.VITE_UPLOAD_URL || 'http://localhost:5001';
 const appVersion = __APP_VERSION__;
-import { cetakResitTransaksi, buatHtmlResit } from '../../config/kelab';
+import { cetakResitTransaksi, buatHtmlResit, headerResitHTML, footerResitHTML } from '../../config/kelab';
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -1040,6 +1061,98 @@ const lihatResit = (tx) => {
     showResitModal.value = true;
   } else {
     cetakResitTransaksi(tx, profil.value);
+  }
+};
+
+// cetakPDF('bulan') → PDF transaksi bulan ditapis (atau bulan semasa jika tiada penapis)
+// cetakPDF('tahun') → PDF semua transaksi tahun ditapis (atau tahun semasa jika tiada penapis)
+const cetakPDF = (mod) => {
+  const now = new Date();
+  const tahunGuna = filterTahun.value || String(now.getFullYear());
+  const bulanGuna = filterBulan.value || String(now.getMonth() + 1).padStart(2, '0');
+
+  let senarai, tajuk;
+  if (mod === 'bulan') {
+    senarai = sejarahSemua.value.filter(t => {
+      const tarikh = t.tarikh || '';
+      return tarikh.substring(0, 4) === tahunGuna
+        && tarikh.substring(5, 7) === bulanGuna
+        && t.status === 'BERJAYA';
+    });
+    const namaBulan = senaraibulan.find(b => b.nilai === bulanGuna)?.label || bulanGuna;
+    tajuk = `Penyata Transaksi FPX &mdash; ${namaBulan} ${tahunGuna}`;
+  } else {
+    senarai = sejarahSemua.value.filter(t =>
+      (t.tarikh || '').substring(0, 4) === tahunGuna && t.status === 'BERJAYA'
+    );
+    tajuk = `Penyata Transaksi FPX &mdash; Tahun ${tahunGuna}`;
+  }
+
+  const jumlah = senarai.reduce((a, t) => a + parseFloat(t.amaun || 0), 0);
+  const tarikhCetak = new Date().toLocaleDateString('ms-MY', { day: '2-digit', month: 'long', year: 'numeric' });
+
+  const baris = senarai.map((t, i) => `
+    <tr style="border-bottom:1px solid #f1f5f9;">
+      <td style="padding:7px 8px;font-size:12px;color:#64748b;">${i + 1}</td>
+      <td style="padding:7px 8px;font-size:12px;font-family:monospace;">${t.billCode || '-'}</td>
+      <td style="padding:7px 8px;font-size:12px;">${t.keterangan || '-'}</td>
+      <td style="padding:7px 8px;font-size:12px;white-space:nowrap;">${formatTarikh(t.tarikh)}</td>
+      <td style="padding:7px 8px;font-size:12px;text-align:right;font-weight:700;">RM ${parseFloat(t.amaun || 0).toFixed(2)}</td>
+    </tr>
+  `).join('');
+
+  const html = `<!DOCTYPE html><html lang="ms"><head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <title>${tajuk}</title>
+    <style>
+      *{box-sizing:border-box;}
+      body{font-family:Arial,sans-serif;margin:0;padding:24px;color:#0F172A;background:white;}
+      table{width:100%;border-collapse:collapse;margin-top:16px;}
+      th{background:#081C15;color:#95D5B2;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:9px 8px;text-align:left;}
+      tr:nth-child(even){background:#f8fafc;}
+      .info p{margin:0 0 3px;font-size:12px;color:#334155;}
+      .info span{font-weight:700;color:#0F172A;}
+      .jumlah-row td{background:#081C15;color:#95D5B2;font-weight:700;font-size:13px;padding:9px 8px;}
+      @media print{body{padding:10px;}}
+    </style>
+  </head><body>
+    ${headerResitHTML(tajuk)}
+    <div class="info" style="margin-bottom:16px;">
+      <p>Nama: <span>${profil.value.nama_pegawai || profil.value.nama_penuh || '-'}</span></p>
+      <p>No. KP: <span>${profil.value.no_kp || '-'}</span></p>
+      <p>No. Ahli: <span>${profil.value.no_ahli || '-'}</span></p>
+      <p>Dicetak: <span>${tarikhCetak}</span></p>
+      <p>Jumlah Rekod: <span>${senarai.length} transaksi berjaya</span></p>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:36px">#</th>
+          <th style="width:160px">Kod Bil</th>
+          <th>Keterangan</th>
+          <th style="width:130px">Tarikh</th>
+          <th style="width:100px;text-align:right">Amaun</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${baris || '<tr><td colspan="5" style="padding:14px;text-align:center;color:#94a3b8;font-size:12px;">Tiada rekod untuk tempoh ini.</td></tr>'}
+        <tr>
+          <td colspan="4" class="jumlah-row" style="text-align:right;padding:9px 8px;">JUMLAH KESELURUHAN</td>
+          <td class="jumlah-row" style="text-align:right;">RM ${jumlah.toFixed(2)}</td>
+        </tr>
+      </tbody>
+    </table>
+    ${footerResitHTML()}
+    <script>window.onload=function(){window.print();}<\/script>
+  </body></html>`;
+
+  if (Capacitor.isNativePlatform()) {
+    resitHtml.value = html;
+    showResitModal.value = true;
+  } else {
+    const w = window.open('', '_blank', 'width=820,height=640');
+    if (w) { w.document.write(html); w.document.close(); }
   }
 };
 

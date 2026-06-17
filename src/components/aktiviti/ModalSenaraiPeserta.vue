@@ -184,7 +184,7 @@
                 :class="p.is_paid ? 'hover:bg-gray-50/50' : 'bg-rose-50/30 hover:bg-rose-50/60'">
                 <td class="px-4 py-3 text-gray-400 font-bold">{{ idx + 1 }}</td>
                 <td class="px-4 py-3">
-                  <div class="font-semibold text-gray-800">{{ p.nama_pegawai }}</div>
+                  <div class="font-semibold text-gray-800 uppercase">{{ p.nama_pegawai }}</div>
                   <div class="text-[10px] text-gray-400 mt-0.5">
                     {{ p.no_ahli ? 'Ahli: ' + p.no_ahli : 'Bukan Ahli' }}
                   </div>
@@ -232,34 +232,59 @@
                   </span>
                 </td>
                 <!-- Pergerakan -->
-                <td class="px-4 py-3 text-center">
-                  <button @click="bukaModalPergerakan(p)"
-                    :class="['inline-flex items-center gap-1 px-2.5 py-1.5 text-[10px] font-bold rounded-lg transition-colors whitespace-nowrap border',
-                      p.kaedah_pergerakan
-                        ? p.kaedah_pergerakan === 'Penerbangan'
-                          ? 'bg-sky-50 text-sky-700 border-sky-200 hover:bg-sky-100'
-                          : 'bg-violet-50 text-violet-700 border-violet-200 hover:bg-violet-100'
-                        : 'bg-gray-50 text-gray-400 border-gray-200 hover:bg-gray-100 hover:text-gray-600']">
-                    <svg v-if="p.kaedah_pergerakan === 'Penerbangan'" class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
-                    </svg>
-                    <svg v-else-if="p.kaedah_pergerakan" class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
-                    </svg>
-                    <svg v-else class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <td class="px-3 py-3">
+                  <div v-if="p.kaedah_pergerakan" class="space-y-1">
+                    <!-- Badge kaedah -->
+                    <button @click="bukaModalPergerakan(p)"
+                      :class="['inline-flex items-center gap-1 px-2 py-0.5 text-[9px] font-black rounded-md border transition-colors',
+                        p.kaedah_pergerakan === 'Penerbangan' ? 'bg-sky-50 text-sky-700 border-sky-200 hover:bg-sky-100'
+                        : p.kaedah_pergerakan === 'Bot'       ? 'bg-violet-50 text-violet-700 border-violet-200 hover:bg-violet-100'
+                        : 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100']">
+                      <svg v-if="p.kaedah_pergerakan === 'Penerbangan'" class="w-2.5 h-2.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+                      </svg>
+                      <svg v-else-if="p.kaedah_pergerakan === 'Bot'" class="w-2.5 h-2.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
+                      </svg>
+                      <svg v-else class="w-2.5 h-2.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10l1 1h1m8-1V8l3 3 3-3v8m-6 0h6"/>
+                      </svg>
+                      {{ p.kaedah_pergerakan }}
+                    </button>
+                    <!-- Tarikh & no. penerbangan -->
+                    <div class="text-[9px] text-gray-500 space-y-0.5 font-mono leading-tight pl-0.5">
+                      <div v-if="p.tarikh_pergi" class="flex items-center gap-1">
+                        <span class="text-gray-400">↗</span>
+                        <span>{{ new Date(p.tarikh_pergi).toLocaleDateString('ms-MY', { day:'2-digit', month:'short' }) }}</span>
+                        <span v-if="p.masa_penerbangan_pergi" class="text-gray-400">{{ p.masa_penerbangan_pergi.substring(0,5) }}</span>
+                        <span v-if="p.no_penerbangan_pergi" class="font-black text-sky-700 uppercase">{{ p.no_penerbangan_pergi }}</span>
+                      </div>
+                      <div v-if="p.tarikh_balik" class="flex items-center gap-1">
+                        <span class="text-gray-400">↙</span>
+                        <span>{{ new Date(p.tarikh_balik).toLocaleDateString('ms-MY', { day:'2-digit', month:'short' }) }}</span>
+                        <span v-if="p.masa_penerbangan_balik" class="text-gray-400">{{ p.masa_penerbangan_balik.substring(0,5) }}</span>
+                        <span v-if="p.no_penerbangan_balik" class="font-black text-sky-700 uppercase">{{ p.no_penerbangan_balik }}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- Belum diisi -->
+                  <button v-else @click="bukaModalPergerakan(p)"
+                    class="w-7 h-7 flex items-center justify-center rounded-lg bg-gray-50 border border-gray-200 text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+                    title="Isi maklumat pergerakan">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
                     </svg>
-                    {{ p.kaedah_pergerakan || 'Isi' }}
                   </button>
                 </td>
                 <!-- Aksi -->
-                <td class="px-4 py-3 text-center">
+                <td class="px-3 py-3 text-center">
                   <button @click="padamPeserta(p)"
-                    class="inline-flex items-center gap-1 px-2.5 py-1.5 text-[10px] font-bold text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-lg transition-colors whitespace-nowrap">
-                    <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    class="w-7 h-7 flex items-center justify-center rounded-lg text-rose-400 bg-rose-50 hover:bg-rose-100 border border-rose-200 transition-colors"
+                    title="Buang peserta">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                     </svg>
-                    Buang
                   </button>
                 </td>
               </tr>
@@ -757,25 +782,54 @@ const cetak = () => {
   if (filterYuran.value === 'belum')   aktifFilter.push('Status: Belum Bayar');
   if (carian.value) aktifFilter.push(`Carian: "${carian.value}"`);
 
+  const fmtTarikhCetak = (t) => t ? new Date(t).toLocaleDateString('ms-MY', { day: '2-digit', month: 'short', year: 'numeric' }) : '';
+  const fmtMasaCetak   = (m) => m ? m.substring(0, 5) : '';
+
   const rows = list.map((p, i) => {
     const jantina = p.jantina || '—';
     const jantinaStyle = jantina === 'Lelaki'
       ? 'color:#1d4ed8;font-weight:bold;background:#dbeafe;padding:2px 6px;border-radius:4px;font-size:9px'
       : 'color:#9d174d;font-weight:bold;background:#fce7f3;padding:2px 6px;border-radius:4px;font-size:9px';
+
+    // Lajur pengangkutan — ringkas, tiada data = '—'
+    const pengangkutanCell = p.kaedah_pergerakan ? (() => {
+      const isFlight = p.kaedah_pergerakan === 'Penerbangan';
+      const isBot    = p.kaedah_pergerakan === 'Bot';
+      const icon     = isFlight ? '&#x2708;' : isBot ? '&#x26F5;' : '&#x1F697;';
+      const bg       = isFlight ? '#f0f9ff' : isBot ? '#f5f3ff' : '#f0fdf4';
+      const border   = isFlight ? '#0ea5e9' : isBot ? '#7c3aed' : '#16a34a';
+
+      const pergiLine = (p.tarikh_pergi || p.no_penerbangan_pergi || p.masa_penerbangan_pergi)
+        ? `<div>&#x2192; ${fmtTarikhCetak(p.tarikh_pergi) || '&#x2014;'}${fmtMasaCetak(p.masa_penerbangan_pergi) ? ' &nbsp;&#x23F0;' + fmtMasaCetak(p.masa_penerbangan_pergi) : ''}${p.no_penerbangan_pergi ? ' &nbsp;<strong>' + p.no_penerbangan_pergi.toUpperCase() + '</strong>' : ''}</div>`
+        : '';
+      const balikLine = (p.tarikh_balik || p.no_penerbangan_balik || p.masa_penerbangan_balik)
+        ? `<div>&#x2190; ${fmtTarikhCetak(p.tarikh_balik) || '&#x2014;'}${fmtMasaCetak(p.masa_penerbangan_balik) ? ' &nbsp;&#x23F0;' + fmtMasaCetak(p.masa_penerbangan_balik) : ''}${p.no_penerbangan_balik ? ' &nbsp;<strong>' + p.no_penerbangan_balik.toUpperCase() + '</strong>' : ''}</div>`
+        : '';
+
+      return `<div style="padding:4px 6px;background:${bg};border-radius:4px;border-left:2px solid ${border};font-size:8px;color:#334155;font-family:monospace;line-height:1.7">
+        <div style="font-weight:bold;margin-bottom:2px;font-family:Arial">${icon} ${p.kaedah_pergerakan.toUpperCase()}</div>
+        ${pergiLine}${balikLine}
+      </div>`;
+    })() : '<span style="color:#ccc">—</span>';
+
     return `<tr style="${!p.is_paid ? 'background:#fff5f5;' : ''}">
       <td>${i + 1}</td>
-      <td><strong>${p.nama_pegawai}</strong><br><small style="color:#888">${p.no_ahli ? 'Ahli: ' + p.no_ahli : 'Bukan Ahli'}</small></td>
-      <td style="font-family:monospace">${p.no_kp}</td>
-      <td style="text-align:center"><span style="${jantinaStyle}">${jantina}</span></td>
+      <td>
+        <strong style="text-transform:uppercase">${p.nama_pegawai}</strong><br>
+        <small style="color:#888">${p.no_ahli ? 'Ahli: ' + p.no_ahli : 'Bukan Ahli'}</small><br>
+        <small style="font-family:monospace;color:#555">${p.no_kp}</small>
+        &nbsp;<span style="${jantinaStyle}">${jantina}</span>
+      </td>
       <td style="text-align:center">${hitungUmur(p.no_kp)}</td>
       <td style="text-align:center">${p.gred_sspa || '—'}</td>
       <td>${p.penempatan || '—'}</td>
       <td style="text-align:center"><strong>${p.saiz_baju || '—'}</strong></td>
       <td>${safeArr(p.sukan_dipilih).join(', ') || 'Umum'}</td>
+      <td>${pengangkutanCell}</td>
       <td style="text-align:center">
         ${p.is_paid
-          ? '<span style="color:#166534;font-weight:bold;background:#dcfce7;padding:2px 6px;border-radius:4px;font-size:8px">✓ BERBAYAR</span>'
-          : '<span style="color:#991b1b;font-weight:bold;background:#fee2e2;padding:2px 6px;border-radius:4px;font-size:8px">⚠ BELUM BAYAR</span>'
+          ? '<span style="color:#166534;font-weight:bold;background:#dcfce7;padding:2px 6px;border-radius:4px;font-size:8px">&#x2713; BERBAYAR</span>'
+          : '<span style="color:#991b1b;font-weight:bold;background:#fee2e2;padding:2px 6px;border-radius:4px;font-size:8px">&#x26A0; BELUM BAYAR</span>'
         }
       </td>
     </tr>`;
@@ -825,8 +879,8 @@ ${aktifFilter.length ? `<div class="filter-strip"><strong>Penapis aktif:</strong
 </div>
 <table>
   <thead><tr>
-    <th>No.</th><th>Nama Penuh</th><th>No. KP</th><th>Jantina</th><th>Umur</th><th>Gred</th>
-    <th>Penempatan</th><th>Saiz</th><th>Sukan</th><th>Status Yuran</th>
+    <th>No.</th><th>Nama Penuh</th><th>Umur</th><th>Gred</th>
+    <th>Penempatan</th><th>Saiz</th><th>Sukan</th><th>Pengangkutan</th><th>Status Yuran</th>
   </tr></thead>
   <tbody>${rows}</tbody>
 </table>

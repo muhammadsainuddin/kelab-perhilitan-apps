@@ -136,45 +136,49 @@
       </div>
 
       <!-- Transaction Table Controls -->
-      <div class="flex flex-col gap-2.5 px-5 py-3 border-b border-gray-100 bg-gray-50/50">
-        <!-- Row 1: Jenis + Carian -->
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
-          <div class="flex items-center gap-2 flex-wrap">
-            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider shrink-0">Jenis:</span>
-            <button v-for="j in filterJenisOps" :key="j.val" @click="setFilterJenis(j.val)"
-              :class="['px-2.5 py-1 rounded-md text-[11px] font-bold transition-colors border',
-                filterJenis === j.val
-                  ? 'bg-[#0F4C3A] text-white border-[#0F4C3A]'
-                  : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-100']">
-              {{ j.label }}
-            </button>
-          </div>
-          <div class="relative">
-            <input v-model="carian" @input="debounceSearch" type="text" placeholder="Cari rujukan, nota, pihak..."
-              class="w-56 bg-white border border-gray-300 text-gray-900 text-xs rounded-lg pl-8 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0F4C3A]/20 focus:border-[#0F4C3A] placeholder-gray-400"/>
-            <svg class="w-3.5 h-3.5 text-gray-400 absolute left-2.5 top-1/2 -translate-y-1/2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-            </svg>
-          </div>
+      <div class="flex flex-wrap items-center gap-2 px-5 py-3 border-b border-gray-100 bg-gray-50/50">
+
+        <!-- Jenis -->
+        <select v-model="filterJenis" @change="setFilterJenis(filterJenis)"
+          class="bg-white border border-gray-300 text-gray-700 text-xs font-semibold rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0F4C3A]/20 focus:border-[#0F4C3A]">
+          <option value="">Semua Jenis</option>
+          <option value="MASUK">▲ Kredit (Masuk)</option>
+          <option value="KELUAR">▼ Debit (Keluar)</option>
+        </select>
+
+        <!-- Bulan -->
+        <select v-model="filterBulan" @change="setFilterBulan(filterBulan)"
+          class="bg-white border border-gray-300 text-gray-700 text-xs font-semibold rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0F4C3A]/20 focus:border-[#0F4C3A]">
+          <option :value="0">Semua Bulan</option>
+          <option v-for="b in senaraiMinggu" :key="b.val" :value="b.val">{{ b.label }}</option>
+        </select>
+
+        <!-- Kategori -->
+        <select v-model="filterKategori" @change="setFilterKategori(filterKategori)"
+          class="bg-white border border-gray-300 text-gray-700 text-xs font-semibold rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0F4C3A]/20 focus:border-[#0F4C3A]">
+          <option value="">Semua Kategori</option>
+          <option v-for="k in filterKategoriOps" :key="k.val" :value="k.val">{{ k.label }}</option>
+        </select>
+
+        <!-- Carian -->
+        <div class="relative flex-1 min-w-40">
+          <input v-model="carian" @input="debounceSearch" type="text" placeholder="Cari rujukan, nota, pihak..."
+            class="w-full bg-white border border-gray-300 text-gray-900 text-xs rounded-lg pl-8 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0F4C3A]/20 focus:border-[#0F4C3A] placeholder-gray-400"/>
+          <svg class="w-3.5 h-3.5 text-gray-400 absolute left-2.5 top-1/2 -translate-y-1/2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+          </svg>
         </div>
-        <!-- Row 2: Filter Bulan -->
-        <div class="flex items-center gap-2 flex-wrap">
-          <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider shrink-0">Bulan:</span>
-          <button @click="setFilterBulan(0)"
-            :class="['px-2.5 py-1 rounded-md text-[11px] font-bold transition-colors border',
-              filterBulan === 0
-                ? 'bg-gray-800 text-white border-gray-800'
-                : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-100']">
-            Semua
-          </button>
-          <button v-for="b in senaraiMinggu" :key="b.val" @click="setFilterBulan(b.val)"
-            :class="['px-2.5 py-1 rounded-md text-[11px] font-bold transition-colors border',
-              filterBulan === b.val
-                ? 'bg-[#0F4C3A] text-white border-[#0F4C3A]'
-                : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-100']">
-            {{ b.label }}
-          </button>
-        </div>
+
+        <!-- Padam semua filter -->
+        <button v-if="filterJenis || filterBulan || filterKategori || carian"
+          @click="filterJenis=''; filterBulan=0; filterKategori=''; carian=''; halamanSemasa=1; muatTransaksi()"
+          class="flex items-center gap-1 text-[11px] font-semibold text-rose-600 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 px-2.5 py-2 rounded-lg transition-colors shrink-0">
+          <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+          Reset
+        </button>
+
       </div>
 
       <!-- Ledger Table -->
@@ -733,11 +737,16 @@ Chart.register(...registerables);
 const apiBase = (import.meta.env.VITE_API_URL || 'http://localhost:5001/api').replace('/api', '');
 
 const LABEL_KATEGORI = {
-  YURAN: 'Yuran Kelab', KEDAI: 'Jualan Kedai', SUMBANGAN: 'Sumbangan', ACARA: 'Bayaran Acara',
+  YURAN: 'Yuran Kelab (FPX)', YURAN_BA: 'Yuran Biro Angkasa', KEDAI: 'Jualan Kedai', SUMBANGAN: 'Sumbangan', ACARA: 'Bayaran Acara',
   KEBAJIKAN: 'Kebajikan', BELIAN_BARANG: 'Pembelian Barang', PERKHIDMATAN: 'Perkhidmatan',
   OPERASI: 'Kos Operasi (FPX)', 'LAIN-LAIN': 'Lain-lain', LAIN: 'Lain-lain',
 };
 const labelKat = (k) => LABEL_KATEGORI[k] || k;
+
+// Senarai unik untuk butang filter (buang alias LAIN)
+const filterKategoriOps = Object.entries(LABEL_KATEGORI)
+  .filter(([k]) => k !== 'LAIN')
+  .map(([k, label]) => ({ val: k, label }));
 
 // ── Tabs ──
 const tabs = [
@@ -759,6 +768,7 @@ const meta             = ref({ total: 0, page: 1, limit: 20 });
 const tahunPilihan     = ref(new Date().getFullYear());
 const filterJenis      = ref('');
 const filterBulan      = ref(0);
+const filterKategori   = ref('');
 const carian           = ref('');
 const halamanSemasa    = ref(1);
 const chartRef         = ref(null);
@@ -793,12 +803,6 @@ const jumlahSumbangan   = ref(0);
 const loadingSumbangan  = ref(false);
 const savingSumbangan   = ref(false);
 const formSumbangan     = ref({ nama_penyumbang: '', amaun: '', program: '', tarikh: '' });
-
-const filterJenisOps = [
-  { val: '', label: 'Semua' },
-  { val: 'MASUK', label: 'Kredit (Masuk)' },
-  { val: 'KELUAR', label: 'Debit (Keluar)' },
-];
 
 const senaraiMinggu = [
   { val: 1, label: 'Jan' }, { val: 2, label: 'Feb' }, { val: 3, label: 'Mac' },
@@ -835,9 +839,16 @@ const setFilterBulan = (val) => {
   muatTransaksi();
 };
 
+const setFilterKategori = (val) => {
+  filterKategori.value = val;
+  halamanSemasa.value = 1;
+  muatTransaksi();
+};
+
 const onTahunBertukar = async () => {
   halamanSemasa.value = 1;
   filterBulan.value = 0;
+  filterKategori.value = '';
   await muatData();
   await muatTransaksi();
   if (tabAktif.value === 'sumbangan') await muatSumbangan();
@@ -854,16 +865,18 @@ const onTransaksiBerjaya = async () => {
 // ── Edit & Padam Transaksi ──
 const bukaEdit = (tx) => {
   editingId.value = tx.id;
-  const tarikhRaw = tx.tarikh ? tx.tarikh.substring(0, 10).split('-').reverse().join('-') : '';
-  const [dd, mm, yyyy] = tarikhRaw.split('-');
+  // tx.tarikh format dari DB: "DD-MM-YYYY HH:mm" — balik sekali sahaja jadi YYYY-MM-DD
+  const tarikh = tx.tarikh
+    ? tx.tarikh.substring(0, 10).split('-').reverse().join('-')
+    : new Date().toISOString().split('T')[0];
   formEdit.value = {
-    jenis_aliran:    tx.jenis_aliran,
-    kategori:        tx.kategori,
-    amaun:           tx.amaun,
-    nota:            tx.nota || '',
-    rujukan:         tx.rujukan || '',
+    jenis_aliran:     tx.jenis_aliran,
+    kategori:         tx.kategori,
+    amaun:            tx.amaun,
+    nota:             tx.nota || '',
+    rujukan:          tx.rujukan || '',
     penerima_bayaran: tx.penerima_bayaran || tx.nama_ahli || '',
-    tarikh:          yyyy && mm && dd ? `${yyyy}-${mm}-${dd}` : new Date().toISOString().split('T')[0],
+    tarikh,
   };
   showEditModal.value = true;
 };
@@ -872,13 +885,22 @@ const simpanEdit = async () => {
   if (!formEdit.value.kategori || !formEdit.value.amaun || parseFloat(formEdit.value.amaun) <= 0) {
     return alert('Sila isi kategori dan amaun yang sah.');
   }
+  const jenis = formEdit.value.jenis_aliran === 'MASUK' ? 'KREDIT' : 'DEBIT';
+  const sahkan = confirm(
+    `Sahkan kemaskini rekod ini?\n\n` +
+    `Jenis   : ${jenis}\n` +
+    `Kategori: ${formEdit.value.kategori}\n` +
+    `Amaun   : RM ${parseFloat(formEdit.value.amaun).toFixed(2)}\n` +
+    `Tarikh  : ${formEdit.value.tarikh}`
+  );
+  if (!sahkan) return;
+
   savingEdit.value = true;
   try {
     const { data } = await api.put(`/admin/kewangan/transaksi/${editingId.value}`, formEdit.value);
     if (data.success) {
       showEditModal.value = false;
-      await muatData();
-      await muatTransaksi();
+      await Promise.all([muatData(), muatTransaksi()]);
     } else {
       alert(data.message || 'Gagal mengemaskini rekod.');
     }
@@ -942,9 +964,10 @@ const muatTransaksi = async () => {
     const params = new URLSearchParams({
       page: halamanSemasa.value, limit: 20,
       tahun: tahunPilihan.value,
-      ...(filterBulan.value && { bulan: filterBulan.value }),
-      ...(filterJenis.value && { jenis: filterJenis.value }),
-      ...(carian.value && { cari: carian.value }),
+      ...(filterBulan.value    && { bulan: filterBulan.value }),
+      ...(filterJenis.value    && { jenis: filterJenis.value }),
+      ...(filterKategori.value && { kategori: filterKategori.value }),
+      ...(carian.value         && { cari: carian.value }),
     });
     const { data } = await api.get(`/admin/kewangan/transaksi?${params}`);
     if (data.success) { transaksi.value = data.data; meta.value = data.meta; }

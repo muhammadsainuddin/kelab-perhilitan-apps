@@ -39,10 +39,35 @@
   </Transition>
 
   <router-view />
+
+  <!-- Toast: PWA dikemaskini -->
+  <Transition name="toast-slide">
+    <div v-if="showUpdateToast"
+         class="pwa-update-toast"
+         role="status"
+         @click="showUpdateToast = false">
+      <span class="pwa-update-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+      </span>
+      <div class="pwa-update-text">
+        <span class="pwa-update-title">Aplikasi dikemaskini</span>
+        <span class="pwa-update-sub">Versi terbaru telah dimuatkan</span>
+      </div>
+      <button class="pwa-update-close" @click.stop="showUpdateToast = false" aria-label="Tutup">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+  </Transition>
 </template>
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
+
+const showUpdateToast = ref(false);
 import { useRouter } from 'vue-router';
 import { Capacitor } from '@capacitor/core';
 import { SplashScreen } from '@capacitor/splash-screen';
@@ -57,6 +82,12 @@ const HALAMAN_UTAMA = ['/', '/login', '/dashboard/utama', '/dashboard'];
 let backButtonListener = null;
 
 onMounted(async () => {
+  if (sessionStorage.getItem('pwa_updated')) {
+    sessionStorage.removeItem('pwa_updated');
+    showUpdateToast.value = true;
+    setTimeout(() => { showUpdateToast.value = false; }, 4000);
+  }
+
   if (Capacitor.isNativePlatform()) {
     await SplashScreen.hide({ fadeOutDuration: 0 });
 
@@ -84,6 +115,74 @@ onUnmounted(() => {
 </script>
 
 <style>
+/* ── PWA Update Toast ── */
+.pwa-update-toast {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px 12px 14px;
+  background: #1B4332;
+  border: 1px solid rgba(82,183,136,0.3);
+  border-radius: 14px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.35), 0 0 0 1px rgba(82,183,136,0.08);
+  min-width: 240px;
+  max-width: calc(100vw - 40px);
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+}
+
+.pwa-update-icon {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(82,183,136,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #52B788;
+}
+
+.pwa-update-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.pwa-update-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #D8F3DC;
+  line-height: 1.3;
+}
+
+.pwa-update-sub {
+  font-size: 11px;
+  color: rgba(149,213,178,0.65);
+  line-height: 1.3;
+}
+
+.pwa-update-close {
+  flex-shrink: 0;
+  color: rgba(149,213,178,0.5);
+  padding: 2px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  line-height: 0;
+}
+
+.toast-slide-enter-active { transition: all 0.35s cubic-bezier(0.16,1,0.3,1); }
+.toast-slide-leave-active  { transition: all 0.25s cubic-bezier(0.4,0,1,1); }
+.toast-slide-enter-from    { opacity: 0; transform: translateX(-50%) translateY(16px); }
+.toast-slide-leave-to      { opacity: 0; transform: translateX(-50%) translateY(8px); }
+
 /* ── Splash overlay ── */
 .splash-overlay {
   position: fixed;

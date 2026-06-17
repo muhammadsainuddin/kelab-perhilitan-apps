@@ -18,7 +18,7 @@
           <!-- Avatar -->
           <div class="relative shrink-0">
             <div class="w-24 h-24 rounded-2xl bg-gradient-to-br from-[#0F4C3A] to-[#08151D] flex items-center justify-center text-white font-black text-3xl overflow-hidden shadow-lg">
-              <img v-if="profil.gambar" :src="`${apiBase}/uploads/images/${profil.gambar}`" class="w-full h-full object-cover"/>
+              <img v-if="profil.gambar" :src="`${apiBase}/uploads/images/${profil.gambar}`" :alt="profil.nama_penuh || 'Foto profil'" class="w-full h-full object-cover"/>
               <span v-else>{{ (profil.nama_penuh || '?').charAt(0) }}</span>
             </div>
             <label class="absolute -bottom-2 -right-2 w-8 h-8 bg-white border-2 border-gray-200 rounded-full flex items-center justify-center cursor-pointer shadow-md hover:bg-gray-50 transition-colors">

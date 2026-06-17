@@ -320,7 +320,7 @@
           class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
           <div class="flex gap-4 p-4">
             <div class="w-20 h-20 rounded-xl bg-gray-100 shrink-0 overflow-hidden border border-gray-200">
-              <img v-if="item.gambar" :src="apiBase + item.gambar" class="w-full h-full object-cover"/>
+              <img v-if="item.gambar" :src="apiBase + item.gambar" :alt="item.nama_produk || 'Gambar produk'" loading="lazy" class="w-full h-full object-cover"/>
               <div v-else class="w-full h-full flex items-center justify-center text-3xl text-gray-300">🛍️</div>
             </div>
             <div class="flex-1 min-w-0">
@@ -537,7 +537,7 @@
                     <!-- Preview -->
                     <div v-if="previewGambar.length > 0" class="grid grid-cols-4 gap-2 mt-3">
                       <div v-for="(url, i) in previewGambar" :key="i" class="relative aspect-square rounded-lg overflow-hidden border border-gray-200">
-                        <img :src="url" class="w-full h-full object-cover"/>
+                        <img :src="url" alt="Pratonton gambar" class="w-full h-full object-cover"/>
                         <button @click.stop="buangGambar(i)" type="button"
                           class="absolute top-1 right-1 bg-black/50 hover:bg-red-600 text-white w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold">×</button>
                         <span v-if="i===0" class="absolute bottom-1 left-1 bg-[#0F4C3A] text-white text-[8px] font-bold px-1 rounded">UTAMA</span>
@@ -548,7 +548,7 @@
                       <p class="text-[10px] text-gray-400 mb-2 font-bold uppercase tracking-wider">Gambar Sedia Ada</p>
                       <div class="grid grid-cols-4 gap-2">
                         <div v-for="(g, i) in gambarSedia" :key="i" class="relative aspect-square rounded-lg overflow-hidden border border-gray-200">
-                          <img :src="apiBase + g" class="w-full h-full object-cover"/>
+                          <img :src="apiBase + g" alt="Gambar produk" class="w-full h-full object-cover"/>
                           <span v-if="i===0" class="absolute bottom-1 left-1 bg-[#0F4C3A] text-white text-[8px] font-bold px-1 rounded">UTAMA</span>
                         </div>
                       </div>

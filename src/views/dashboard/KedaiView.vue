@@ -60,7 +60,7 @@
         <div v-for="item in produk" :key="item.id" @click="bukaDetail(item)"
           class="bg-white rounded-[18px] overflow-hidden shadow-sm border border-gray-200/60 active:scale-[0.98] transition-transform cursor-pointer flex flex-col group">
           <div class="relative aspect-square bg-gray-50 shrink-0 overflow-hidden">
-            <img v-if="gambarUtama(item)" :src="apiBase + gambarUtama(item)" :alt="item.nama_produk" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"/>
+            <img v-if="gambarUtama(item)" :src="apiBase + gambarUtama(item)" :alt="item.nama_produk" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"/>
             <div v-else class="w-full h-full flex items-center justify-center text-4xl">🛍️</div>
             <span v-if="item.is_percuma" class="absolute top-2 left-2 text-[9px] font-black px-2 py-0.5 rounded-full bg-amber-400 text-amber-900 shadow-sm">PERCUMA</span>
             <span v-if="item.is_preorder" class="absolute top-2 right-2 text-[9px] font-black px-2 py-0.5 rounded-full bg-blue-500 text-white shadow-sm">PREORDER</span>
@@ -115,7 +115,7 @@
           <div class="p-4 space-y-3">
             <div v-for="item in p.items" :key="item.produk_id" class="flex gap-3 items-center">
               <div class="w-14 h-14 bg-gray-100 rounded-lg shrink-0 border border-gray-200 overflow-hidden">
-                <img v-if="gambarUtama(item)" :src="apiBase + gambarUtama(item)" class="w-full h-full object-cover"/>
+                <img v-if="gambarUtama(item)" :src="apiBase + gambarUtama(item)" :alt="item.nama_produk || 'Gambar produk'" loading="lazy" class="w-full h-full object-cover"/>
                 <span v-else class="w-full h-full flex items-center justify-center text-xl">🛍️</span>
               </div>
               <div class="flex-1 min-w-0">
@@ -234,7 +234,7 @@
             <div v-for="item in produkSayaPenjual" :key="item.id"
               class="bg-white rounded-[18px] p-3 border border-gray-200/60 flex gap-3 items-center shadow-sm">
               <div class="w-14 h-14 rounded-xl bg-gray-100 shrink-0 overflow-hidden border border-gray-200">
-                <img v-if="item.gambar" :src="apiBase + item.gambar" class="w-full h-full object-cover"/>
+                <img v-if="item.gambar" :src="apiBase + item.gambar" :alt="item.nama_produk || 'Gambar produk'" loading="lazy" class="w-full h-full object-cover"/>
                 <div v-else class="w-full h-full flex items-center justify-center text-2xl text-gray-300">🛍️</div>
               </div>
               <div class="flex-1 min-w-0">
@@ -532,7 +532,7 @@
             <div v-if="senaraiGambar.length > 1" class="flex gap-2 px-5 pt-4 overflow-x-auto custom-scrollbar pb-1">
               <button v-for="(g,i) in senaraiGambar" :key="i" @click="slideAktif=i"
                 :class="['w-14 h-14 rounded-xl overflow-hidden border-2 shrink-0 transition-all shadow-sm', i===slideAktif ? 'border-[#0F4C3A]' : 'border-gray-200']">
-                <img :src="apiBase + g" class="w-full h-full object-cover"/>
+                <img :src="apiBase + g" alt="Gambar produk" loading="lazy" class="w-full h-full object-cover"/>
               </button>
             </div>
 

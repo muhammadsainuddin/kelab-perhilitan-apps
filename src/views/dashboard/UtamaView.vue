@@ -51,7 +51,7 @@
       <div class="absolute -bottom-16 -left-16 w-56 h-56 rounded-full pointer-events-none"
         style="background: radial-gradient(circle, rgba(27,67,50,0.55) 0%, transparent 65%);"></div>
       <!-- Layer 5: watermark logo -->
-      <img src="/logo.png" class="absolute right-5 bottom-10 w-40 pointer-events-none grayscale invert"
+      <img src="/logo.png" alt="" class="absolute right-5 bottom-10 w-40 pointer-events-none grayscale invert"
         style="opacity: 0.025; transform: rotate(15deg);" />
       <!-- Gold + teal accent line (top) -->
       <div class="absolute top-0 left-0 right-0"
@@ -91,6 +91,7 @@
             style="border: 2.5px solid #081C15;">
             <img v-if="profil.gambar"
               :src="`${uploadBase}/uploads/images/${profil.gambar}`"
+              :alt="profil.nama_penuh || 'Foto profil'"
               class="w-full h-full object-cover" />
             <div v-else class="w-full h-full flex items-center justify-center text-2xl font-black"
               style="background: #1B4332; color: #95D5B2;">
@@ -217,6 +218,7 @@
           <div v-if="gambarList(k).length"
             class="h-32 overflow-hidden relative">
             <img :src="`${uploadBase}/uploads/images/${gambarList(k)[0]}`"
+              :alt="k.nama || 'Gambar kempen'"
               class="w-full h-full object-cover" />
             <div v-if="gambarList(k).length > 1"
               class="absolute bottom-2 right-2 px-2 py-0.5 rounded-full text-[8px] font-black"
@@ -306,6 +308,7 @@
                 class="flex overflow-x-auto no-scrollbar snap-x snap-mandatory gap-2 px-4 pt-3 pb-2">
                 <img v-for="g in gambarList(kempenDetail)" :key="g"
                   :src="`${uploadBase}/uploads/images/${g}`"
+                  :alt="kempenDetail?.nama || 'Gambar kempen'"
                   class="snap-start h-44 shrink-0 rounded-2xl object-cover"
                   :class="gambarList(kempenDetail).length === 1 ? 'w-full' : 'w-64'" />
               </div>
@@ -459,6 +462,7 @@
             style="background: rgba(82,183,136,0.07);">
             <img v-if="profil.gambar"
               :src="`${uploadBase}/uploads/images/${profil.gambar}`"
+              :alt="profil.nama_penuh || 'Foto profil'"
               class="w-full h-full object-cover" />
             <svg v-else class="w-5 h-5" fill="none" stroke="#2D6A4F" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
@@ -500,7 +504,7 @@
               <span class="w-1 h-1 rounded-full bg-[#D4AF37]"></span>
               <span class="text-[7px] font-black uppercase tracking-[0.2em]" style="color: #D4AF37;">Tawaran Eksklusif</span>
             </div>
-            <h3 class="text-[16px] font-black text-white leading-tight">Koleksi Merch<br>PERHILITAN</h3>
+            <h3 class="text-[16px] font-black text-white leading-tight">Kedai Kelab<br>PERHILITAN</h3>
             <p class="text-[10px] font-medium mt-1.5" style="color: rgba(149,213,178,0.6);">
               Jersi, topi, beg dan pelbagai lagi
             </p>
@@ -514,7 +518,7 @@
             </div>
             <div class="flex items-center gap-1 text-[8px] font-black uppercase tracking-wide"
               style="color: rgba(149,213,178,0.7);">
-              Beli Kini
+              Lihat
               <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
               </svg>
@@ -655,6 +659,7 @@
             <p class="text-[9px] font-black uppercase tracking-[0.2em] mb-1" style="color: #52B788;">QR Code Pembayaran</p>
             <p class="text-sm font-black mb-4" style="color: #0F172A;">{{ kempenQrDipilih?.nama_bank }} — {{ kempenQrDipilih?.no_akaun }}</p>
             <img :src="kempenQrDipilih ? `${uploadBase}/uploads/images/${kempenQrDipilih.qr_code}` : ''"
+              alt="Kod QR pembayaran"
               class="w-56 h-56 rounded-2xl object-contain mx-auto" style="border: 2px solid #E2E8F0;" />
             <p class="text-[10px] mt-4 font-medium" style="color: #94A3B8;">Imbas dengan aplikasi bank anda</p>
             <button @click="showQrKempen = false"

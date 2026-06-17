@@ -60,7 +60,7 @@
             <!-- Avatar -->
             <div class="w-12 h-12 rounded-full flex items-center justify-center shrink-0 overflow-hidden"
               style="background: #ECFDF5; border: 2px solid #D1FAE5;">
-              <img v-if="ahli.gambar" :src="`${apiBase}/uploads/images/${ahli.gambar}`" class="w-full h-full object-cover"/>
+              <img v-if="ahli.gambar" :src="`${apiBase}/uploads/images/${ahli.gambar}`" :alt="ahli.nama_pegawai || 'Foto ahli'" loading="lazy" class="w-full h-full object-cover"/>
               <span v-else class="font-black text-base" style="color: #065F46;">{{ (ahli.nama_pegawai || '?').charAt(0) }}</span>
             </div>
             <!-- Nama + Penempatan -->

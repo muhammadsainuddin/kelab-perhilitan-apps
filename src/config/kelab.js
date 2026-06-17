@@ -25,6 +25,9 @@ export const KELAB = {
 
   // Nama yang dipapar dalam tanda tangan dokumen rasmi
   namaTandatangan: 'Yang Dipertua Kelab PERHILITAN',
+
+  // Kod majikan Biro Angkasa — kod agensi yang didaftarkan dengan JPA
+  kodMajikan: 'WJ43',
 };
 
 // Blok header HTML untuk dokumen cetakan (resit/slip/laporan).
