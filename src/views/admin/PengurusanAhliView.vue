@@ -54,6 +54,12 @@
         Jawatankuasa
         <span class="bg-[#0F4C3A] text-white text-[9px] font-black px-1.5 py-px rounded-full leading-none">{{ ahliJawatankuasa.length }}</span>
       </button>
+      <button @click="tabAktif = 'permohonan'; muatPermohonan()"
+        :class="['px-4 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5', tabAktif === 'permohonan' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700']">
+        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
+        Permohonan Baharu
+        <span v-if="senaraiPermohonan.length" class="bg-amber-500 text-white text-[9px] font-black px-1.5 py-px rounded-full leading-none">{{ senaraiPermohonan.length }}</span>
+      </button>
     </div>
 
     <!-- NOTIS JANA -->
@@ -199,9 +205,70 @@
     </template>
 
     <!-- ======================================== -->
+    <!-- TAB: PERMOHONAN DAFTAR BAHARU            -->
+    <!-- ======================================== -->
+    <template v-if="tabAktif === 'permohonan'">
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+          <div>
+            <p class="text-xs font-bold text-gray-900">Permohonan Daftar Baharu</p>
+            <p class="text-[11px] text-gray-400 mt-0.5">Staff baru yang mendaftar sendiri dan menunggu kelulusan</p>
+          </div>
+          <button @click="muatPermohonan" class="text-[11px] font-bold text-emerald-700 hover:text-emerald-900 transition-colors flex items-center gap-1">
+            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+            Muat Semula
+          </button>
+        </div>
+
+        <div v-if="senaraiPermohonan.length === 0" class="py-16 text-center">
+          <svg class="w-10 h-10 mx-auto text-gray-200 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
+          <p class="text-xs font-bold text-gray-400 uppercase tracking-wide">Tiada permohonan menunggu</p>
+        </div>
+
+        <div v-else class="divide-y divide-gray-50">
+          <div v-for="p in senaraiPermohonan" :key="p.no_kp"
+            class="flex items-center gap-4 px-4 py-4 hover:bg-gray-50 transition-colors">
+            <!-- Avatar -->
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-amber-50 border border-amber-100">
+              <svg class="w-5 h-5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+            </div>
+            <!-- Info -->
+            <div class="flex-1 min-w-0">
+              <p class="text-xs font-bold text-gray-900 truncate">{{ p.nama_pegawai }}</p>
+              <p class="text-[11px] text-gray-500 font-mono mt-0.5">{{ p.no_kp }}</p>
+              <div class="flex flex-wrap gap-x-3 gap-y-0.5 mt-1">
+                <span class="text-[10px] text-gray-500">{{ p.gred }}</span>
+                <span class="text-[10px] text-gray-400">·</span>
+                <span class="text-[10px] text-gray-500 truncate">{{ p.penempatan || '—' }}</span>
+                <span v-if="p.tarikh_lapor_diri" class="text-[10px] text-gray-400">·</span>
+                <span v-if="p.tarikh_lapor_diri" class="text-[10px] text-gray-500">
+                  Lapor: {{ new Date(p.tarikh_lapor_diri).toLocaleDateString('ms-MY', { day: '2-digit', month: 'short', year: 'numeric' }) }}
+                </span>
+              </div>
+              <p v-if="p.emel" class="text-[10px] text-blue-600 mt-0.5">{{ p.emel }}</p>
+            </div>
+            <!-- Butang tindakan -->
+            <div class="flex items-center gap-2 shrink-0">
+              <button @click="tindakanPermohonan(p.no_kp, 'LULUS')"
+                class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-black transition-all bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm">
+                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                Lulus
+              </button>
+              <button @click="tindakanPermohonan(p.no_kp, 'TOLAK')"
+                class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-black transition-all bg-white hover:bg-red-50 text-red-600 border border-red-200">
+                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+                Tolak
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </template>
+
+    <!-- ======================================== -->
     <!-- TAB: JAWATANKUASA KELAB                  -->
     <!-- ======================================== -->
-    <template v-else>
+    <template v-else-if="tabAktif === 'jawatankuasa'">
 
       <!-- PENAPIS JAWATANKUASA -->
       <div class="bg-white p-3 rounded-xl shadow-sm border border-gray-200">
@@ -616,6 +683,24 @@ const hierarkiJawatan = [
 
 // ── Tab ──
 const tabAktif = ref('semua');
+
+// ── Permohonan Daftar Baharu ──
+const senaraiPermohonan = ref([]);
+const muatPermohonan = async () => {
+  try {
+    const { data } = await api.get('/admin/permohonan-daftar');
+    if (data.success) senaraiPermohonan.value = data.data;
+  } catch { /* senyap */ }
+};
+const tindakanPermohonan = async (no_kp, tindakan) => {
+  if (!confirm(`${tindakan === 'LULUS' ? 'Luluskan' : 'Tolak'} permohonan ini?`)) return;
+  try {
+    const { data } = await api.put(`/admin/permohonan-daftar/${no_kp}`, { tindakan });
+    if (data.success) await muatPermohonan();
+  } catch (e) {
+    alert(e.response?.data?.message || 'Ralat. Sila cuba lagi.');
+  }
+};
 
 // ── Filter: Semua Ahli ──
 const carian = ref('');
@@ -1190,6 +1275,7 @@ const cetakJawatankuasa = () => {
 onMounted(() => {
   muatAhli();
   muatSenaraiPTJ();
+  muatPermohonan();
 });
 </script>
 

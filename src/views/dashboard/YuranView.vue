@@ -65,20 +65,44 @@
 
     <!-- PENDING TX BANNER -->
     <div v-if="hasPendingTx"
-      class="rounded-[20px] p-4 flex items-center gap-3"
+      class="rounded-[20px] p-4"
       style="background: #FFFBEB; border: 1px solid rgba(245,158,11,0.3);">
-      <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
-        style="background: rgba(245,158,11,0.15);">
-        <svg class="w-5 h-5 text-amber-500 animate-spin" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-        </svg>
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
+          style="background: rgba(245,158,11,0.15);">
+          <svg v-if="!bolehCubaSemula" class="w-5 h-5 text-amber-500 animate-spin" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+          </svg>
+          <svg v-else class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/>
+          </svg>
+        </div>
+        <div class="flex-1">
+          <p class="text-[11px] font-black uppercase tracking-wide" style="color: #92400e;">
+            {{ bolehCubaSemula ? 'Bayaran Tidak Diselesaikan' : 'Semakan Bank Sedang Berjalan' }}
+          </p>
+          <p v-if="!bolehCubaSemula" class="text-[10px] font-medium mt-0.5 leading-relaxed" style="color: rgba(146,64,14,0.75);">
+            Sistem menunggu pengesahan FPX. Cuba semula dalam
+            <strong style="color: #92400e;">{{ labelCountdown }}</strong>.
+          </p>
+          <p v-else class="text-[10px] font-medium mt-0.5 leading-relaxed" style="color: rgba(146,64,14,0.75);">
+            Pembayaran sebelum tidak diselesaikan. Klik butang di bawah untuk cuba semula.
+          </p>
+        </div>
       </div>
-      <div>
-        <p class="text-[11px] font-black uppercase tracking-wide" style="color: #92400e;">Semakan Bank Sedang Berjalan</p>
-        <p class="text-[10px] font-medium mt-0.5 leading-relaxed" style="color: rgba(146,64,14,0.75);">
-          Sistem menunggu pengesahan FPX. Sila tunggu sebentar (maks. 15 minit).
-        </p>
-      </div>
+
+      <!-- Butang Cuba Semula — muncul selepas 15 minit -->
+      <button v-if="bolehCubaSemula" @click="bayarYuran" :disabled="isProcessing"
+        class="w-full mt-3 py-3 rounded-2xl text-[11px] font-black uppercase tracking-wider flex items-center justify-center gap-2 transition-all active:scale-[0.98] disabled:opacity-60"
+        style="background: #92400e; color: #FEF3C7;">
+        <span v-if="isProcessing" class="animate-pulse">Menghubungi Bank...</span>
+        <template v-else>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"/>
+          </svg>
+          <span>Cuba Bayar Semula</span>
+        </template>
+      </button>
     </div>
 
     <!-- INVOICE CARD -->
@@ -420,6 +444,27 @@ const sejarahBayaran = ref([]);
 const isProcessing   = ref(false);
 const tahunSemasa    = new Date().getFullYear();
 let autoPollInterval = null;
+let jamCountdown     = null;
+const waktuSekarang  = ref(Date.now());
+
+const pendingTx = computed(() => sejarahBayaran.value.find(tx => tx.status === 'PENDING'));
+
+const saatLagiHinggaBolehCuba = computed(() => {
+  if (!pendingTx.value?.tarikh_cipta) return 0;
+  const cipta = new Date(pendingTx.value.tarikh_cipta).getTime();
+  const berlalu = Math.floor((waktuSekarang.value - cipta) / 1000);
+  return Math.max(0, 15 * 60 - berlalu);
+});
+
+const bolehCubaSemula = computed(() => saatLagiHinggaBolehCuba.value === 0);
+
+const labelCountdown = computed(() => {
+  const s = saatLagiHinggaBolehCuba.value;
+  const m = Math.floor(s / 60);
+  const saat = s % 60;
+  if (m > 0) return `${m} minit ${String(saat).padStart(2,'0')} saat`;
+  return `${saat} saat`;
+});
 
 // ── Resit Biro Angkasa ──
 const senaraiResitBA   = ref([]);
@@ -596,24 +641,25 @@ const fetchProfil = async () => {
 
 const fetchSejarah = async () => {
   try {
-    // Ubah URL di bawah:
     const res = await api.get('/bayaran/sejarah-yuran');
     sejarahBayaran.value = res.data.data || [];
-    if (hasPendingTx.value) mulakanAutoPolling();
-    else hentikanAutoPolling();
+    if (hasPendingTx.value) {
+      mulakanAutoPolling();
+      mulakanJamCountdown();
+    } else {
+      hentikanAutoPolling();
+      hentikanJamCountdown();
+    }
   } catch (e) { console.error(e); }
 };
 
 const mulakanAutoPolling = () => {
   if (autoPollInterval) return;
   autoPollInterval = setInterval(async () => {
-    const pendingTx = sejarahBayaran.value.find(tx => tx.status === 'PENDING');
-    if (!pendingTx) {
-      hentikanAutoPolling();
-      return;
-    }
+    const tx = sejarahBayaran.value.find(t => t.status === 'PENDING');
+    if (!tx) { hentikanAutoPolling(); return; }
     try {
-      const res = await api.get(`/bayaran/semak-status/${pendingTx.billCode}`);
+      const res = await api.get(`/bayaran/semak-status/${tx.billCode}`);
       if (res.data.status === 'BERJAYA' || res.data.status === 'GAGAL' || res.data.status === 'DIBATALKAN') {
         hentikanAutoPolling();
         await fetchSejarah();
@@ -624,10 +670,16 @@ const mulakanAutoPolling = () => {
 };
 
 const hentikanAutoPolling = () => {
-  if (autoPollInterval) {
-    clearInterval(autoPollInterval);
-    autoPollInterval = null;
-  }
+  if (autoPollInterval) { clearInterval(autoPollInterval); autoPollInterval = null; }
+};
+
+const mulakanJamCountdown = () => {
+  if (jamCountdown) return;
+  jamCountdown = setInterval(() => { waktuSekarang.value = Date.now(); }, 1000);
+};
+
+const hentikanJamCountdown = () => {
+  if (jamCountdown) { clearInterval(jamCountdown); jamCountdown = null; }
 };
 
 const bayarYuran = async () => {
@@ -654,6 +706,7 @@ onMounted(async () => {
 
 onUnmounted(() => {
   hentikanAutoPolling();
+  hentikanJamCountdown();
 });
 </script>
 
