@@ -103,7 +103,7 @@
 import { ref, computed, onMounted } from 'vue';
 import api from '../../services/api';
 
-const apiBase  = (import.meta.env.VITE_API_URL || 'http://localhost:5001/api').replace('/api', '');
+const apiBase = (import.meta.env.VITE_API_URL || 'http://localhost:5001/api').replace('/api', '');
 const loading  = ref(true);
 const senaraiAJK = ref([]);
 const carian   = ref('');

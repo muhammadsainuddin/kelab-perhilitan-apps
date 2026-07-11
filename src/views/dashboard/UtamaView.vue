@@ -612,12 +612,18 @@
               </div>
               <div v-else class="divide-y divide-gray-50">
                 <div v-for="n in notifikasi" :key="n.id"
-                  class="flex items-start gap-3 px-5 py-4"
-                  :class="n.dibaca ? 'opacity-60' : ''">
+                  class="flex items-start gap-3 px-5 py-4 transition-colors"
+                  :class="[n.dibaca ? 'opacity-60' : '', n.jenis === 'SOKONGAN' && n.ref_id ? 'cursor-pointer active:bg-emerald-50/60' : '']"
+                  @click="klikNotifikasi(n)">
                   <div class="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 mt-0.5"
-                    :style="n.jenis === 'SUMBANGAN' ? 'background: #FEE2E2;' : 'background: #EFF6FF;'">
-                    <svg class="w-4 h-4" :style="n.jenis === 'SUMBANGAN' ? 'color: #DC2626;' : 'color: #1D4ED8;'" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    :style="n.jenis === 'SUMBANGAN' ? 'background: #FEE2E2;'
+                          : n.jenis === 'SOKONGAN'  ? 'background: #ECFDF5;'
+                          : 'background: #EFF6FF;'">
+                    <svg class="w-4 h-4" :style="n.jenis === 'SUMBANGAN' ? 'color: #DC2626;'
+                          : n.jenis === 'SOKONGAN'  ? 'color: #059669;'
+                          : 'color: #1D4ED8;'" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                       <path v-if="n.jenis === 'SUMBANGAN'" stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"/>
+                      <path v-else-if="n.jenis === 'SOKONGAN'" stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
                       <path v-else stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"/>
                     </svg>
                   </div>
@@ -629,6 +635,10 @@
                     <p class="text-[10px] font-medium leading-relaxed mt-0.5" style="color: #64748B;">{{ n.mesej }}</p>
                     <p class="text-[9px] font-bold mt-1" style="color: #94A3B8;">{{ fmtMasa(n.tarikh_cipta) }}</p>
                   </div>
+                  <svg v-if="n.jenis === 'SOKONGAN' && n.ref_id"
+                    class="w-3.5 h-3.5 shrink-0 mt-1 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
+                  </svg>
                 </div>
               </div>
             </div>
@@ -888,6 +898,7 @@ import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import api from '../../services/api';
 import { useSettingsStore } from '../../stores/settings';
+import { useNotifikasiStore } from '../../stores/notifikasi';
 
 const settingsStore = useSettingsStore();
 const uploadBase = import.meta.env.VITE_UPLOAD_URL || 'http://localhost:5001';
@@ -928,17 +939,12 @@ const muatKempenPenerima = async () => {
 };
 
 // ── Notifikasi ──
-const showNotif      = ref(false);
-const notifikasi     = ref([]);
-const bilanganNotif  = ref(0);
-const muatNotif      = ref(false);
+const notifikasiStore = useNotifikasiStore();
+const bilanganNotif   = computed(() => notifikasiStore.bilangan);
 
-const muatBilanganNotif = async () => {
-  try {
-    const res = await api.get('/user/notifikasi/bilangan');
-    bilanganNotif.value = res.data.bilangan || 0;
-  } catch (e) { bilanganNotif.value = 0; }
-};
+const showNotif  = ref(false);
+const notifikasi = ref([]);
+const muatNotif  = ref(false);
 
 const bukaNotifikasi = async () => {
   showNotif.value = true;
@@ -956,8 +962,20 @@ const bacaSemua = async () => {
   try {
     await api.put('/user/notifikasi/baca-semua');
     notifikasi.value.forEach(n => { n.dibaca = 1; });
-    bilanganNotif.value = 0;
+    notifikasiStore.tandaBacaSemua();
   } catch (e) { console.error(e); }
+};
+
+const klikNotifikasi = async (n) => {
+  if (!n.dibaca) {
+    n.dibaca = 1;
+    notifikasiStore.tandaBacaSemua();
+    api.put('/user/notifikasi/baca-semua').catch(() => {});
+  }
+  if (n.jenis === 'SOKONGAN' && n.ref_id) {
+    tutupNotifikasi();
+    router.push({ name: 'Profil', query: { tiket: n.ref_id } });
+  }
 };
 
 // ── Detail kempen ──
@@ -1004,7 +1022,7 @@ const hantarSumbangan = async () => {
     });
     showDonate.value = false;
     await muatKempen();
-    await muatBilanganNotif();
+    notifikasiStore.semakDanNotif();
   } catch (e) {
     donateRalat.value = e.response?.data?.message || 'Ralat sistem.';
   } finally { menghantarDonate.value = false; }
@@ -1090,7 +1108,6 @@ onMounted(() => {
   fetchProfil();
   muatKempen();
   muatKempenPenerima();
-  muatBilanganNotif();
   settingsStore.muatTetapan();
 });
 </script>

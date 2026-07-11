@@ -58,6 +58,7 @@
                   <svg v-else-if="item.icon==='gift'" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/></svg>
                   <svg v-else-if="item.icon==='building'" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
                   <svg v-else-if="item.icon==='receipt'" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                  <svg v-else-if="item.icon==='chat'" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
                 </span>
 
                 <Transition name="fade-text">
@@ -424,7 +425,8 @@ const pageTitles = {
   '/admin/bayaran':    { title: 'Sejarah Bayaran FPX',  sub: 'Pemantauan transaksi dan resit pembayaran' },
   '/admin/profil':     { title: 'Profil Pentadbir',     sub: 'Urus maklumat peribadi dan keselamatan akaun' },
   '/admin/berhenti':   { title: 'Permohonan Berhenti',  sub: 'Semak dan proses permohonan penarikan keahlian' },
-  '/admin/sumbangan': { title: 'Kempen Sumbangan',     sub: 'Urus kempen bantuan dan rekod sumbangan ahli' },
+  '/admin/sumbangan':  { title: 'Kempen Sumbangan',     sub: 'Urus kempen bantuan dan rekod sumbangan ahli' },
+  '/admin/sokongan':   { title: 'Tiket Sokongan',       sub: 'Urus pertanyaan dan aduan ahli' },
   '/admin/penempatan': { title: 'Pengurusan Penempatan', sub: 'Urus senarai PTJ dan hierarki jabatan' },
   '/admin/tetapan':   { title: 'Tetapan Sistem',       sub: 'Urus keaktifan modul aplikasi ahli' },
 };
@@ -456,6 +458,7 @@ const menuGroups = [
       { name: 'aktiviti',  to: '/admin/aktiviti',  label: 'Acara Kelab',      icon: 'calendar' },
       { name: 'berhenti',   to: '/admin/berhenti',   label: 'Berhenti Ahli',    icon: 'exit' },
       { name: 'sumbangan', to: '/admin/sumbangan', label: 'Kempen Sumbangan', icon: 'gift' },
+      { name: 'sokongan',  to: '/admin/sokongan',  label: 'Tiket Sokongan',   icon: 'chat' },
     ]
   },
   {

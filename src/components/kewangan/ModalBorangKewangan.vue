@@ -84,9 +84,16 @@
                           <option value="YURAN">Yuran Keahlian</option>
                           <option value="KEDAI">Jualan Kedai / Merchandise</option>
                           <option value="ACARA">Bayaran Penyertaan Acara</option>
-                          <option value="SUMBANGAN">Sumbangan / Derma</option>
                           <option value="LAIN">Lain-lain Pendapatan</option>
+                          <optgroup v-if="senaraiAcaraKhas.length" label="── Acara Khas ──">
+                            <option v-for="a in senaraiAcaraKhas" :key="a.id" :value="`ACARA_KHAS_${a.id}`">
+                              {{ a.nama }}
+                            </option>
+                          </optgroup>
                         </select>
+                        <p class="mt-1 text-[10px] text-amber-600 font-semibold">
+                          Sumbangan syarikat luar? Gunakan tab <strong>Sumbangan MAKSWIP</strong> di bawah.
+                        </p>
                       </div>
                       <div>
                         <label class="field-label">Diterima Daripada / Sumber</label>
@@ -107,6 +114,11 @@
                           <option value="BELIAN_BARANG">Pembelian Barang / Aset</option>
                           <option value="PERKHIDMATAN">Pembayaran Perkhidmatan</option>
                           <option value="LAIN">Lain-lain Pengurusan</option>
+                          <optgroup v-if="senaraiAcaraKhas.length" label="── Acara Khas ──">
+                            <option v-for="a in senaraiAcaraKhas" :key="a.id" :value="`ACARA_KHAS_${a.id}`">
+                              {{ a.nama }}
+                            </option>
+                          </optgroup>
                         </select>
                       </div>
 
@@ -128,18 +140,86 @@
                       </div>
                     </template>
 
-                    <!-- SUMBANGAN -->
+                    <!-- SUMBANGAN MAKSWIP -->
                     <template v-else>
-                      <div>
-                        <label class="field-label">Nama Penyumbang *</label>
-                        <input v-model="form.penerima_bayaran" type="text"
-                          placeholder="Nama penuh individu atau syarikat penyumbang"
-                          class="field-input" />
+                      <div class="bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 flex items-start gap-2">
+                        <svg class="w-3.5 h-3.5 text-amber-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <p class="text-[10px] text-amber-700 leading-relaxed">
+                          Sumbangan ini akan direkodkan dalam <strong>Kutipan Sumbangan Luar</strong> — bukan terus ke ledger. Tuntutan ke MAKSWIP dibuat kemudian melalui tab Kutipan Sumbangan.
+                        </p>
                       </div>
                       <div>
-                        <label class="field-label">Program / Tujuan Sumbangan</label>
-                        <input v-model="form.program" type="text"
-                          placeholder="Cth: Tabung Kebajikan, Sukan Tahunan 2025"
+                        <label class="field-label">Acara Khas *</label>
+                        <select v-if="senaraiAcaraKhas.length" v-model="form.acara_khas_id_sumbangan" class="field-input">
+                          <option value="">— Pilih Acara —</option>
+                          <option v-for="a in senaraiAcaraKhas" :key="a.id" :value="a.id">{{ a.nama }}</option>
+                        </select>
+                        <div v-else class="field-input bg-amber-50 border-amber-200 text-amber-700 text-[10px]">
+                          Tiada acara khas. Tambah dahulu dalam
+                          <strong>Tetapan → Acara Khas</strong>.
+                        </div>
+                      </div>
+
+                      <!-- Pakej Sumbangan -->
+                      <div v-if="form.acara_khas_id_sumbangan">
+                        <label class="field-label">Pakej Sumbangan</label>
+                        <div v-if="loadingPakejBorang" class="field-input text-[10px] text-gray-400">Memuatkan pakej...</div>
+                        <select v-else-if="senaraiPakejBorang.length" v-model="form.pakej_id" class="field-input">
+                          <option value="">— Tiada Pakej Khusus —</option>
+                          <option v-for="p in senaraiPakejBorang" :key="p.id" :value="p.id">
+                            {{ p.nama }}{{ p.amaun_pakej ? ` (RM ${parseFloat(p.amaun_pakej).toLocaleString('ms-MY', { minimumFractionDigits: 2 })})` : '' }}
+                          </option>
+                        </select>
+                        <div v-else class="field-input bg-gray-50 border-gray-200 text-gray-400 text-[10px]">
+                          Tiada pakej ditakrifkan untuk acara ini.
+                        </div>
+                      </div>
+
+                      <!-- Person In Charge (PIC) -->
+                      <div class="relative">
+                        <label class="field-label">Person In Charge (PIC)</label>
+                        <div class="relative">
+                          <input
+                            v-model="cariStaff"
+                            type="text"
+                            placeholder="Taip nama atau no. KP staff..."
+                            class="field-input pr-8"
+                            @focus="showStaffDropdown = true"
+                            @blur="setTimeout(() => { showStaffDropdown = false }, 180)"
+                            autocomplete="off"
+                          />
+                          <button v-if="form.pic_no_kp" @click="clearStaff" type="button"
+                            class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                          </button>
+                        </div>
+                        <!-- Dropdown staff -->
+                        <div v-if="showStaffDropdown && (staffDicari.length || loadingStaff)"
+                          class="absolute z-10 top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-44 overflow-y-auto">
+                          <div v-if="loadingStaff" class="px-3 py-2 text-[10px] text-gray-400">Memuatkan...</div>
+                          <div v-else-if="!staffDicari.length" class="px-3 py-2 text-[10px] text-gray-400">Tiada staf dijumpai.</div>
+                          <button v-else v-for="s in staffDicari" :key="s.no_kp"
+                            type="button"
+                            @mousedown.prevent="pilihStaff(s)"
+                            class="w-full text-left px-3 py-2 hover:bg-violet-50 transition-colors"
+                            :class="form.pic_no_kp === s.no_kp ? 'bg-violet-50' : ''">
+                            <p class="text-[11px] font-semibold text-gray-800">{{ s.nama }}</p>
+                            <p class="text-[9px] text-gray-400 font-mono">{{ s.no_kp }}</p>
+                          </button>
+                        </div>
+                        <p v-if="form.pic_no_kp" class="mt-1 text-[9px] text-violet-600 font-medium">
+                          ✓ {{ form.pic_nama }} dipilih sebagai PIC
+                        </p>
+                      </div>
+
+                      <div>
+                        <label class="field-label">Nama Syarikat / Penyumbang *</label>
+                        <input v-model="form.nama_syarikat" type="text"
+                          placeholder="Nama penuh syarikat atau individu penyumbang"
                           class="field-input" />
                       </div>
                     </template>
@@ -180,10 +260,10 @@
                     </p>
                     <p :class="jenisAktif === 'masuk' ? 'text-emerald-800' : jenisAktif === 'keluar' ? 'text-rose-800' : 'text-amber-800'">
                       {{ jenisAktif === 'masuk'
-                        ? 'Rekod semua wang yang MASUK ke akaun kelab — yuran ahli, jualan kedai, sumbangan atau bayaran penyertaan.'
+                        ? 'Rekod semua wang yang MASUK ke akaun kelab — yuran ahli, jualan kedai atau bayaran penyertaan acara.'
                         : jenisAktif === 'keluar'
                         ? 'Rekod semua wang yang KELUAR dari akaun kelab — bayaran vendor, belian aset, bantuan kebajikan atau kos acara.'
-                        : 'Rekod penerimaan sumbangan atau derma. Dikira sebagai Kredit dalam lejar dan disimpan berasingan untuk laporan sumbangan.' }}
+                        : 'Rekod sumbangan syarikat luar melalui MAKSWIP. Wang disimpan di MAKSWIP dahulu — tuntutan dibuat kemudian dan MAKSWIP akan tolak 10%.' }}
                     </p>
                   </div>
 
@@ -204,9 +284,10 @@
                         <li class="flex gap-1.5"><span class="text-rose-500 shrink-0 font-bold">✓</span> Setiap rekod keluar akan menolak Baki Semasa kelab</li>
                       </template>
                       <template v-else>
-                        <li class="flex gap-1.5"><span class="text-amber-500 shrink-0 font-bold">✓</span> Rekodkan nama penyumbang dengan tepat untuk laporan audit</li>
-                        <li class="flex gap-1.5"><span class="text-amber-500 shrink-0 font-bold">✓</span> Program = tujuan spesifik sumbangan (jika berkenaan)</li>
-                        <li class="flex gap-1.5"><span class="text-amber-500 shrink-0 font-bold">✓</span> Import CSV boleh dibuat dari tab Sumbangan untuk sumbangan pukal</li>
+                        <li class="flex gap-1.5"><span class="text-amber-500 shrink-0 font-bold">✓</span> Nama Acara wajib diisi — rekod dikelompok mengikut acara</li>
+                        <li class="flex gap-1.5"><span class="text-amber-500 shrink-0 font-bold">✓</span> Rekod ini TIDAK masuk ledger — ia dalam kutipan sumbangan luar</li>
+                        <li class="flex gap-1.5"><span class="text-amber-500 shrink-0 font-bold">✓</span> Buat tuntutan melalui tab <strong>Kutipan Sumbangan</strong> apabila terima dari MAKSWIP</li>
+                        <li class="flex gap-1.5"><span class="text-amber-500 shrink-0 font-bold">✓</span> MAKSWIP akan tolak 10% — hanya 90% masuk ke ledger kelab</li>
                       </template>
                     </ul>
                   </div>
@@ -221,7 +302,7 @@
                           jenisAktif === 'masuk' ? 'bg-emerald-100 text-emerald-700' :
                           jenisAktif === 'keluar' ? 'bg-rose-100 text-rose-700' :
                           'bg-amber-100 text-amber-700']">
-                          {{ jenisAktif === 'masuk' ? 'KREDIT (+)' : jenisAktif === 'keluar' ? 'DEBIT (-)' : 'SUMBANGAN' }}
+                          {{ jenisAktif === 'masuk' ? 'KREDIT (+)' : jenisAktif === 'keluar' ? 'DEBIT (-)' : 'KUTIPAN LUAR' }}
                         </span>
                       </div>
                       <div class="flex justify-between text-[11px]">
@@ -256,12 +337,14 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, watch, computed } from 'vue';
 import api from '../../services/api';
 
 const props = defineProps({
-  senaraiAhli: { type: Array, default: () => [] },
-  jenisAwal:   { type: String, default: 'masuk' },
+  senaraiAhli:    { type: Array, default: () => [] },
+  senaraAcara:    { type: Array, default: () => [] },
+  senaraiAcaraKhas: { type: Array, default: () => [] },
+  jenisAwal:      { type: String, default: 'masuk' },
 });
 const emit = defineEmits(['tutup', 'berjaya']);
 
@@ -277,7 +360,7 @@ const jenisTab = [
     ikon: 'M17 13l-5 5m0 0l-5-5m5 5V6',
   },
   {
-    id: 'sumbangan', label: 'Sumbangan / Derma',
+    id: 'sumbangan', label: 'Sumbangan MAKSWIP',
     aktif: 'bg-amber-50 text-amber-700 border-b-2 border-amber-500',
     ikon: 'M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z',
   },
@@ -295,21 +378,80 @@ const todayStr = () => new Date().toISOString().split('T')[0];
 const formAsal = (jenis) => ({
   amaun: '',
   tarikh: todayStr(),
-  kategori: jenis === 'masuk' ? 'YURAN' : jenis === 'keluar' ? 'KEBAJIKAN' : 'SUMBANGAN',
+  kategori: jenis === 'masuk' ? 'YURAN' : 'KEBAJIKAN',
   rujukan: '',
   nota: '',
   penerima_bayaran: '',
   no_kp_pihak: '',
-  program: '',
+  nama_syarikat: '',
+  acara_khas_id_sumbangan: '',
+  pakej_id: '',
+  pic_no_kp: '',
+  pic_nama: '',   // display only, not sent to API
 });
+
+// ── Pakej & PIC (MAKSWIP tab) ──────────────────────────────────────
+const senaraiPakejBorang = ref([]);
+const loadingPakejBorang = ref(false);
+const senaraiStaff       = ref([]);
+const loadingStaff       = ref(false);
+const cariStaff          = ref('');
+const showStaffDropdown  = ref(false);
+
+const staffDicari = computed(() => {
+  const q = cariStaff.value.toLowerCase().trim();
+  if (!q) return senaraiStaff.value;
+  return senaraiStaff.value.filter(s =>
+    s.nama?.toLowerCase().includes(q) || s.no_kp?.includes(q)
+  );
+});
+
+const pilihStaff = (s) => {
+  form.value.pic_no_kp = s.no_kp;
+  form.value.pic_nama  = s.nama;
+  cariStaff.value      = s.nama;
+  showStaffDropdown.value = false;
+};
+
+const clearStaff = () => {
+  form.value.pic_no_kp = '';
+  form.value.pic_nama  = '';
+  cariStaff.value      = '';
+};
+
+// Load staff once when component mounts (if not yet loaded)
+const muatStaff = async () => {
+  if (senaraiStaff.value.length) return;
+  loadingStaff.value = true;
+  try {
+    const { data } = await api.get('/admin/kewangan/staff');
+    senaraiStaff.value = data.data || [];
+  } catch { /* */ } finally { loadingStaff.value = false; }
+};
+muatStaff();
 
 const jenisAktif = ref(props.jenisAwal);
 const form       = ref(formAsal(jenisAktif.value));
 const saving     = ref(false);
 
+// Load pakej when acara changes (must be after `form` is declared)
+watch(() => form.value.acara_khas_id_sumbangan, async (id) => {
+  senaraiPakejBorang.value = [];
+  form.value.pakej_id = '';
+  if (!id) return;
+  loadingPakejBorang.value = true;
+  try {
+    const { data } = await api.get(`/admin/kewangan/acara-khas/${id}/pakej`);
+    senaraiPakejBorang.value = (data.data || []).filter(p => p.status === 'AKTIF');
+  } catch { /* */ } finally { loadingPakejBorang.value = false; }
+});
+
 const pilihJenis = (id) => {
   jenisAktif.value = id;
   form.value = formAsal(id);
+  cariStaff.value = '';
+  showStaffDropdown.value = false;
+  senaraiPakejBorang.value = [];
 };
 
 watch(() => props.jenisAwal, (v) => {
@@ -322,39 +464,50 @@ const simpan = async () => {
   if (!amaun || amaun <= 0) return alert('Sila masukkan amaun yang sah.');
 
   if (jenisAktif.value === 'keluar') {
-    if (form.value.kategori === 'KEBAJIKAN' && !form.value.no_kp_pihak) {
+    const katSekarang = form.value.kategori;
+    if (katSekarang === 'KEBAJIKAN' && !form.value.no_kp_pihak) {
       return alert('Sila pilih ahli penerima bantuan kebajikan.');
     }
-    if (form.value.kategori !== 'KEBAJIKAN' && !form.value.penerima_bayaran?.trim()) {
+    if (katSekarang !== 'KEBAJIKAN' && !form.value.penerima_bayaran?.trim()) {
       return alert('Sila isi nama vendor / pihak penerima bayaran.');
     }
   }
-  if (jenisAktif.value === 'sumbangan' && !form.value.penerima_bayaran?.trim()) {
-    return alert('Sila isi nama penyumbang.');
+  if (jenisAktif.value === 'sumbangan') {
+    if (!form.value.acara_khas_id_sumbangan) return alert('Sila pilih acara khas untuk sumbangan ini.');
+    if (!form.value.nama_syarikat?.trim()) return alert('Sila isi nama syarikat / penyumbang.');
   }
 
   saving.value = true;
   try {
     let respData;
     if (jenisAktif.value === 'sumbangan') {
+      const acaraDipilih = props.senaraiAcaraKhas.find(a => a.id === parseInt(form.value.acara_khas_id_sumbangan));
       const { data } = await api.post('/admin/kewangan/sumbangan', {
-        nama_penyumbang: form.value.penerima_bayaran.trim(),
-        amaun:   form.value.amaun,
-        program: form.value.program   || null,
-        nota:    form.value.nota      || null,
-        tarikh:  form.value.tarikh    || null,
+        nama_syarikat: form.value.nama_syarikat.trim(),
+        nama_acara:    acaraDipilih?.nama || '',
+        acara_khas_id: form.value.acara_khas_id_sumbangan || null,
+        pakej_id:      form.value.pakej_id  || null,
+        pic_no_kp:     form.value.pic_no_kp || null,
+        amaun:         form.value.amaun,
+        nota:          form.value.nota   || null,
+        tarikh:        form.value.tarikh || null,
       });
       respData = data;
     } else {
+      const isAcaraKhas = form.value.kategori.startsWith('ACARA_KHAS_');
+      const kategoriSebenar = isAcaraKhas ? 'ACARA_KHAS' : form.value.kategori;
+      const acaraKhasId = isAcaraKhas ? parseInt(form.value.kategori.replace('ACARA_KHAS_', '')) : null;
+
       const { data } = await api.post('/admin/kewangan/rekod', {
         jenis:            jenisAktif.value === 'masuk' ? 'MASUK' : 'KELUAR',
-        kategori:         form.value.kategori,
+        kategori:         kategoriSebenar,
         amaun:            form.value.amaun,
         rujukan:          form.value.rujukan          || null,
         nota:             form.value.nota             || null,
         no_kp_pihak:      form.value.no_kp_pihak      || null,
         penerima_bayaran: form.value.penerima_bayaran || null,
         tarikh:           form.value.tarikh           || null,
+        acara_khas_id:    acaraKhasId,
       });
       respData = data;
     }

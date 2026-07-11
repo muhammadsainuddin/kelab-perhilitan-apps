@@ -39,6 +39,7 @@
   </Transition>
 
   <router-view />
+  <MaintenanceView v-if="showMaintenance" />
 
   <!-- Toast: PWA dikemaskini -->
   <Transition name="toast-slide">
@@ -65,21 +66,59 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 
 const showUpdateToast = ref(false);
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import { Capacitor } from '@capacitor/core';
 import { SplashScreen } from '@capacitor/splash-screen';
 import { App as CapApp } from '@capacitor/app';
+import { useAuthStore } from './stores/auth';
+import { useNotifikasiStore } from './stores/notifikasi';
+import MaintenanceView from './views/MaintenanceView.vue';
+import axios from 'axios';
+
+const PERANAN_ADMIN = ['Admin', 'Super Admin', 'Bendahari'];
+const maintenanceAktif = ref(false);
+
+const semakMaintenance = async () => {
+  try {
+    const base = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
+    const { data } = await axios.get(`${base}/public/status`);
+    maintenanceAktif.value = !!data.maintenance;
+  } catch {
+    maintenanceAktif.value = false;
+  }
+};
 
 const router = useRouter();
+const route  = useRoute();
+const authStore = useAuthStore();
+
+const LALUAN_LOGIN = ['/login', '/'];
+const showMaintenance = computed(() => {
+  if (!maintenanceAktif.value) return false;
+  if (LALUAN_LOGIN.includes(route.path)) return false; // biarkan login nampak
+  const user = authStore.user;
+  return !(user && PERANAN_ADMIN.includes(user.role));
+});
+const notifikasiStore = useNotifikasiStore();
 const showSplash = ref(true);
 
-// Halaman utama — bila di sini, back button minimize (bukan tutup app)
 const HALAMAN_UTAMA = ['/', '/login', '/dashboard/utama', '/dashboard'];
 
 let backButtonListener = null;
+
+// Mula/henti polling + semak semula maintenance bila status login berubah
+watch(() => authStore.token, (token) => {
+  if (token) {
+    notifikasiStore.mulaPolling(30000);
+    semakMaintenance(); // admin baru login — maintenance mungkin perlu disembunyikan
+  } else {
+    notifikasiStore.hentiPolling();
+    semakMaintenance(); // logout — semak balik
+  }
+}, { immediate: true });
 
 onMounted(async () => {
   if (sessionStorage.getItem('pwa_updated')) {
@@ -94,9 +133,7 @@ onMounted(async () => {
     backButtonListener = await CapApp.addListener('backButton', ({ canGoBack }) => {
       const halamanSemasa = router.currentRoute.value.path;
       const diHalamanUtama = HALAMAN_UTAMA.some(h => halamanSemasa === h || halamanSemasa.startsWith('/dashboard/utama'));
-
       if (diHalamanUtama || !canGoBack) {
-        // Minimize apps — jangan tutup terus
         CapApp.minimizeApp();
       } else {
         router.back();
@@ -104,13 +141,15 @@ onMounted(async () => {
     });
   }
 
-  setTimeout(() => {
-    showSplash.value = false;
-  }, 2800);
+  await semakMaintenance();
+  setInterval(semakMaintenance, 60_000); // semak semula setiap minit
+
+  setTimeout(() => { showSplash.value = false; }, 2800);
 });
 
 onUnmounted(() => {
   backButtonListener?.remove();
+  notifikasiStore.hentiPolling();
 });
 </script>
 

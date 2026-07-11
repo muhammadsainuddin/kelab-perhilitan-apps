@@ -461,7 +461,11 @@ const handleLogin = async () => {
     setTimeout(() => router.push(destinasi), 1000);
 
   } catch (error) {
-    errorMessage.value = error.response?.data?.message || 'E-mel atau kata laluan salah.';
+    if (error.response?.data?.maintenance) {
+      errorMessage.value = 'Sistem sedang dalam penyelenggaraan. Hanya pentadbir boleh log masuk pada masa ini.';
+    } else {
+      errorMessage.value = error.response?.data?.message || 'E-mel atau kata laluan salah.';
+    }
   } finally {
     isLoading.value = false;
   }

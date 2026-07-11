@@ -320,7 +320,7 @@
         <div class="mx-4" style="height: 1px; background: #F1F5F9;"></div>
 
         <!-- Hubungi Kelab -->
-        <button @click="modalHubungi = true"
+        <button @click="modalHubungi = true; muatSenaraiTiket()"
           class="w-full flex items-center gap-3.5 px-4 py-4 transition-colors active:bg-[#F8FAFC] group">
           <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style="background: rgba(59,130,246,0.1);">
             <svg class="w-4.5 h-4.5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -829,85 +829,355 @@
     </Teleport>
 
   <!-- ═══════════════════════════════════════
-       MODAL — HUBUNGI KELAB
+       MODAL — HUBUNGI KELAB (Sistem Tiket)
        ═══════════════════════════════════════ -->
   <Teleport to="body">
     <Transition name="modal">
-      <div v-if="modalHubungi" class="fixed inset-0 z-9999 flex items-end sm:items-center justify-center"
-        style="background: rgba(8,28,21,0.6); backdrop-filter: blur(8px);">
-        <div class="bg-white w-full max-w-md shadow-2xl custom-scrollbar overflow-y-auto"
-          style="border-radius: 28px 28px 0 0; max-height: 90vh; border-top: 1px solid #E2E8F0;">
+      <div v-if="modalHubungi"
+        class="fixed inset-0 z-9999 flex items-end sm:items-center justify-center"
+        style="background: rgba(8,28,21,0.65); backdrop-filter: blur(8px);"
+        @click.self="tutupModalHubungi">
 
+        <div class="bg-white w-full max-w-md flex flex-col custom-scrollbar"
+          style="border-radius: 28px 28px 0 0; max-height: 92dvh; border-top: 1px solid #E2E8F0;">
+
+          <!-- Handle -->
           <div class="flex justify-center pt-3 pb-1 shrink-0">
             <div class="w-10 h-1 rounded-full" style="background: #E2E8F0;"></div>
           </div>
 
-          <div class="flex items-center justify-between px-6 py-4 shrink-0" style="border-bottom: 1px solid #F1F5F9;">
-            <div>
-              <h3 class="text-[15px] font-black uppercase tracking-wide" style="color: #0F172A;">Hubungi Kelab</h3>
-              <p class="text-[10px] font-medium mt-0.5" style="color: #94a3b8;">Mesej anda akan dihantar terus kepada urusetia</p>
-            </div>
-            <button @click="tutupModalHubungi"
-              class="w-8 h-8 flex items-center justify-center rounded-xl transition-colors"
-              style="background: #F1F5F9; color: #64748B;">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
+          <!-- Header dinamik -->
+          <div class="shrink-0 flex items-center gap-3 px-5 py-3.5" style="border-bottom: 1px solid #F1F5F9;">
+            <!-- Back button (hanya pada paparan detail/borang) -->
+            <button v-if="paparanTiket !== 'senarai'" @click="paparanTiket = 'senarai'"
+              class="w-8 h-8 flex items-center justify-center rounded-xl shrink-0 transition-all active:scale-90"
+              style="background: #F1F5F9; color: #0F172A;">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
               </svg>
             </button>
-          </div>
-
-          <form @submit.prevent="hantarHubungiKelab" class="px-6 py-5 space-y-4">
-
-            <!-- Subjek -->
-            <div class="space-y-1">
-              <label class="text-[10px] font-bold uppercase tracking-wider ml-0.5" style="color: #64748B;">Jenis Pertanyaan</label>
-              <select v-model="formHubungi.subjek" required
-                class="w-full text-xs font-bold rounded-2xl px-4 py-3 outline-none transition-all"
-                style="background: #F8FAFC; border: 1.5px solid #E2E8F0; color: #0F172A;">
-                <option value="" disabled>— Pilih Jenis —</option>
-                <option value="Pertanyaan Umum">Pertanyaan Umum</option>
-                <option value="Masalah Pembayaran Yuran">Masalah Pembayaran Yuran</option>
-                <option value="Permohonan Bantuan Kebajikan">Permohonan Bantuan Kebajikan</option>
-                <option value="Aduan Berkaitan Aplikasi">Aduan Berkaitan Aplikasi</option>
-                <option value="Kemaskini Maklumat">Kemaskini Maklumat</option>
-                <option value="Lain-lain">Lain-lain</option>
-              </select>
-            </div>
-
-            <!-- Mesej -->
-            <div class="space-y-1">
-              <label class="text-[10px] font-bold uppercase tracking-wider ml-0.5" style="color: #64748B;">Mesej</label>
-              <textarea v-model="formHubungi.mesej" rows="5" required
-                placeholder="Huraikan pertanyaan atau masalah anda di sini..."
-                class="w-full text-xs font-medium rounded-2xl px-4 py-3 outline-none resize-none transition-all leading-relaxed"
-                style="background: #F8FAFC; border: 1.5px solid #E2E8F0; color: #0F172A;"
-                maxlength="1000"></textarea>
-              <p class="text-right text-[9px] font-medium pr-1" style="color: #94a3b8;">{{ formHubungi.mesej.length }}/1000</p>
-            </div>
-
-            <!-- Info box -->
-            <div class="rounded-2xl p-4" style="background: rgba(59,130,246,0.06); border: 1px solid rgba(59,130,246,0.15);">
-              <p class="text-[10px] font-medium leading-relaxed" style="color: #1e40af;">
-                Mesej akan dihantar kepada <strong>kelabperhilitan@gmail.com</strong>.
-                Salinan pengesahan akan dihantar ke emel anda sekiranya telah dikemaskini dalam profil.
+            <div class="flex-1 min-w-0">
+              <h3 class="text-[14px] font-black uppercase tracking-wide leading-tight" style="color: #0F172A;">
+                <span v-if="paparanTiket === 'senarai'">Hubungi Kelab</span>
+                <span v-else-if="paparanTiket === 'borang'">Tiket Sokongan Baru</span>
+                <span v-else-if="tiketDipilih" class="truncate block">{{ tiketDipilih.no_tiket }}</span>
+              </h3>
+              <p class="text-[9px] font-medium mt-0.5 truncate" style="color: #94a3b8;">
+                <span v-if="paparanTiket === 'senarai'">Semak & hantar tiket sokongan anda</span>
+                <span v-else-if="paparanTiket === 'borang'">Isi butiran pertanyaan atau aduan</span>
+                <span v-else-if="tiketDipilih">{{ tiketDipilih.subjek }}</span>
               </p>
             </div>
-
-            <!-- Actions -->
-            <div class="flex gap-3 pb-2">
-              <button type="button" @click="tutupModalHubungi"
-                class="flex-1 py-3.5 rounded-2xl text-xs font-black uppercase tracking-wider transition-all active:scale-[0.98]"
-                style="background: #F1F5F9; color: #64748B;">
-                Batal
+            <div class="flex items-center gap-2 shrink-0">
+              <!-- Butang Tiket Baru (hanya pada senarai) -->
+              <button v-if="paparanTiket === 'senarai'" @click="paparanTiket = 'borang'"
+                class="text-[9px] font-black uppercase tracking-wide px-2.5 py-1.5 rounded-xl flex items-center gap-1 transition-all active:scale-90"
+                style="background: #081C15; color: #95D5B2;">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+                </svg>
+                Baru
               </button>
-              <button type="submit" :disabled="loadingHubungi"
-                class="flex-2 grow-2 py-3.5 rounded-2xl text-xs font-black uppercase tracking-wider transition-all active:scale-[0.98] flex items-center justify-center gap-2 disabled:opacity-60"
-                style="background: #1e3a5f; color: #bfdbfe;">
-                <span v-if="loadingHubungi" class="w-3.5 h-3.5 rounded-full border-2 border-blue-300 border-t-transparent animate-spin"></span>
-                {{ loadingHubungi ? 'Menghantar...' : 'Hantar Mesej' }}
+              <!-- Tutup -->
+              <button @click="tutupModalHubungi"
+                class="w-8 h-8 flex items-center justify-center rounded-xl transition-all active:scale-90"
+                style="background: #F1F5F9; color: #64748B;">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
               </button>
             </div>
-          </form>
+          </div>
+
+          <!-- ── PAPARAN: SENARAI TIKET ── -->
+          <div v-if="paparanTiket === 'senarai'" class="flex-1 overflow-y-auto">
+
+            <!-- Loading -->
+            <div v-if="loadingTiket" class="flex items-center justify-center py-12 gap-2">
+              <div class="w-5 h-5 rounded-full border-2 border-t-transparent animate-spin" style="border-color: #E2E8F0; border-top-color: #52B788;"></div>
+              <span class="text-[11px] font-medium" style="color: #94a3b8;">Memuatkan tiket...</span>
+            </div>
+
+            <!-- Tiada tiket -->
+            <div v-else-if="senaraiTiket.length === 0" class="flex flex-col items-center justify-center py-12 px-8 text-center gap-3">
+              <div class="w-14 h-14 rounded-2xl flex items-center justify-center" style="background: rgba(59,130,246,0.08);">
+                <svg class="w-7 h-7 text-blue-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
+                </svg>
+              </div>
+              <div>
+                <p class="text-[12px] font-black uppercase" style="color: #0F172A;">Tiada Tiket Lagi</p>
+                <p class="text-[10px] font-medium mt-1 leading-relaxed" style="color: #94a3b8;">
+                  Hantar tiket sokongan untuk pertanyaan atau aduan anda. Kami akan membalas melalui sistem ini.
+                </p>
+              </div>
+              <button @click="paparanTiket = 'borang'"
+                class="mt-2 py-2.5 px-5 rounded-2xl text-[11px] font-black uppercase tracking-wider transition-all active:scale-95"
+                style="background: #081C15; color: #95D5B2;">
+                Hantar Tiket Baru
+              </button>
+            </div>
+
+            <!-- Senarai tiket -->
+            <div v-else class="p-4 space-y-2.5 pb-6">
+              <div v-for="tiket in senaraiTiket" :key="tiket.id"
+                @click="bukaDetailTiket(tiket.id)"
+                class="rounded-[18px] overflow-hidden cursor-pointer transition-all active:scale-[0.98]"
+                style="background: white; border: 1px solid #F1F5F9; box-shadow: 0 1px 6px rgba(15,23,42,0.05);">
+
+                <div class="flex items-start gap-3 px-4 py-3.5">
+                  <!-- Status dot -->
+                  <div class="w-2 h-2 rounded-full mt-2 shrink-0 animate-pulse"
+                    :style="tiket.status === 'BARU' ? 'background: #3b82f6;'
+                      : tiket.status === 'DALAM_PROSES' ? 'background: #f59e0b;'
+                      : tiket.status === 'SELESAI' ? 'background: #22c55e;'
+                      : 'background: #ef4444;'"></div>
+
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-center justify-between gap-2 mb-0.5">
+                      <span class="text-[9px] font-black font-mono" style="color: #94a3b8;">{{ tiket.no_tiket }}</span>
+                      <span class="text-[8px] font-black uppercase tracking-wide px-2 py-0.5 rounded-full shrink-0"
+                        :style="tiket.status === 'BARU' ? 'background: rgba(59,130,246,0.1); color: #2563eb;'
+                          : tiket.status === 'DALAM_PROSES' ? 'background: rgba(245,158,11,0.1); color: #d97706;'
+                          : tiket.status === 'SELESAI' ? 'background: rgba(34,197,94,0.1); color: #16a34a;'
+                          : 'background: rgba(239,68,68,0.1); color: #dc2626;'">
+                        {{ tiket.status === 'DALAM_PROSES' ? 'Dalam Proses' : tiket.status === 'BARU' ? 'Baru' : tiket.status === 'SELESAI' ? 'Selesai' : 'Ditolak' }}
+                      </span>
+                    </div>
+                    <p class="text-[12px] font-black leading-tight truncate" style="color: #0F172A;">{{ tiket.subjek }}</p>
+                    <p class="text-[9px] font-medium mt-0.5" style="color: #94a3b8;">{{ tiket.kategori }}</p>
+                  </div>
+
+                  <div class="flex flex-col items-end gap-1 shrink-0">
+                    <div v-if="tiket.bil_balasan > 0" class="flex items-center gap-1">
+                      <svg class="w-3 h-3" style="color: #94a3b8;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                      </svg>
+                      <span class="text-[9px] font-black" style="color: #64748b;">{{ tiket.bil_balasan }}</span>
+                    </div>
+                    <svg class="w-4 h-4" style="color: #CBD5E1;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
+                    </svg>
+                  </div>
+                </div>
+
+                <div class="px-4 py-2" style="background: #F8FAFC; border-top: 1px solid #F1F5F9;">
+                  <p class="text-[9px] font-mono" style="color: #94a3b8;">
+                    Dihantar: {{ formatTarikhPendek(tiket.tarikh_hantar) }}
+                    <span v-if="tiket.tarikh_kemaskini"> · Dikemas kini: {{ formatTarikhPendek(tiket.tarikh_kemaskini) }}</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── PAPARAN: BORANG TIKET BARU ── -->
+          <div v-else-if="paparanTiket === 'borang'" class="flex-1 overflow-y-auto">
+            <form @submit.prevent="hantarTiketBaru" class="px-5 py-4 space-y-4 pb-8">
+
+              <div class="space-y-1">
+                <label class="text-[10px] font-bold uppercase tracking-wider" style="color: #64748B;">Kategori *</label>
+                <select v-model="formTiketBaru.kategori" required
+                  class="w-full text-xs font-bold rounded-2xl px-4 py-3 outline-none"
+                  style="background: #F8FAFC; border: 1.5px solid #E2E8F0; color: #0F172A;">
+                  <option value="" disabled>— Pilih Kategori —</option>
+                  <option>Pertanyaan Umum</option>
+                  <option>Masalah Pembayaran Yuran</option>
+                  <option>Permohonan Bantuan Kebajikan</option>
+                  <option>Aduan Berkaitan Aplikasi</option>
+                  <option>Kemaskini Maklumat</option>
+                  <option>Lain-lain</option>
+                </select>
+              </div>
+
+              <div class="space-y-1">
+                <label class="text-[10px] font-bold uppercase tracking-wider" style="color: #64748B;">Tajuk / Subjek *</label>
+                <input v-model="formTiketBaru.subjek" required maxlength="200"
+                  placeholder="Ringkasan isu anda..."
+                  class="w-full text-xs font-bold rounded-2xl px-4 py-3 outline-none"
+                  style="background: #F8FAFC; border: 1.5px solid #E2E8F0; color: #0F172A;" />
+              </div>
+
+              <div class="space-y-1">
+                <label class="text-[10px] font-bold uppercase tracking-wider" style="color: #64748B;">Kandungan / Huraian *</label>
+                <textarea v-model="formTiketBaru.kandungan" rows="5" required maxlength="2000"
+                  placeholder="Huraikan masalah, pertanyaan, atau aduan anda dengan terperinci..."
+                  class="w-full text-xs font-medium rounded-2xl px-4 py-3 outline-none resize-none leading-relaxed"
+                  style="background: #F8FAFC; border: 1.5px solid #E2E8F0; color: #0F172A;"></textarea>
+                <p class="text-right text-[9px] font-medium pr-1" style="color: #94a3b8;">{{ formTiketBaru.kandungan.length }}/2000</p>
+              </div>
+
+              <!-- Nota sistem -->
+              <div class="rounded-2xl p-3.5 flex items-start gap-2.5" style="background: rgba(15,76,58,0.06); border: 1px solid rgba(15,76,58,0.12);">
+                <svg class="w-3.5 h-3.5 shrink-0 mt-0.5" style="color: #0F4C3A;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <p class="text-[9px] font-medium leading-relaxed" style="color: #1B4332;">
+                  Semua maklum balas akan dihantar <strong>melalui sistem ini</strong>.
+                  Semak semula tiket anda untuk melihat balasan dari urusetia.
+                </p>
+              </div>
+
+              <div class="flex gap-3 pb-2">
+                <button type="button" @click="paparanTiket = 'senarai'"
+                  class="flex-1 py-3.5 rounded-2xl text-xs font-black uppercase tracking-wider"
+                  style="background: #F1F5F9; color: #64748B;">
+                  Batal
+                </button>
+                <button type="submit" :disabled="loadingHantarTiket"
+                  class="flex-2 grow-2 py-3.5 rounded-2xl text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2 disabled:opacity-60"
+                  style="background: #081C15; color: #95D5B2;">
+                  <span v-if="loadingHantarTiket" class="w-3.5 h-3.5 rounded-full border-2 border-[#52B788] border-t-transparent animate-spin"></span>
+                  {{ loadingHantarTiket ? 'Menghantar...' : 'Hantar Tiket' }}
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- ── PAPARAN: DETAIL THREAD ── -->
+          <div v-else-if="paparanTiket === 'detail'" class="flex-1 flex flex-col overflow-hidden">
+
+            <!-- Loading detail -->
+            <div v-if="loadingDetailTiket" class="flex-1 flex items-center justify-center py-10 gap-2">
+              <div class="w-5 h-5 rounded-full border-2 border-t-transparent animate-spin" style="border-color: #E2E8F0; border-top-color: #52B788;"></div>
+              <span class="text-[11px] font-medium" style="color: #94a3b8;">Memuatkan perbualan...</span>
+            </div>
+
+            <template v-else-if="tiketDipilih">
+              <!-- Info tiket -->
+              <div class="shrink-0 px-4 py-3 flex items-center justify-between gap-3" style="background: #F8FAFC; border-bottom: 1px solid #F1F5F9;">
+                <div>
+                  <p class="text-[9px] font-black font-mono" style="color: #94a3b8;">{{ tiketDipilih.no_tiket }}</p>
+                  <p class="text-[11px] font-black" style="color: #0F172A;">{{ tiketDipilih.kategori }}</p>
+                </div>
+                <span class="text-[8px] font-black uppercase tracking-wide px-2.5 py-1.5 rounded-full shrink-0"
+                  :style="tiketDipilih.status === 'BARU' ? 'background: rgba(59,130,246,0.1); color: #2563eb;'
+                    : tiketDipilih.status === 'DALAM_PROSES' ? 'background: rgba(245,158,11,0.1); color: #d97706;'
+                    : tiketDipilih.status === 'SELESAI' ? 'background: rgba(34,197,94,0.1); color: #16a34a;'
+                    : 'background: rgba(239,68,68,0.1); color: #dc2626;'">
+                  {{ tiketDipilih.status === 'DALAM_PROSES' ? 'Dalam Proses'
+                     : tiketDipilih.status === 'BARU' ? 'Baru'
+                     : tiketDipilih.status === 'SELESAI' ? 'Selesai' : 'Ditolak' }}
+                </span>
+              </div>
+
+              <!-- Thread perbualan -->
+              <div ref="threadEl" class="flex-1 overflow-y-auto p-4 space-y-3">
+
+                <!-- Mesej asal -->
+                <div class="flex gap-2.5">
+                  <div class="w-7 h-7 rounded-full flex items-center justify-center shrink-0 mt-0.5 text-[11px] font-black"
+                    style="background: #1B4332; color: #95D5B2;">
+                    {{ profil.nama_penuh?.charAt(0) || '?' }}
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-center gap-2 mb-1">
+                      <span class="text-[9px] font-black" style="color: #0F172A;">Anda</span>
+                      <span class="text-[8px] font-mono" style="color: #94a3b8;">{{ formatTarikhMasa(tiketDipilih.tarikh_hantar) }}</span>
+                    </div>
+                    <div class="rounded-[16px] rounded-tl-[4px] px-4 py-3 text-[11px] font-medium leading-relaxed"
+                      style="background: #F0FDF4; border: 1px solid rgba(34,197,94,0.15); color: #0F172A;">
+                      {{ tiketDipilih.kandungan }}
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Balasan -->
+                <template v-for="balas in tiketDipilih.balasan" :key="balas.id">
+
+                  <!-- Balasan Ahli (kanan) -->
+                  <div v-if="balas.jenis === 'AHLI'" class="flex gap-2.5">
+                    <div class="w-7 h-7 rounded-full flex items-center justify-center shrink-0 mt-0.5 text-[11px] font-black"
+                      style="background: #1B4332; color: #95D5B2;">
+                      {{ profil.nama_penuh?.charAt(0) || '?' }}
+                    </div>
+                    <div class="flex-1 min-w-0">
+                      <div class="flex items-center gap-2 mb-1">
+                        <span class="text-[9px] font-black" style="color: #0F172A;">Anda</span>
+                        <span class="text-[8px] font-mono" style="color: #94a3b8;">{{ formatTarikhMasa(balas.tarikh) }}</span>
+                      </div>
+                      <div class="rounded-[16px] rounded-tl-[4px] px-4 py-3 text-[11px] font-medium leading-relaxed"
+                        style="background: #F0FDF4; border: 1px solid rgba(34,197,94,0.15); color: #0F172A;">
+                        {{ balas.kandungan }}
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Balasan Admin (kiri, latar berbeza) -->
+                  <div v-else class="flex gap-2.5 flex-row-reverse">
+                    <div class="w-7 h-7 rounded-full flex items-center justify-center shrink-0 mt-0.5 text-[11px] font-black"
+                      style="background: #081C15; color: #52B788;">U</div>
+                    <div class="flex-1 min-w-0">
+                      <div class="flex items-center gap-2 mb-1 flex-row-reverse">
+                        <span class="text-[9px] font-black" style="color: #0F172A;">{{ balas.nama_pengirim || 'Urusetia' }}</span>
+                        <span class="text-[8px] font-mono" style="color: #94a3b8;">{{ formatTarikhMasa(balas.tarikh) }}</span>
+                      </div>
+                      <div class="rounded-[16px] rounded-tr-[4px] px-4 py-3 text-[11px] font-medium leading-relaxed"
+                        style="background: #EFF6FF; border: 1px solid rgba(59,130,246,0.15); color: #0F172A;">
+                        {{ balas.kandungan }}
+                      </div>
+                    </div>
+                  </div>
+                </template>
+
+                <!-- Status penutup -->
+                <div v-if="tiketDipilih.status === 'SELESAI' || tiketDipilih.status === 'DITOLAK'"
+                  class="flex justify-center">
+                  <div class="rounded-2xl px-4 py-3 text-center max-w-xs"
+                    :style="tiketDipilih.status === 'SELESAI'
+                      ? 'background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.2);'
+                      : 'background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2);'">
+                    <p class="text-[9px] font-black uppercase tracking-wide"
+                      :style="tiketDipilih.status === 'SELESAI' ? 'color: #16a34a;' : 'color: #dc2626;'">
+                      Tiket {{ tiketDipilih.status === 'SELESAI' ? 'Diselesaikan' : 'Ditolak' }}
+                    </p>
+                    <p v-if="tiketDipilih.catatan_penutup" class="text-[10px] font-medium mt-1 leading-relaxed" style="color: #64748b;">
+                      {{ tiketDipilih.catatan_penutup }}
+                    </p>
+                  </div>
+                </div>
+
+              </div><!-- end thread -->
+
+              <!-- Kotak balas (hanya jika tiket masih terbuka) -->
+              <div v-if="tiketDipilih.status !== 'SELESAI' && tiketDipilih.status !== 'DITOLAK'"
+                class="shrink-0 p-4 flex gap-2.5 items-end"
+                style="border-top: 1px solid #F1F5F9; background: white;">
+                <textarea v-model="kandunganBalasan" rows="2"
+                  placeholder="Tulis balasan anda..."
+                  class="flex-1 text-xs font-medium rounded-2xl px-4 py-3 outline-none resize-none leading-relaxed"
+                  style="background: #F8FAFC; border: 1.5px solid #E2E8F0; color: #0F172A; max-height: 100px;"
+                  @keydown.enter.meta.prevent="hantarBalasanTiket"
+                  @keydown.enter.ctrl.prevent="hantarBalasanTiket"></textarea>
+                <button @click="hantarBalasanTiket" :disabled="!kandunganBalasan.trim() || loadingBalasan"
+                  class="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 transition-all active:scale-90 disabled:opacity-40"
+                  style="background: #081C15; color: #95D5B2;">
+                  <span v-if="loadingBalasan" class="w-4 h-4 rounded-full border-2 border-[#52B788] border-t-transparent animate-spin"></span>
+                  <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
+                  </svg>
+                </button>
+              </div>
+
+            </template>
+
+            <!-- Fallback: tiket gagal dimuatkan -->
+            <div v-else class="flex-1 flex flex-col items-center justify-center py-10 px-6 text-center gap-3">
+              <div class="w-12 h-12 rounded-2xl flex items-center justify-center" style="background: rgba(239,68,68,0.08);">
+                <svg class="w-6 h-6" style="color: #ef4444;" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"/>
+                </svg>
+              </div>
+              <p class="text-[11px] font-bold" style="color: #0F172A;">Gagal memuatkan tiket</p>
+              <button @click="paparanTiket = 'senarai'"
+                class="px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-wide transition-all active:scale-95"
+                style="background: #F1F5F9; color: #0F172A;">
+                Kembali ke senarai
+              </button>
+            </div>
+
+          </div>
+
         </div>
       </div>
     </Transition>
@@ -959,8 +1229,8 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref, computed, onMounted, nextTick } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 import { Capacitor } from '@capacitor/core';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { BiometricAuth, BiometryErrorType } from '@aparajita/capacitor-biometric-auth';
@@ -972,6 +1242,7 @@ const appVersion = __APP_VERSION__;
 import { cetakResitTransaksi, buatHtmlResit, headerResitHTML, footerResitHTML } from '../../config/kelab';
 
 const router = useRouter();
+const route  = useRoute();
 const authStore = useAuthStore();
 const adalahNative = Capacitor.isNativePlatform();
 const biometriTersedia = ref(false);
@@ -995,8 +1266,18 @@ const sejarahSemua = ref([]);
 const loadingTransaksi = ref(false);
 
 const modalHubungi = ref(false);
-const loadingHubungi = ref(false);
-const formHubungi = ref({ subjek: '', mesej: '' });
+
+// ── Sistem Tiket Sokongan ──
+const paparanTiket   = ref('senarai'); // 'senarai' | 'borang' | 'detail'
+const senaraiTiket   = ref([]);
+const loadingTiket   = ref(false);
+const tiketDipilih   = ref(null);
+const loadingDetailTiket  = ref(false);
+const formTiketBaru  = ref({ kategori: '', subjek: '', kandungan: '' });
+const loadingHantarTiket  = ref(false);
+const kandunganBalasan    = ref('');
+const loadingBalasan      = ref(false);
+const threadEl            = ref(null);
 
 // Filter & Search
 const cariTx = ref('');
@@ -1266,23 +1547,70 @@ const bukaModalTransaksi = async () => {
 
 const tutupModalHubungi = () => {
   modalHubungi.value = false;
-  formHubungi.value = { subjek: '', mesej: '' };
+  paparanTiket.value = 'senarai';
+  tiketDipilih.value = null;
+  kandunganBalasan.value = '';
+  formTiketBaru.value = { kategori: '', subjek: '', kandungan: '' };
 };
 
-const hantarHubungiKelab = async () => {
-  loadingHubungi.value = true;
+const muatSenaraiTiket = async () => {
+  loadingTiket.value = true;
   try {
-    await api.post('/user/hubungi-kelab', {
-      subjek: formHubungi.value.subjek,
-      mesej: formHubungi.value.mesej,
-    });
-    alert('Mesej anda telah berjaya dihantar kepada pihak kelab. Terima kasih.');
-    tutupModalHubungi();
+    const { data } = await api.get('/sokongan');
+    senaraiTiket.value = data.data || [];
+  } catch {} finally { loadingTiket.value = false; }
+};
+
+const bukaDetailTiket = async (id) => {
+  paparanTiket.value = 'detail';
+  loadingDetailTiket.value = true;
+  tiketDipilih.value = null;
+  try {
+    const { data } = await api.get(`/sokongan/${id}`);
+    if (!data.data) throw new Error('empty');
+    tiketDipilih.value = data.data;
+    await nextTick();
+    if (threadEl.value) threadEl.value.scrollTop = threadEl.value.scrollHeight;
+  } catch {
+    paparanTiket.value = 'senarai'; // reset dulu sebelum alert
+    tiketDipilih.value = null;
+    alert('Gagal memuatkan tiket. Sila cuba lagi.');
+  } finally { loadingDetailTiket.value = false; }
+};
+
+const hantarTiketBaru = async () => {
+  loadingHantarTiket.value = true;
+  try {
+    const { data } = await api.post('/sokongan', formTiketBaru.value);
+    alert(`Tiket ${data.no_tiket} berjaya dihantar. Kami akan membalas melalui sistem ini.`);
+    formTiketBaru.value = { kategori: '', subjek: '', kandungan: '' };
+    await muatSenaraiTiket();
+    paparanTiket.value = 'senarai';
   } catch (e) {
-    alert(e.response?.data?.message || 'Gagal menghantar mesej. Sila cuba lagi.');
-  } finally {
-    loadingHubungi.value = false;
-  }
+    alert(e.response?.data?.message || 'Gagal menghantar tiket. Sila cuba lagi.');
+  } finally { loadingHantarTiket.value = false; }
+};
+
+const hantarBalasanTiket = async () => {
+  if (!kandunganBalasan.value.trim() || !tiketDipilih.value) return;
+  loadingBalasan.value = true;
+  try {
+    await api.post(`/sokongan/${tiketDipilih.value.id}/balas`, { kandungan: kandunganBalasan.value });
+    kandunganBalasan.value = '';
+    await bukaDetailTiket(tiketDipilih.value.id);
+  } catch (e) {
+    alert(e.response?.data?.message || 'Gagal menghantar balasan.');
+  } finally { loadingBalasan.value = false; }
+};
+
+const formatTarikhPendek = (t) => {
+  if (!t) return '-';
+  return new Date(t).toLocaleDateString('ms-MY', { day: 'numeric', month: 'short', year: 'numeric' });
+};
+
+const formatTarikhMasa = (t) => {
+  if (!t) return '-';
+  return new Date(t).toLocaleString('ms-MY', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 };
 
 const bukaModalEdit = () => {
@@ -1405,6 +1733,13 @@ onMounted(async () => {
       const info = await BiometricAuth.checkBiometry();
       biometriTersedia.value = info.isAvailable;
     } catch {}
+  }
+  // Deep-link dari notifikasi: ?tiket=<id>
+  if (route.query.tiket) {
+    modalHubungi.value = true;
+    await muatSenaraiTiket();
+    await bukaDetailTiket(route.query.tiket);
+    router.replace({ query: {} });
   }
 });
 </script>

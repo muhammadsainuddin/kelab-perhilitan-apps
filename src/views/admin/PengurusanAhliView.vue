@@ -448,7 +448,7 @@
     <!-- MODAL DAFTAR STAF -->
     <Teleport to="body">
       <Transition name="modal">
-        <div v-if="showDaftar" class="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center px-4" @click.self="showDaftar = false">
+        <div v-if="showDaftar" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center px-4" @click.self="showDaftar = false">
           <div class="bg-white border border-gray-200 rounded-2xl w-full max-w-4xl shadow-2xl flex flex-col max-h-[90vh]">
             <div class="flex justify-between items-start px-5 py-4 border-b border-gray-100 shrink-0">
               <div>
@@ -521,7 +521,7 @@
     <!-- MODAL EDIT PROFIL AHLI -->
     <Teleport to="body">
       <Transition name="modal">
-        <div v-if="showEdit" class="absolute inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center px-4" @click.self="showEdit = false">
+        <div v-if="showEdit" class="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center px-4" @click.self="showEdit = false">
           <div class="bg-white border border-gray-200 rounded-2xl w-full max-w-2xl shadow-2xl max-h-[92vh] flex flex-col">
 
             <!-- Header modal dengan avatar -->

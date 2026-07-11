@@ -141,6 +141,11 @@ const routes = [
         component: () => import('../views/admin/PengurusanSumbanganView.vue')
       },
       {
+        path: 'sokongan',
+        name: 'AdminSokongan',
+        component: () => import('../views/admin/PengurusanSokonganView.vue')
+      },
+      {
         path: 'penempatan',
         name: 'AdminPenempatan',
         component: () => import('../views/admin/PengurusanPenempatanView.vue')

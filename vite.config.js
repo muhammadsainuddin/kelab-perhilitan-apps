@@ -39,8 +39,9 @@ export default defineConfig(({ command }) => ({
       output: {
         manualChunks(id) {
           if (id.includes('node_modules')) {
-            if (id.includes('@capacitor')) return 'vendor-capacitor';
-            if (id.includes('axios'))      return 'vendor-axios';
+            if (id.includes('@capacitor'))                    return 'vendor-capacitor';
+            if (id.includes('axios'))                        return 'vendor-axios';
+            if (id.includes('pdfjs-dist') || id.includes('vue-pdf-embed')) return 'vendor-pdf';
             if (id.includes('vue') || id.includes('pinia')) return 'vendor-vue';
           }
         },
@@ -81,6 +82,7 @@ export default defineConfig(({ command }) => ({
         clientsClaim: true,
         skipWaiting: true,
         globPatterns: ['**/*.{js,css,html,ico,png,svg,vue}'],
+        globIgnores: ['**/vendor-pdf*.js'],
         runtimeCaching: [
           {
             // Gambar upload dari backend — nama unik, selamat cache lama

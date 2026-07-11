@@ -9,13 +9,22 @@
           Semak permohonan bantuan ahli, kemukakan kepada jawatankuasa, dan rekod keputusan.
         </p>
       </div>
-      <button @click="muatKebajikan"
-        class="inline-flex items-center gap-1.5 text-[11px] font-bold text-gray-600 bg-white border border-gray-200 hover:bg-gray-50 px-3 py-2 rounded-lg transition-colors shrink-0">
-        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-        </svg>
-        Muat Semula
-      </button>
+      <div class="flex items-center gap-2 shrink-0">
+        <button @click="bukaModalBagiPihak"
+          class="inline-flex items-center gap-1.5 text-[11px] font-bold text-white bg-rose-700 hover:bg-rose-800 px-3 py-2 rounded-lg transition-colors shadow-sm">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+          </svg>
+          Permohonan Bagi Pihak Waris
+        </button>
+        <button @click="muatKebajikan"
+          class="inline-flex items-center gap-1.5 text-[11px] font-bold text-gray-600 bg-white border border-gray-200 hover:bg-gray-50 px-3 py-2 rounded-lg transition-colors">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+          </svg>
+          Muat Semula
+        </button>
+      </div>
     </div>
 
     <!-- STATS SUMMARY -->
@@ -192,9 +201,18 @@
               @click="bukaModal(p)">
               <!-- Pemohon -->
               <td class="px-4 py-3.5">
-                <p class="font-bold text-gray-900 text-[12px]">{{ p.nama_pegawai }}</p>
+                <div class="flex items-center gap-1.5">
+                  <p class="font-bold text-gray-900 text-[12px]">{{ p.nama_pegawai }}</p>
+                  <span v-if="p.bagi_pihak"
+                    class="text-[9px] font-bold bg-rose-100 text-rose-700 border border-rose-200 px-1.5 py-0.5 rounded-md shrink-0">
+                    Arwah
+                  </span>
+                </div>
                 <p class="text-[10px] text-gray-500 font-mono mt-0.5">{{ p.no_kp }}</p>
                 <p class="text-[10px] text-gray-400">{{ p.penempatan || '—' }}</p>
+                <p v-if="p.bagi_pihak && p.nama_pemohon_admin" class="text-[9px] text-rose-600 mt-0.5">
+                  Dikemukakan oleh: {{ p.nama_pemohon_admin }}
+                </p>
               </td>
               <!-- Jenis Bantuan -->
               <td class="px-4 py-3.5">
@@ -251,7 +269,7 @@
     <Teleport to="body">
       <Transition name="modal">
         <div v-if="showModal"
-          class="absolute inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center px-4"
+          class="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center px-4"
           @click.self="showModal = false">
           <div v-if="dipilih" class="bg-white border border-gray-200 rounded-2xl w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
 
@@ -324,22 +342,80 @@
                   </div>
                 </div>
 
+                <!-- MAKLUMAT WARIS (hanya jika bagi_pihak) -->
+                <div v-if="dipilih.bagi_pihak" class="space-y-2">
+                  <p class="text-[9px] font-bold text-rose-500 uppercase tracking-wider">Maklumat Waris (Penerima Bantuan)</p>
+                  <div class="bg-rose-50 border border-rose-200 rounded-xl p-4 space-y-3">
+                    <div class="flex items-center gap-2 mb-1">
+                      <svg class="w-3.5 h-3.5 text-rose-600 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                      </svg>
+                      <p class="text-[10px] text-rose-700 font-semibold">
+                        Permohonan ini dikemukakan bagi pihak arwah oleh {{ dipilih.nama_pemohon_admin || dipilih.pemohon_admin_no_kp }}.
+                        Wang akan dipindahkan ke akaun waris di bawah.
+                      </p>
+                    </div>
+                    <div class="grid grid-cols-2 gap-x-6 gap-y-3">
+                      <div>
+                        <p class="text-[9px] text-rose-400 font-bold uppercase tracking-wide">Nama Waris</p>
+                        <p class="font-bold text-gray-900 text-[12px] mt-0.5">{{ dipilih.nama_waris || '—' }}</p>
+                      </div>
+                      <div>
+                        <p class="text-[9px] text-rose-400 font-bold uppercase tracking-wide">Hubungan</p>
+                        <p class="font-semibold text-gray-700 text-[12px] mt-0.5">{{ dipilih.hubungan_waris || '—' }}</p>
+                      </div>
+                      <div v-if="dipilih.no_kp_waris">
+                        <p class="text-[9px] text-rose-400 font-bold uppercase tracking-wide">No. K/P Waris</p>
+                        <p class="font-mono text-gray-700 text-[11px] mt-0.5">{{ dipilih.no_kp_waris }}</p>
+                      </div>
+                      <div class="col-span-2">
+                        <p class="text-[9px] text-rose-400 font-bold uppercase tracking-wide">No. Akaun Bank (Untuk Pindahan)</p>
+                        <p class="font-black text-[#0F4C3A] text-sm font-mono mt-0.5 tracking-wider">{{ dipilih.no_akaun_waris || '—' }}</p>
+                        <p class="text-[10px] text-gray-500 mt-0.5">{{ dipilih.nama_bank_waris || '' }}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
                 <!-- DOKUMEN SOKONGAN -->
                 <div class="space-y-2">
-                  <p class="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Dokumen Sokongan</p>
-                  <div v-if="parseDokumen(dipilih.dokumen_sokongan).length > 0" class="flex flex-wrap gap-2">
-                    <a v-for="(doc, i) in parseDokumen(dipilih.dokumen_sokongan)" :key="doc"
-                      :href="`${apiBase}/uploads/bantuan/${doc}`"
-                      target="_blank"
-                      class="flex items-center gap-2 bg-blue-50 border border-blue-100 text-blue-700 px-3 py-2 rounded-lg text-[11px] font-bold hover:bg-blue-100 transition-colors">
-                      <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
-                      </svg>
-                      Lampiran {{ i + 1 }}
-                      <svg class="w-3 h-3 shrink-0 opacity-60" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
-                      </svg>
-                    </a>
+                  <p class="text-[9px] font-bold text-gray-400 uppercase tracking-wider">
+                    Dokumen Sokongan
+                    <span v-if="parseDokumen(dipilih.dokumen_sokongan).length > 0" class="normal-case font-normal ml-1">
+                      ({{ parseDokumen(dipilih.dokumen_sokongan).length }} fail)
+                    </span>
+                  </p>
+                  <div v-if="parseDokumen(dipilih.dokumen_sokongan).length > 0" class="space-y-2">
+                    <template v-for="(doc, i) in parseDokumen(dipilih.dokumen_sokongan)" :key="doc">
+                      <!-- Gambar — tunjuk thumbnail + pautan buka penuh -->
+                      <div v-if="isGambar(doc)" class="rounded-xl overflow-hidden border border-gray-200">
+                        <a :href="`${apiBase}/uploads/bantuan/${doc}`" target="_blank" rel="noopener">
+                          <img :src="`${apiBase}/uploads/bantuan/${doc}`" :alt="`Dokumen ${i + 1}`"
+                            class="w-full max-h-48 object-contain bg-gray-50 hover:opacity-90 transition-opacity" />
+                        </a>
+                        <div class="px-3 py-1.5 flex items-center justify-between bg-gray-50 border-t border-gray-100">
+                          <span class="text-[10px] text-gray-500">Gambar {{ i + 1 }}</span>
+                          <a :href="`${apiBase}/uploads/bantuan/${doc}`" target="_blank" rel="noopener"
+                            class="text-[10px] font-bold text-blue-600 hover:text-blue-800">Buka penuh ↗</a>
+                        </div>
+                      </div>
+                      <!-- PDF -->
+                      <button v-else type="button"
+                        @click="bukaPreviewPdf(`${apiBase}/uploads/bantuan/${doc}`)"
+                        class="w-full flex items-center gap-3 bg-red-50 border border-red-100 text-red-700 px-3 py-2.5 rounded-xl hover:bg-red-100 transition-colors text-left">
+                        <svg class="w-5 h-5 shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM8.5 15.5h-1V12H9c.8 0 1.5.7 1.5 1.5S9.8 15 9 15v.5h-.5zm3.5 0h-1v-3.5h1.5c1.1 0 2 .9 2 2s-.9 1.5-2 1.5H12zm5 0h-2.5V12H14v3.5h-1v-3.5h1V12h1.5c.3 0 .5.2.5.5v2.5h1v.5z"/>
+                        </svg>
+                        <div class="flex-1 min-w-0">
+                          <p class="text-[11px] font-bold truncate">PDF — Dokumen {{ i + 1 }}</p>
+                          <p class="text-[9px] opacity-60">Klik untuk lihat</p>
+                        </div>
+                        <svg class="w-3.5 h-3.5 shrink-0 opacity-50" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                        </svg>
+                      </button>
+                    </template>
                   </div>
                   <p v-else class="text-[11px] text-gray-400 italic bg-gray-50 border border-gray-100 rounded-lg px-3 py-2.5">
                     Tiada dokumen dilampirkan oleh pemohon.
@@ -461,10 +537,19 @@
                 </div>
 
                 <div class="flex items-center justify-between gap-3 flex-wrap">
-                  <button @click="showModal = false"
-                    class="px-4 py-2 text-gray-600 bg-white border border-gray-200 rounded-lg text-[11px] font-semibold hover:bg-gray-50 transition-colors">
-                    Tutup
-                  </button>
+                  <div class="flex items-center gap-2">
+                    <button @click="showModal = false"
+                      class="px-4 py-2 text-gray-600 bg-white border border-gray-200 rounded-lg text-[11px] font-semibold hover:bg-gray-50 transition-colors">
+                      Tutup
+                    </button>
+                    <button @click="bukaModalEdit"
+                      class="px-4 py-2 bg-amber-50 text-amber-700 border border-amber-200 rounded-lg text-[11px] font-bold hover:bg-amber-100 transition-colors inline-flex items-center gap-1.5">
+                      <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125"/>
+                      </svg>
+                      Edit
+                    </button>
+                  </div>
                   <div class="flex items-center gap-2">
                     <button @click="bukaModalTolak"
                       class="px-4 py-2 bg-rose-50 text-rose-700 border border-rose-200 rounded-lg text-[11px] font-bold hover:bg-rose-100 transition-colors">
@@ -505,7 +590,7 @@
     <Teleport to="body">
       <Transition name="modal">
         <div v-if="showModalLulus"
-          class="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center px-4"
+          class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center px-4"
           @click.self="showModalLulus = false">
           <div class="bg-white border border-gray-200 rounded-2xl p-6 w-full max-w-sm shadow-2xl">
             <div class="flex items-center gap-3 mb-4">
@@ -564,7 +649,7 @@
     <Teleport to="body">
       <Transition name="modal">
         <div v-if="showModalTolak"
-          class="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center px-4"
+          class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center px-4"
           @click.self="showModalTolak = false">
           <div class="bg-white border border-gray-200 rounded-2xl p-6 w-full max-w-sm shadow-2xl">
             <div class="flex items-center gap-3 mb-4">
@@ -612,14 +697,521 @@
       </Transition>
     </Teleport>
 
+    <!-- ==================== MODAL BAGI PIHAK WARIS ==================== -->
+    <Teleport to="body">
+      <Transition name="modal">
+        <div v-if="showModalBagiPihak"
+          class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center px-4"
+          @click.self="showModalBagiPihak = false">
+          <div class="bg-white border border-gray-200 rounded-2xl w-full max-w-2xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden">
+
+            <!-- Header -->
+            <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-rose-50 shrink-0">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-rose-100 flex items-center justify-center shrink-0">
+                  <svg class="w-4 h-4 text-rose-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                  </svg>
+                </div>
+                <div>
+                  <p class="font-bold text-rose-900 text-sm">Permohonan Bantuan Bagi Pihak Waris</p>
+                  <p class="text-[10px] text-rose-600">Diisi oleh AJK Negeri / Ketua PTJ bagi pihak ahli yang telah meninggal dunia</p>
+                </div>
+              </div>
+              <button @click="showModalBagiPihak = false"
+                class="text-rose-400 hover:text-rose-600 p-1 rounded-lg hover:bg-rose-100 transition-colors">
+                <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+              </button>
+            </div>
+
+            <!-- Body -->
+            <div class="flex-1 overflow-y-auto p-6 space-y-5">
+
+              <!-- Pilih ahli (si mati) -->
+              <div class="space-y-1.5">
+                <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">
+                  Nama Ahli (Arwah) <span class="text-rose-500">*</span>
+                </label>
+                <div class="relative">
+                  <input v-model="cariAhli" type="text"
+                    placeholder="Taip nama atau No. K/P untuk cari..."
+                    class="w-full text-[12px] bg-gray-50 border border-gray-200 rounded-lg px-3 py-2.5 pr-8 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-400 transition-all"
+                    @input="pilihSimati = null; formWaris.no_akaun_waris = ''; formWaris.nama_bank_waris = ''; formWaris.nama_waris = ''" />
+                  <svg v-if="!pilihSimati" class="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35m0 0A7 7 0 105.65 5.65a7 7 0 0011 11z"/>
+                  </svg>
+                </div>
+                <!-- Dropdown carian -->
+                <div v-if="cariAhli.length >= 2 && !pilihSimati && ahliTapisBagiPihak.length > 0"
+                  class="border border-gray-200 rounded-lg overflow-hidden shadow-sm max-h-48 overflow-y-auto bg-white">
+                  <button v-for="a in ahliTapisBagiPihak.slice(0, 8)" :key="a.no_kp"
+                    type="button"
+                    @click="pilihAhliSimati(a)"
+                    class="w-full text-left px-3 py-2.5 hover:bg-rose-50 transition-colors border-b border-gray-50 last:border-0">
+                    <p class="font-bold text-gray-900 text-[12px]">{{ a.nama_pegawai }}</p>
+                    <p class="text-[10px] text-gray-500 font-mono">{{ a.no_kp }} <span class="mx-1 text-gray-300">·</span> {{ a.penempatan || '—' }}</p>
+                  </button>
+                </div>
+                <!-- Ahli dipilih -->
+                <div v-if="pilihSimati"
+                  class="flex items-center justify-between bg-rose-50 border border-rose-200 rounded-lg px-3 py-2.5">
+                  <div>
+                    <p class="font-bold text-rose-900 text-[12px]">{{ pilihSimati.nama_pegawai }}</p>
+                    <p class="text-[10px] text-rose-600 font-mono">{{ pilihSimati.no_kp }} · {{ pilihSimati.penempatan || '—' }}</p>
+                  </div>
+                  <button @click="pilihSimati = null; cariAhli = ''"
+                    class="text-rose-400 hover:text-rose-600 p-1 rounded hover:bg-rose-100 transition-colors">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Jenis Bantuan -->
+              <div class="space-y-1.5">
+                <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">
+                  Jenis Bantuan <span class="text-rose-500">*</span>
+                </label>
+                <select v-model="formBagiPihak.jenis_bantuan"
+                  class="w-full text-[12px] bg-gray-50 border border-gray-200 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-400 transition-all">
+                  <option value="Khairat Kematian">Khairat Kematian</option>
+                  <option value="Kemalangan - Rawatan Luar (Tanpa Wad)">Kemalangan - Rawatan Luar (Tanpa Wad)</option>
+                  <option value="Kemalangan - Dimasukkan Wad">Kemalangan - Dimasukkan Wad</option>
+                  <option value="Bencana Alam - Banjir">Bencana Alam - Banjir</option>
+                  <option value="Bencana Alam - Kebakaran">Bencana Alam - Kebakaran</option>
+                  <option value="Persaraan">Persaraan</option>
+                </select>
+              </div>
+
+              <!-- Keterangan -->
+              <div class="space-y-1.5">
+                <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Keterangan / Kronologi</label>
+                <textarea v-model="formBagiPihak.keterangan" rows="3"
+                  placeholder="Nyatakan kronologi atau butiran kejadian..."
+                  class="w-full text-[12px] bg-gray-50 border border-gray-200 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-400 resize-none transition-all">
+                </textarea>
+              </div>
+
+              <!-- Bahagian Maklumat Waris -->
+              <div class="space-y-3">
+                <div class="flex items-center gap-2">
+                  <div class="flex-1 h-px bg-rose-100"></div>
+                  <p class="text-[9px] font-bold text-rose-500 uppercase tracking-wider px-2">Maklumat Waris (Penerima Bantuan)</p>
+                  <div class="flex-1 h-px bg-rose-100"></div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                  <!-- Nama Waris -->
+                  <div class="space-y-1">
+                    <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">
+                      Nama Penuh Waris <span class="text-rose-500">*</span>
+                    </label>
+                    <input v-model="formWaris.nama_waris" type="text" placeholder="Nama penuh waris"
+                      class="w-full text-[12px] bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-400 transition-all" />
+                  </div>
+
+                  <!-- Hubungan -->
+                  <div class="space-y-1">
+                    <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">
+                      Hubungan Dengan Arwah <span class="text-rose-500">*</span>
+                    </label>
+                    <select v-model="formWaris.hubungan_waris"
+                      class="w-full text-[12px] bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-400 transition-all">
+                      <option value="">-- Pilih --</option>
+                      <option>Suami / Isteri</option>
+                      <option>Anak</option>
+                      <option>Ibu / Bapa</option>
+                      <option>Adik-beradik</option>
+                      <option>Lain-lain</option>
+                    </select>
+                  </div>
+
+                  <!-- No K/P Waris -->
+                  <div class="space-y-1">
+                    <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">No. K/P Waris</label>
+                    <input v-model="formWaris.no_kp_waris" type="text" placeholder="000000-00-0000"
+                      class="w-full text-[12px] bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-400 font-mono transition-all" />
+                  </div>
+
+                  <!-- No Akaun -->
+                  <div class="space-y-1">
+                    <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">
+                      No. Akaun Bank <span class="text-rose-500">*</span>
+                    </label>
+                    <input v-model="formWaris.no_akaun_waris" type="text" placeholder="Contoh: 1234567890"
+                      class="w-full text-[12px] bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-400 font-mono transition-all" />
+                  </div>
+
+                  <!-- Nama Bank -->
+                  <div class="col-span-2 space-y-1">
+                    <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">
+                      Nama Bank <span class="text-rose-500">*</span>
+                    </label>
+                    <select v-model="formWaris.nama_bank_waris"
+                      class="w-full text-[12px] bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-400 transition-all">
+                      <option value="">-- Pilih Bank --</option>
+                      <option>Maybank</option>
+                      <option>CIMB Bank</option>
+                      <option>Public Bank</option>
+                      <option>RHB Bank</option>
+                      <option>Hong Leong Bank</option>
+                      <option>AmBank</option>
+                      <option>Bank Islam</option>
+                      <option>Bank Rakyat</option>
+                      <option>Bank Muamalat</option>
+                      <option>BSN (Bank Simpanan Nasional)</option>
+                      <option>Affin Bank</option>
+                      <option>Alliance Bank</option>
+                      <option>OCBC Bank</option>
+                      <option>Standard Chartered</option>
+                      <option>HSBC Bank</option>
+                      <option>Agrobank</option>
+                      <option>Lain-lain</option>
+                    </select>
+                  </div>
+                </div>
+
+                <p class="text-[10px] text-rose-500 bg-rose-50 border border-rose-100 rounded-lg px-3 py-2">
+                  Sila pastikan nombor akaun dan nama bank adalah betul. Wang bantuan akan dipindahkan terus ke akaun ini setelah diluluskan.
+                </p>
+              </div>
+
+              <!-- Upload Dokumen -->
+              <div class="space-y-1.5">
+                <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">
+                  Dokumen Sokongan <span class="text-[10px] text-gray-400 font-normal">(Sijil Kematian, dll. — Maks 20 fail)</span>
+                </label>
+                <input ref="inputDokumenBagiPihak" type="file" multiple accept=".pdf,.jpg,.jpeg,.png"
+                  @change="onDokumenBagiPihak"
+                  class="w-full text-[12px] text-gray-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-[11px] file:font-bold file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200 transition-all" />
+                <div v-if="failBagiPihak.length > 0" class="flex flex-wrap gap-1.5 mt-1">
+                  <span v-for="(f, i) in failBagiPihak" :key="i"
+                    class="text-[10px] bg-blue-50 text-blue-700 border border-blue-100 px-2 py-0.5 rounded-md font-medium">
+                    {{ f.name }}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="px-6 py-4 border-t border-gray-100 bg-gray-50/60 shrink-0">
+              <div v-if="ralatBagiPihak" class="mb-3 text-[11px] text-rose-600 bg-rose-50 border border-rose-200 rounded-lg px-3 py-2 font-semibold">
+                {{ ralatBagiPihak }}
+              </div>
+              <div class="flex items-center justify-between gap-3">
+                <button @click="showModalBagiPihak = false"
+                  class="px-4 py-2 text-gray-600 bg-white border border-gray-200 rounded-lg text-[11px] font-semibold hover:bg-gray-50 transition-colors">
+                  Batal
+                </button>
+                <button @click="hantarBagiPihak" :disabled="memprosesBagiPihak"
+                  class="px-5 py-2 bg-rose-700 hover:bg-rose-800 text-white rounded-lg text-[11px] font-bold transition-colors disabled:opacity-60 shadow-sm">
+                  {{ memprosesBagiPihak ? 'Menghantar...' : 'Hantar Permohonan' }}
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
+
+    <!-- ==================== MODAL EDIT PERMOHONAN ==================== -->
+    <Teleport to="body">
+      <Transition name="modal">
+        <div v-if="showModalEdit"
+          class="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm flex items-center justify-center px-4"
+          @click.self="showModalEdit = false">
+          <div class="bg-white border border-gray-200 rounded-2xl w-full max-w-2xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden">
+
+            <!-- Header -->
+            <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-amber-50/60 shrink-0">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center shrink-0">
+                  <svg class="w-4 h-4 text-amber-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z"/>
+                  </svg>
+                </div>
+                <div>
+                  <p class="font-bold text-gray-900 text-sm">Edit Permohonan Kebajikan</p>
+                  <p class="text-[10px] text-gray-400 font-mono">ID #{{ dipilih?.id }} · {{ dipilih?.nama_pegawai }}</p>
+                </div>
+              </div>
+              <button @click="showModalEdit = false"
+                class="text-gray-400 hover:text-gray-600 p-1 rounded-lg hover:bg-gray-100 transition-colors">
+                <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+              </button>
+            </div>
+
+            <!-- Body -->
+            <div class="flex-1 overflow-y-auto p-6 space-y-5">
+
+              <!-- Jenis Bantuan -->
+              <div class="space-y-1.5">
+                <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">
+                  Jenis Bantuan <span class="text-rose-500">*</span>
+                </label>
+                <select v-model="formEdit.jenis_bantuan"
+                  class="w-full text-[12px] bg-gray-50 border border-gray-200 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all">
+                  <option value="Khairat Kematian">Khairat Kematian</option>
+                  <option value="Kemalangan - Rawatan Luar (Tanpa Wad)">Kemalangan - Rawatan Luar (Tanpa Wad)</option>
+                  <option value="Kemalangan - Dimasukkan Wad">Kemalangan - Dimasukkan Wad</option>
+                  <option value="Bencana Alam - Banjir">Bencana Alam - Banjir</option>
+                  <option value="Bencana Alam - Kebakaran">Bencana Alam - Kebakaran</option>
+                  <option value="Persaraan">Persaraan</option>
+                </select>
+              </div>
+
+              <!-- Keterangan -->
+              <div class="space-y-1.5">
+                <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Keterangan / Kronologi</label>
+                <textarea v-model="formEdit.keterangan" rows="4"
+                  placeholder="Nyatakan kronologi atau butiran kejadian..."
+                  class="w-full text-[12px] bg-gray-50 border border-gray-200 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 resize-none transition-all">
+                </textarea>
+              </div>
+
+              <!-- Maklumat Waris (hanya jika bagi pihak) -->
+              <div v-if="dipilih?.bagi_pihak" class="space-y-3">
+                <div class="flex items-center gap-2">
+                  <div class="flex-1 h-px bg-rose-100"></div>
+                  <p class="text-[9px] font-bold text-rose-500 uppercase tracking-wider px-2">Maklumat Waris</p>
+                  <div class="flex-1 h-px bg-rose-100"></div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                  <div class="space-y-1">
+                    <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">
+                      Nama Waris <span class="text-rose-500">*</span>
+                    </label>
+                    <input v-model="formEditWaris.nama_waris" type="text" placeholder="Nama penuh waris"
+                      class="w-full text-[12px] bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-400 transition-all" />
+                  </div>
+                  <div class="space-y-1">
+                    <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">
+                      Hubungan <span class="text-rose-500">*</span>
+                    </label>
+                    <select v-model="formEditWaris.hubungan_waris"
+                      class="w-full text-[12px] bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-400 transition-all">
+                      <option value="">-- Pilih --</option>
+                      <option>Suami / Isteri</option>
+                      <option>Anak</option>
+                      <option>Ibu / Bapa</option>
+                      <option>Adik-beradik</option>
+                      <option>Lain-lain</option>
+                    </select>
+                  </div>
+                  <div class="space-y-1">
+                    <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">No. K/P Waris</label>
+                    <input v-model="formEditWaris.no_kp_waris" type="text" placeholder="000000-00-0000"
+                      class="w-full text-[12px] bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-400 font-mono transition-all" />
+                  </div>
+                  <div class="space-y-1">
+                    <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">
+                      No. Akaun Bank <span class="text-rose-500">*</span>
+                    </label>
+                    <input v-model="formEditWaris.no_akaun_waris" type="text" placeholder="Contoh: 1234567890"
+                      class="w-full text-[12px] bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-400 font-mono transition-all" />
+                  </div>
+                  <div class="col-span-2 space-y-1">
+                    <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">
+                      Nama Bank <span class="text-rose-500">*</span>
+                    </label>
+                    <select v-model="formEditWaris.nama_bank_waris"
+                      class="w-full text-[12px] bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-400 transition-all">
+                      <option value="">-- Pilih Bank --</option>
+                      <option>Maybank</option>
+                      <option>CIMB Bank</option>
+                      <option>Public Bank</option>
+                      <option>RHB Bank</option>
+                      <option>Hong Leong Bank</option>
+                      <option>AmBank</option>
+                      <option>Bank Islam</option>
+                      <option>Bank Rakyat</option>
+                      <option>Bank Muamalat</option>
+                      <option>BSN (Bank Simpanan Nasional)</option>
+                      <option>Affin Bank</option>
+                      <option>Alliance Bank</option>
+                      <option>OCBC Bank</option>
+                      <option>Standard Chartered</option>
+                      <option>HSBC Bank</option>
+                      <option>Agrobank</option>
+                      <option>Lain-lain</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Dokumen Sedia Ada -->
+              <div class="space-y-2">
+                <div class="flex items-center justify-between">
+                  <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Dokumen Sedia Ada</label>
+                  <span v-if="dokumenEditKeep.length > 0"
+                    class="text-[10px] text-gray-400">{{ dokumenEditKeep.length }} fail disimpan</span>
+                </div>
+                <div v-if="dokumenEditKeep.length > 0" class="space-y-1.5">
+                  <div v-for="(doc, i) in dokumenEditKeep" :key="doc"
+                    class="flex items-center gap-3 px-3 py-2 rounded-xl border"
+                    :class="isGambar(doc) ? 'bg-blue-50 border-blue-100' : 'bg-red-50 border-red-100'">
+                    <!-- Ikon jenis fail -->
+                    <svg v-if="!isGambar(doc)" class="w-4 h-4 shrink-0 text-red-500" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm-1 1.5L18.5 9H13V3.5z"/>
+                    </svg>
+                    <svg v-else class="w-4 h-4 shrink-0 text-blue-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                    <button v-if="!isGambar(doc)" type="button"
+                      @click="bukaPreviewPdf(`${apiBase}/uploads/bantuan/${doc}`)"
+                      class="flex-1 text-[11px] font-medium truncate text-left text-red-700 hover:text-red-900">
+                      PDF {{ i + 1 }} — Klik lihat
+                    </button>
+                    <a v-else :href="`${apiBase}/uploads/bantuan/${doc}`" target="_blank" rel="noopener"
+                      class="flex-1 text-[11px] font-medium truncate text-blue-700 hover:text-blue-900">
+                      Gambar {{ i + 1 }} ↗
+                    </a>
+                    <button type="button" @click="buangDokumenEdit(doc)"
+                      class="w-6 h-6 rounded-lg flex items-center justify-center hover:bg-rose-100 text-rose-400 hover:text-rose-600 transition-colors shrink-0"
+                      title="Buang fail ini">
+                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+                <p v-else class="text-[11px] text-gray-400 italic px-3 py-2 bg-gray-50 border border-gray-100 rounded-lg">
+                  Tiada dokumen sedia ada (semua telah dibuang atau tiada dari mula).
+                </p>
+              </div>
+
+              <!-- Tambah Dokumen Baru -->
+              <div class="space-y-1.5">
+                <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">
+                  Tambah Dokumen Baharu <span class="text-[10px] text-gray-400 font-normal">(PDF, JPG, PNG — Maks 20 fail)</span>
+                </label>
+                <input ref="inputDokumenEdit" type="file" multiple accept=".pdf,.jpg,.jpeg,.png"
+                  @change="onFailEdit"
+                  class="w-full text-[12px] text-gray-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-[11px] file:font-bold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100 transition-all" />
+                <div v-if="failEdit.length > 0" class="flex flex-wrap gap-1.5 mt-1">
+                  <span v-for="(f, i) in failEdit" :key="i"
+                    class="text-[10px] bg-amber-50 text-amber-700 border border-amber-100 px-2 py-0.5 rounded-md font-medium">
+                    {{ f.name }}
+                  </span>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Footer -->
+            <div class="px-6 py-4 border-t border-gray-100 bg-gray-50/60 shrink-0">
+              <div class="flex items-center justify-between gap-3">
+                <button @click="showModalEdit = false"
+                  class="px-4 py-2 text-gray-600 bg-white border border-gray-200 rounded-lg text-[11px] font-semibold hover:bg-gray-50 transition-colors">
+                  Batal
+                </button>
+                <button @click="simpanEdit" :disabled="memprosesEdit"
+                  class="px-5 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-[11px] font-bold transition-colors disabled:opacity-60 shadow-sm inline-flex items-center gap-2">
+                  <svg v-if="memprosesEdit" class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
+                  </svg>
+                  {{ memprosesEdit ? 'Menyimpan...' : 'Simpan Perubahan' }}
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
+
+    <!-- ==================== PDF VIEWER ==================== -->
+    <Teleport to="body">
+      <Transition name="modal">
+        <div v-if="pdfPratontonUrl"
+          class="fixed inset-0 z-[70] bg-black/80 backdrop-blur-sm flex flex-col"
+          @click.self="tutupPreviewPdf">
+
+          <!-- Toolbar -->
+          <div class="flex items-center justify-between px-4 py-3 bg-gray-900/95 shrink-0">
+            <div class="flex items-center gap-2">
+              <svg class="w-4 h-4 text-red-400 shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm-1 1.5L18.5 9H13V3.5z"/>
+              </svg>
+              <span class="text-white text-[12px] font-bold">Dokumen PDF</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <a :href="pdfPratontonUrl" download
+                class="text-[11px] font-bold text-gray-300 hover:text-white px-3 py-1.5 rounded-lg hover:bg-white/10 transition-colors inline-flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                </svg>
+                Muat Turun
+              </a>
+              <button @click="tutupPreviewPdf"
+                class="text-gray-400 hover:text-white p-1.5 rounded-lg hover:bg-white/10 transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- PDF content -->
+          <div class="flex-1 overflow-y-auto flex flex-col items-center py-6 px-4 gap-4">
+            <!-- Loading -->
+            <div v-if="pdfMuatLoading && !pdfMuatRalat"
+              class="flex flex-col items-center justify-center gap-3 text-white/60 py-20">
+              <div class="w-8 h-8 rounded-full border-2 border-white/30 border-t-white animate-spin"></div>
+              <p class="text-[12px]">Memuatkan PDF...</p>
+            </div>
+            <!-- Ralat -->
+            <div v-if="pdfMuatRalat"
+              class="flex flex-col items-center gap-3 text-white/60 py-20">
+              <svg class="w-10 h-10" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"/>
+              </svg>
+              <p class="text-[13px] font-bold text-white">Gagal memuatkan PDF</p>
+              <a :href="pdfPratontonUrl" target="_blank" rel="noopener"
+                class="text-[11px] text-blue-400 hover:text-blue-300 underline">
+                Cuba buka dalam tab baharu ↗
+              </a>
+            </div>
+            <!-- PDF Pages -->
+            <VuePdfEmbed
+              :source="pdfPratontonUrl"
+              class="w-full max-w-3xl shadow-2xl"
+              @loaded="pdfMuatLoading = false"
+              @loading-failed="pdfMuatLoading = false; pdfMuatRalat = true"
+            />
+          </div>
+
+        </div>
+      </Transition>
+    </Teleport>
+
   </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import api from '../../services/api';
+import VuePdfEmbed from 'vue-pdf-embed';
 
 const apiBase = (import.meta.env.VITE_API_URL || 'http://localhost:5001/api').replace('/api', '');
+
+// ── PDF Viewer ────────────────────────────────────────────────────────
+const pdfPratontonUrl = ref(null);
+const pdfMuatLoading = ref(false);
+const pdfMuatRalat = ref(false);
+const bukaPreviewPdf = (url) => {
+  pdfPratontonUrl.value = url;
+  pdfMuatLoading.value = true;
+  pdfMuatRalat.value = false;
+};
+const tutupPreviewPdf = () => { pdfPratontonUrl.value = null; };
 
 const senarai = ref([]);
 const loading = ref(true);
@@ -671,6 +1263,8 @@ const parseDokumen = (str) => {
   if (!str || str === '[]' || str === 'null') return [];
   try { return JSON.parse(str); } catch { return str ? [str] : []; }
 };
+
+const isGambar = (filename) => /\.(jpe?g|png|webp|gif)$/i.test(filename);
 
 const labelStatus = (s) => {
   if (!s || s === 'DIPROSES') return 'Menunggu';
@@ -833,6 +1427,180 @@ const sahkanTolak = async () => {
   } catch (e) {
     alert(e.response?.data?.message || 'Ralat menolak permohonan.');
   } finally { memproses.value = false; }
+};
+
+// ── Edit Permohonan ───────────────────────────────────────────────────
+const showModalEdit = ref(false);
+const memprosesEdit = ref(false);
+const dokumenEditKeep = ref([]);
+const failEdit = ref([]);
+const inputDokumenEdit = ref(null);
+
+const formEdit = ref({ jenis_bantuan: '', keterangan: '' });
+const formEditWaris = ref({
+  nama_waris: '', no_kp_waris: '', hubungan_waris: '', no_akaun_waris: '', nama_bank_waris: ''
+});
+
+const bukaModalEdit = () => {
+  formEdit.value = {
+    jenis_bantuan: dipilih.value.jenis_bantuan,
+    keterangan: dipilih.value.keterangan || '',
+  };
+  formEditWaris.value = {
+    nama_waris: dipilih.value.nama_waris || '',
+    no_kp_waris: dipilih.value.no_kp_waris || '',
+    hubungan_waris: dipilih.value.hubungan_waris || '',
+    no_akaun_waris: dipilih.value.no_akaun_waris || '',
+    nama_bank_waris: dipilih.value.nama_bank_waris || '',
+  };
+  dokumenEditKeep.value = [...parseDokumen(dipilih.value.dokumen_sokongan)];
+  failEdit.value = [];
+  if (inputDokumenEdit.value) inputDokumenEdit.value.value = '';
+  showModalEdit.value = true;
+};
+
+const buangDokumenEdit = (filename) => {
+  dokumenEditKeep.value = dokumenEditKeep.value.filter(f => f !== filename);
+};
+
+const onFailEdit = (e) => {
+  failEdit.value = Array.from(e.target.files || []);
+};
+
+const simpanEdit = async () => {
+  if (!formEdit.value.jenis_bantuan) return alert('Jenis bantuan wajib dipilih.');
+  memprosesEdit.value = true;
+  try {
+    const fd = new FormData();
+    fd.append('jenis_bantuan', formEdit.value.jenis_bantuan);
+    fd.append('keterangan', formEdit.value.keterangan);
+    fd.append('dokumen_keep', JSON.stringify(dokumenEditKeep.value));
+
+    if (dipilih.value.bagi_pihak) {
+      fd.append('nama_waris', formEditWaris.value.nama_waris);
+      fd.append('no_kp_waris', formEditWaris.value.no_kp_waris);
+      fd.append('hubungan_waris', formEditWaris.value.hubungan_waris);
+      fd.append('no_akaun_waris', formEditWaris.value.no_akaun_waris);
+      fd.append('nama_bank_waris', formEditWaris.value.nama_bank_waris);
+    }
+
+    for (const f of failEdit.value) fd.append('dokumen', f);
+
+    await api.put(`/admin/kebajikan/${dipilih.value.id}/edit`, fd, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+
+    showModalEdit.value = false;
+    await muatKebajikan();
+    const updated = senarai.value.find(p => p.id === dipilih.value.id);
+    if (updated) dipilih.value = updated;
+  } catch (e) {
+    alert(e.response?.data?.message || 'Ralat menyimpan perubahan.');
+  } finally {
+    memprosesEdit.value = false;
+  }
+};
+
+// ── Bagi Pihak Waris ─────────────────────────────────────────────────
+const showModalBagiPihak = ref(false);
+const memprosesBagiPihak = ref(false);
+const ralatBagiPihak = ref('');
+const cariAhli = ref('');
+const pilihSimati = ref(null);
+const senaraiAhliRingkas = ref([]);
+const failBagiPihak = ref([]);
+const inputDokumenBagiPihak = ref(null);
+
+const formBagiPihak = ref({
+  jenis_bantuan: 'Khairat Kematian',
+  keterangan: '',
+});
+
+const formWaris = ref({
+  nama_waris: '',
+  no_kp_waris: '',
+  hubungan_waris: '',
+  no_akaun_waris: '',
+  nama_bank_waris: '',
+});
+
+const ahliTapisBagiPihak = computed(() => {
+  const carian = cariAhli.value.toLowerCase();
+  if (carian.length < 2) return [];
+  return senaraiAhliRingkas.value.filter(a =>
+    a.nama_pegawai.toLowerCase().includes(carian) ||
+    a.no_kp.includes(carian)
+  );
+});
+
+const pilihAhliSimati = (ahli) => {
+  pilihSimati.value = ahli;
+  cariAhli.value = ahli.nama_pegawai;
+  // Auto-isi maklumat waris dari profil ahli jika ada
+  formWaris.value.nama_waris = ahli.nama_waris || '';
+  formWaris.value.no_akaun_waris = ahli.no_akaun_waris || '';
+  formWaris.value.nama_bank_waris = ahli.nama_bank_waris || '';
+};
+
+const onDokumenBagiPihak = (e) => {
+  failBagiPihak.value = Array.from(e.target.files || []);
+};
+
+const bukaModalBagiPihak = async () => {
+  pilihSimati.value = null;
+  cariAhli.value = '';
+  failBagiPihak.value = [];
+  ralatBagiPihak.value = '';
+  formBagiPihak.value = { jenis_bantuan: 'Khairat Kematian', keterangan: '' };
+  formWaris.value = { nama_waris: '', no_kp_waris: '', hubungan_waris: '', no_akaun_waris: '', nama_bank_waris: '' };
+  showModalBagiPihak.value = true;
+  if (senaraiAhliRingkas.value.length === 0) {
+    try {
+      const { data } = await api.get('/admin/ahli-ringkas');
+      if (data.success) senaraiAhliRingkas.value = data.data;
+    } catch {}
+  }
+};
+
+const hantarBagiPihak = async () => {
+  ralatBagiPihak.value = '';
+  if (!pilihSimati.value)
+    return (ralatBagiPihak.value = 'Sila pilih ahli (arwah) terlebih dahulu.');
+  if (!formWaris.value.nama_waris.trim())
+    return (ralatBagiPihak.value = 'Nama waris wajib diisi.');
+  if (!formWaris.value.hubungan_waris)
+    return (ralatBagiPihak.value = 'Hubungan waris wajib dipilih.');
+  if (!formWaris.value.no_akaun_waris.trim())
+    return (ralatBagiPihak.value = 'No. akaun bank waris wajib diisi.');
+  if (!formWaris.value.nama_bank_waris)
+    return (ralatBagiPihak.value = 'Nama bank waris wajib dipilih.');
+
+  memprosesBagiPihak.value = true;
+  try {
+    const fd = new FormData();
+    fd.append('no_kp_simati', pilihSimati.value.no_kp);
+    fd.append('jenis_bantuan', formBagiPihak.value.jenis_bantuan);
+    fd.append('keterangan', formBagiPihak.value.keterangan || '');
+    fd.append('nama_waris', formWaris.value.nama_waris);
+    fd.append('no_kp_waris', formWaris.value.no_kp_waris || '');
+    fd.append('hubungan_waris', formWaris.value.hubungan_waris);
+    fd.append('no_akaun_waris', formWaris.value.no_akaun_waris);
+    fd.append('nama_bank_waris', formWaris.value.nama_bank_waris);
+    for (const f of failBagiPihak.value) fd.append('dokumen', f);
+
+    const { data } = await api.post('/bantuan/mohon-bagi-pihak', fd, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    if (data.success) {
+      showModalBagiPihak.value = false;
+      await muatKebajikan();
+      alert(data.message);
+    }
+  } catch (e) {
+    ralatBagiPihak.value = e.response?.data?.message || 'Ralat menghantar permohonan.';
+  } finally {
+    memprosesBagiPihak.value = false;
+  }
 };
 
 onMounted(async () => {

@@ -115,7 +115,7 @@
     <Teleport to="body">
       <Transition name="modal">
         <div v-if="showModal"
-          class="absolute inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center px-4"
+          class="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center px-4"
           @click.self="showModal = false">
           <div v-if="dipilih" class="bg-white border border-gray-200 rounded-2xl w-full max-w-2xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
 
@@ -300,7 +300,7 @@
     <Teleport to="body">
       <Transition name="modal">
         <div v-if="showModalLulus"
-          class="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center px-4"
+          class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center px-4"
           @click.self="showModalLulus = false">
           <div class="bg-white border border-gray-200 rounded-2xl p-6 w-full max-w-sm shadow-2xl">
             <div class="flex items-center gap-3 mb-4">
@@ -344,7 +344,7 @@
     <Teleport to="body">
       <Transition name="modal">
         <div v-if="showModalTolak"
-          class="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center px-4"
+          class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center px-4"
           @click.self="showModalTolak = false">
           <div class="bg-white border border-gray-200 rounded-2xl p-6 w-full max-w-sm shadow-2xl">
             <div class="flex items-center gap-3 mb-4">

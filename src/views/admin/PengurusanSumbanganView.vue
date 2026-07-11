@@ -146,7 +146,7 @@
     <Teleport to="body">
       <Transition name="slide-up">
         <div v-if="showModalForm"
-          class="absolute inset-0 bg-white flex flex-col overflow-hidden">
+          class="fixed inset-0 z-50 bg-white flex flex-col overflow-hidden">
 
           <!-- Header -->
           <div class="flex items-center gap-4 px-6 py-4 border-b border-gray-100 bg-white shrink-0">
@@ -374,7 +374,7 @@
     ══════════════════════════════════════════════════════════════ -->
     <Teleport to="body">
       <Transition name="slide-up">
-        <div v-if="showModalRekod" class="absolute inset-0 bg-white flex flex-col overflow-hidden">
+        <div v-if="showModalRekod" class="fixed inset-0 z-50 bg-white flex flex-col overflow-hidden">
 
           <!-- Header -->
           <div class="flex items-center gap-3 px-5 py-4 border-b border-gray-100 bg-white shrink-0">
