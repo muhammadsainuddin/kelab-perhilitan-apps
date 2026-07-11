@@ -446,6 +446,13 @@ watch(() => form.value.acara_khas_id_sumbangan, async (id) => {
   } catch { /* */ } finally { loadingPakejBorang.value = false; }
 });
 
+// Auto-isi amaun dari amaun_pakej apabila pakej dipilih (boleh ubah manual)
+watch(() => form.value.pakej_id, (id) => {
+  if (!id) return;
+  const pakej = senaraiPakejBorang.value.find(p => p.id === parseInt(id));
+  if (pakej?.amaun_pakej) form.value.amaun = parseFloat(pakej.amaun_pakej);
+});
+
 const pilihJenis = (id) => {
   jenisAktif.value = id;
   form.value = formAsal(id);

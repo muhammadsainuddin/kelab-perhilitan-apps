@@ -568,19 +568,28 @@
       </div>
 
       <!-- Borang tambah manual -->
-      <div v-if="showFormSumbangan" class="px-5 py-4 border-b border-gray-100 bg-gray-50/60">
+      <div v-if="showFormSumbangan" class="px-5 py-4 border-b border-gray-100 bg-gray-50/60 space-y-2">
+        <!-- Baris 1: Acara, Pakej, Syarikat, Amaun, Tarikh -->
         <div class="grid grid-cols-1 sm:grid-cols-12 gap-2 items-end">
           <div class="sm:col-span-3">
-            <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">Nama Acara / Event <span class="text-red-500">*</span></label>
-            <input v-model="formSumbangan.nama_acara" type="text" list="senarai-acara-dl" placeholder="Cth: SAKOM 2026"
-              class="w-full bg-white border border-gray-300 text-gray-900 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-amber-500"/>
-            <datalist id="senarai-acara-dl">
-              <option v-for="a in acaraSumbangan" :key="a.nama_acara" :value="a.nama_acara"/>
-            </datalist>
+            <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">Acara Khas <span class="text-red-500">*</span></label>
+            <select v-model="formSumbangan.acara_khas_id"
+              class="w-full bg-white border border-gray-300 text-gray-900 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-amber-500">
+              <option value="">— Pilih Acara —</option>
+              <option v-for="a in senaraiAcaraKhas" :key="a.id" :value="a.id">{{ a.nama }}</option>
+            </select>
+          </div>
+          <div class="sm:col-span-2">
+            <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">Pakej</label>
+            <select v-model="formSumbangan.pakej_id" :disabled="!formSumbangan.acara_khas_id || !senaraiPakejSumb.length"
+              class="w-full bg-white border border-gray-300 text-gray-900 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-amber-500 disabled:bg-gray-50 disabled:text-gray-400">
+              <option value="">— Pilih Pakej —</option>
+              <option v-for="p in senaraiPakejSumb" :key="p.id" :value="p.id">{{ p.nama }}</option>
+            </select>
           </div>
           <div class="sm:col-span-3">
-            <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">Nama Syarikat / Penyumbang <span class="text-red-500">*</span></label>
-            <input v-model="formSumbangan.nama_penyumbang" type="text" placeholder="Nama syarikat"
+            <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">Syarikat / Penyumbang <span class="text-red-500">*</span></label>
+            <input v-model="formSumbangan.nama_penyumbang" type="text" placeholder="Nama syarikat atau individu"
               class="w-full bg-white border border-gray-300 text-gray-900 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-amber-500"/>
           </div>
           <div class="sm:col-span-2">
@@ -593,16 +602,43 @@
             <input v-model="formSumbangan.tarikh" type="date"
               class="w-full bg-white border border-gray-300 text-gray-900 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-amber-500"/>
           </div>
-          <div class="sm:col-span-2">
+        </div>
+        <!-- Baris 2: PIC, Nota, Butang -->
+        <div class="grid grid-cols-1 sm:grid-cols-12 gap-2 items-end">
+          <div class="sm:col-span-4 relative">
+            <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">PIC (Pegawai Bertanggungjawab)</label>
+            <div class="flex gap-1">
+              <input v-model="cariPicSumb" type="text" placeholder="Cari nama atau no. K/P..."
+                @focus="showPicDropdownSumb = true" @blur="setTimeout(() => showPicDropdownSumb = false, 150)"
+                class="flex-1 bg-white border border-gray-300 text-gray-900 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-amber-500"/>
+              <button v-if="formSumbangan.pic_no_kp" @click="clearPicSumb"
+                class="px-2 text-gray-400 hover:text-rose-500 border border-gray-200 rounded-lg text-xs">✕</button>
+            </div>
+            <div v-if="showPicDropdownSumb && picDicariSumb.length"
+              class="absolute z-20 left-0 right-0 bg-white border border-gray-200 rounded-lg shadow-lg mt-0.5 max-h-32 overflow-y-auto">
+              <div v-for="s in picDicariSumb" :key="s.no_kp"
+                @mousedown.prevent="pilihPicSumb(s)"
+                class="px-3 py-1.5 text-xs hover:bg-amber-50 cursor-pointer border-b border-gray-50 last:border-0">
+                <span class="font-semibold text-gray-800">{{ s.nama }}</span>
+                <span class="text-gray-400 ml-2 font-mono text-[10px]">{{ s.no_kp }}</span>
+              </div>
+            </div>
+          </div>
+          <div class="sm:col-span-5">
+            <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">Nota</label>
+            <input v-model="formSumbangan.nota" type="text" placeholder="(Pilihan)"
+              class="w-full bg-white border border-gray-300 text-gray-900 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-amber-500"/>
+          </div>
+          <div class="sm:col-span-3">
             <button @click="simpanSumbangan" :disabled="savingSumbangan"
               class="w-full bg-amber-500 hover:bg-amber-600 text-white rounded-lg px-2 py-2 text-xs font-bold disabled:opacity-60 transition-colors">
-              <span v-if="savingSumbangan" class="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin inline-block"></span>
-              <span v-else>Rekod Sumbangan</span>
+              <span v-if="savingSumbangan" class="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin inline-block mr-1"></span>
+              <span>{{ savingSumbangan ? 'Menyimpan...' : 'Rekod Sumbangan' }}</span>
             </button>
           </div>
         </div>
-        <p class="text-[10px] text-gray-400 mt-2">
-          Format CSV: <code class="bg-gray-200 px-1 rounded">nama_syarikat, amaun, nama_acara, tarikh</code>. Tarikh: YYYY-MM-DD.
+        <p class="text-[10px] text-gray-400">
+          Import CSV: <code class="bg-gray-200 px-1 rounded">nama_syarikat, amaun, nama_acara, tarikh</code>. Tarikh: YYYY-MM-DD.
         </p>
       </div>
 
@@ -854,7 +890,7 @@
               <div class="grid grid-cols-2 gap-3">
                 <div class="col-span-2 bg-gray-50 rounded-xl px-4 py-3">
                   <p class="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Acara</p>
-                  <p class="font-bold text-gray-800 text-sm mt-0.5">{{ dipilihSumbangan.nama_acara }}</p>
+                  <p class="font-bold text-gray-800 text-sm mt-0.5">{{ dipilihSumbangan.nama_acara_khas || dipilihSumbangan.nama_acara }}</p>
                 </div>
                 <div class="bg-gray-50 rounded-xl px-4 py-3">
                   <p class="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Syarikat / Penyumbang</p>
@@ -867,6 +903,17 @@
                 <div class="bg-amber-50 rounded-xl px-4 py-3 col-span-2">
                   <p class="text-[9px] font-bold text-amber-600 uppercase tracking-wider">Amaun</p>
                   <p class="font-black text-amber-700 text-xl mt-0.5 tabular-nums">{{ fmt(dipilihSumbangan.amaun) }}</p>
+                </div>
+                <div class="bg-gray-50 rounded-xl px-4 py-3">
+                  <p class="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Pakej</p>
+                  <p class="text-gray-700 text-xs mt-0.5">
+                    <span v-if="dipilihSumbangan.nama_pakej" class="text-[10px] font-semibold text-violet-700 bg-violet-50 px-1.5 py-0.5 rounded">{{ dipilihSumbangan.nama_pakej }}</span>
+                    <span v-else class="text-gray-400">—</span>
+                  </p>
+                </div>
+                <div class="bg-gray-50 rounded-xl px-4 py-3">
+                  <p class="text-[9px] font-bold text-gray-400 uppercase tracking-wider">PIC</p>
+                  <p class="text-gray-700 text-xs mt-0.5">{{ dipilihSumbangan.nama_pic || '—' }}</p>
                 </div>
                 <div class="bg-gray-50 rounded-xl px-4 py-3 col-span-2">
                   <p class="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Nota</p>
@@ -899,13 +946,23 @@
               </button>
             </div>
             <div class="p-5 space-y-3">
-              <div>
-                <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">Nama Acara <span class="text-red-500">*</span></label>
-                <input v-model="formEditSumbangan.nama_acara" type="text" list="edit-acara-dl"
-                  class="w-full bg-white border border-gray-300 text-gray-900 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-amber-500"/>
-                <datalist id="edit-acara-dl">
-                  <option v-for="a in acaraSumbangan" :key="a.nama_acara" :value="a.nama_acara"/>
-                </datalist>
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">Acara Khas <span class="text-red-500">*</span></label>
+                  <select v-model="formEditSumbangan.acara_khas_id"
+                    class="w-full bg-white border border-gray-300 text-gray-900 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-amber-500">
+                    <option value="">— Pilih Acara —</option>
+                    <option v-for="a in senaraiAcaraKhas" :key="a.id" :value="a.id">{{ a.nama }}</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">Pakej</label>
+                  <select v-model="formEditSumbangan.pakej_id" :disabled="!senaraiPakejEditSumb.length"
+                    class="w-full bg-white border border-gray-300 text-gray-900 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-amber-500 disabled:bg-gray-50 disabled:text-gray-400">
+                    <option value="">— Pilih Pakej —</option>
+                    <option v-for="p in senaraiPakejEditSumb" :key="p.id" :value="p.id">{{ p.nama }}</option>
+                  </select>
+                </div>
               </div>
               <div>
                 <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">Syarikat / Penyumbang <span class="text-red-500">*</span></label>
@@ -922,6 +979,25 @@
                   <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">Tarikh</label>
                   <input v-model="formEditSumbangan.tarikh" type="date"
                     class="w-full bg-white border border-gray-300 text-gray-900 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-amber-500"/>
+                </div>
+              </div>
+              <div class="relative">
+                <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">PIC</label>
+                <div class="flex gap-1">
+                  <input v-model="cariPicEditSumb" type="text" placeholder="Cari nama atau no. K/P..."
+                    @focus="showPicEditDropdownSumb = true" @blur="setTimeout(() => showPicEditDropdownSumb = false, 150)"
+                    class="flex-1 bg-white border border-gray-300 text-gray-900 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-amber-500"/>
+                  <button v-if="formEditSumbangan.pic_no_kp" @click="clearPicEditSumb"
+                    class="px-2 text-gray-400 hover:text-rose-500 border border-gray-200 rounded-lg text-xs">✕</button>
+                </div>
+                <div v-if="showPicEditDropdownSumb && picDicariEditSumb.length"
+                  class="absolute z-20 left-0 right-0 bg-white border border-gray-200 rounded-lg shadow-lg mt-0.5 max-h-32 overflow-y-auto">
+                  <div v-for="s in picDicariEditSumb" :key="s.no_kp"
+                    @mousedown.prevent="pilihPicEditSumb(s)"
+                    class="px-3 py-1.5 text-xs hover:bg-amber-50 cursor-pointer border-b border-gray-50 last:border-0">
+                    <span class="font-semibold text-gray-800">{{ s.nama }}</span>
+                    <span class="text-gray-400 ml-2 font-mono text-[10px]">{{ s.no_kp }}</span>
+                  </div>
                 </div>
               </div>
               <div>
@@ -1460,7 +1536,7 @@ const picDicariEditSumb = computed(() => {
 const muatStaffSumb = async () => {
   if (senaraiStaffSumb.value.length) return;
   loadingStaffSumb.value = true;
-  try { const { data } = await api.get('/admin/kewangan/staff'); senaraiStaffSumb.value = data.staff || []; }
+  try { const { data } = await api.get('/admin/kewangan/staff'); senaraiStaffSumb.value = data.data || []; }
   catch { /* */ } finally { loadingStaffSumb.value = false; }
 };
 const pilihPicSumb = (s) => { formSumbangan.value.pic_no_kp = s.no_kp; formSumbangan.value.pic_nama = s.nama; cariPicSumb.value = s.nama; showPicDropdownSumb.value = false; };
@@ -1470,18 +1546,17 @@ const clearPicEditSumb = () => { formEditSumbangan.value.pic_no_kp = ''; formEdi
 
 watch(() => formSumbangan.value.acara_khas_id, async (id) => {
   formSumbangan.value.pakej_id = '';
+  formSumbangan.value.amaun = '';
   senaraiPakejSumb.value = [];
   if (!id) return;
-  try { const { data } = await api.get(`/admin/kewangan/acara-khas/${id}/pakej`); senaraiPakejSumb.value = data.pakej?.filter(p => p.status === 'AKTIF') || []; }
+  try { const { data } = await api.get(`/admin/kewangan/acara-khas/${id}/pakej`); senaraiPakejSumb.value = (data.data || []).filter(p => p.status === 'AKTIF'); }
   catch { /* */ }
 });
 
-watch(() => formEditSumbangan.value.acara_khas_id, async (id) => {
-  formEditSumbangan.value.pakej_id = '';
-  senaraiPakejEditSumb.value = [];
+watch(() => formSumbangan.value.pakej_id, (id) => {
   if (!id) return;
-  try { const { data } = await api.get(`/admin/kewangan/acara-khas/${id}/pakej`); senaraiPakejEditSumb.value = data.pakej?.filter(p => p.status === 'AKTIF') || []; }
-  catch { /* */ }
+  const pakej = senaraiPakejSumb.value.find(p => p.id === parseInt(id));
+  if (pakej?.amaun_pakej) formSumbangan.value.amaun = parseFloat(pakej.amaun_pakej);
 });
 
 // Modal Tuntutan MAKSWIP
@@ -1503,6 +1578,20 @@ const showViewSumbangan   = ref(false);
 const showEditSumbangan   = ref(false);
 const savingEditSumbangan = ref(false);
 const formEditSumbangan   = ref({ id: null, acara_khas_id: '', pakej_id: '', nama_syarikat: '', amaun: '', tarikh: '', nota: '', pic_no_kp: '', pic_nama: '' });
+
+watch(() => formEditSumbangan.value.acara_khas_id, async (id) => {
+  formEditSumbangan.value.pakej_id = '';
+  senaraiPakejEditSumb.value = [];
+  if (!id) return;
+  try { const { data } = await api.get(`/admin/kewangan/acara-khas/${id}/pakej`); senaraiPakejEditSumb.value = (data.data || []).filter(p => p.status === 'AKTIF'); }
+  catch { /* */ }
+});
+
+watch(() => formEditSumbangan.value.pakej_id, (id) => {
+  if (!id) return;
+  const pakej = senaraiPakejEditSumb.value.find(p => p.id === parseInt(id));
+  if (pakej?.amaun_pakej) formEditSumbangan.value.amaun = parseFloat(pakej.amaun_pakej);
+});
 
 const acaraBelumDituntut = computed(() =>
   acaraSumbangan.value.filter(a => parseInt(a.bil_belum_dituntut) > 0)
@@ -1934,7 +2023,7 @@ const bukaSumbanganEdit = (r) => {
   // Muat pakej untuk acara ini jika ada
   if (r.acara_khas_id) {
     api.get(`/admin/kewangan/acara-khas/${r.acara_khas_id}/pakej`)
-      .then(({ data }) => { senaraiPakejEditSumb.value = data.pakej?.filter(p => p.status === 'AKTIF') || []; })
+      .then(({ data }) => { senaraiPakejEditSumb.value = (data.data || []).filter(p => p.status === 'AKTIF'); })
       .catch(() => {});
   } else {
     senaraiPakejEditSumb.value = [];
@@ -1944,17 +2033,19 @@ const bukaSumbanganEdit = (r) => {
 
 const simpanEditSumbangan = async () => {
   const f = formEditSumbangan.value;
-  if (!f.nama_acara?.trim() || !f.nama_syarikat?.trim() || !f.amaun || parseFloat(f.amaun) <= 0) {
+  if (!f.acara_khas_id) return alert('Sila pilih acara khas.');
+  if (!f.nama_syarikat?.trim() || !f.amaun || parseFloat(f.amaun) <= 0)
     return alert('Sila lengkapkan semua medan wajib.');
-  }
   savingEditSumbangan.value = true;
   try {
     const { data } = await api.put(`/admin/kewangan/sumbangan/${f.id}`, {
-      nama_acara:    f.nama_acara.trim(),
+      acara_khas_id: f.acara_khas_id,
+      pakej_id:      f.pakej_id || null,
       nama_syarikat: f.nama_syarikat.trim(),
       amaun:         parseFloat(f.amaun),
       tarikh:        f.tarikh || null,
       nota:          f.nota || null,
+      pic_no_kp:     f.pic_no_kp || null,
     });
     if (data.success) {
       showEditSumbangan.value = false;
@@ -2031,22 +2122,25 @@ watch(tabAktif, async (newVal) => {
 
 // ── Simpan sumbangan ──
 const simpanSumbangan = async () => {
-  if (!formSumbangan.value.nama_penyumbang || !formSumbangan.value.amaun || parseFloat(formSumbangan.value.amaun) <= 0) {
+  const f = formSumbangan.value;
+  if (!f.acara_khas_id) return alert('Sila pilih acara khas.');
+  if (!f.nama_penyumbang?.trim() || !f.amaun || parseFloat(f.amaun) <= 0)
     return alert('Sila isi nama syarikat/penyumbang dan amaun yang sah.');
-  }
-  if (!formSumbangan.value.nama_acara?.trim()) {
-    return alert('Sila isi nama acara / event.');
-  }
   savingSumbangan.value = true;
   try {
     const { data } = await api.post('/admin/kewangan/sumbangan', {
-      nama_syarikat: formSumbangan.value.nama_penyumbang,
-      amaun:         formSumbangan.value.amaun,
-      nama_acara:    formSumbangan.value.nama_acara,
-      tarikh:        formSumbangan.value.tarikh || null,
+      acara_khas_id: f.acara_khas_id,
+      pakej_id:      f.pakej_id || null,
+      nama_syarikat: f.nama_penyumbang.trim(),
+      amaun:         f.amaun,
+      tarikh:        f.tarikh || null,
+      nota:          f.nota || null,
+      pic_no_kp:     f.pic_no_kp || null,
     });
     if (data.success) {
-      formSumbangan.value = { nama_penyumbang: '', amaun: '', nama_acara: formSumbangan.value.nama_acara, program: '', tarikh: '' };
+      const kekalAcara = f.acara_khas_id;
+      formSumbangan.value = { acara_khas_id: kekalAcara, pakej_id: '', nama_penyumbang: '', amaun: '', tarikh: new Date().toISOString().split('T')[0], nota: '', pic_no_kp: '', pic_nama: '' };
+      cariPicSumb.value = '';
       await muatSumbangan();
     }
   } catch (e) { alert(e.response?.data?.message || 'Gagal menyimpan sumbangan.'); }
@@ -2309,6 +2403,7 @@ const cetakSumbangan = () => {
 onMounted(async () => {
   await Promise.all([muatSenaraiAhli(), muatData(), muatTransaksi(), muatAcaraKhas()]);
   muatBakiTerkumpul();
+  muatStaffSumb();
 });
 </script>
 

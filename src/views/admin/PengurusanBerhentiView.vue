@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="space-y-4 font-sans text-gray-900 pb-10 text-xs">
 
     <!-- HEADER -->
@@ -82,6 +82,9 @@
                 <p class="font-bold text-gray-900 text-[12px]">{{ p.nama_pegawai }}</p>
                 <p class="text-[10px] text-gray-500 font-mono mt-0.5">{{ p.no_kp }}</p>
                 <p class="text-[10px] text-gray-400">{{ p.penempatan || '—' }}</p>
+                <span v-if="isAngkasa(p)" class="inline-block mt-1 text-[9px] font-bold bg-blue-50 text-blue-600 border border-blue-100 px-1.5 py-0.5 rounded">
+                  Angkasa
+                </span>
               </td>
               <td class="px-4 py-3.5 hidden lg:table-cell text-gray-500 max-w-[280px]">
                 <p class="truncate text-[11px]" :title="p.sebab_berhenti">{{ p.sebab_berhenti || '—' }}</p>
@@ -90,9 +93,9 @@
                 <span :class="['text-[10px] font-bold px-2.5 py-1 rounded-md uppercase tracking-wide whitespace-nowrap', badgeStatus(p.status_permohonan)]">
                   {{ labelStatus(p.status_permohonan) }}
                 </span>
-                <p v-if="p.status_permohonan === 'DITOLAK' && p.catatan_admin"
-                  class="text-rose-600 text-[10px] mt-0.5 truncate max-w-[150px]" :title="p.catatan_admin">
-                  {{ p.catatan_admin }}
+                <p v-if="p.status_permohonan === 'LULUS' && isAngkasa(p) && !p.id_transaksi_bayar_semula && p.jumlah_lebih_potong"
+                  class="text-amber-600 text-[10px] mt-0.5 font-bold">
+                  Bayar semula belum selesai
                 </p>
               </td>
               <td class="px-4 py-3.5 text-gray-500 hidden md:table-cell text-[11px] whitespace-nowrap">
@@ -172,6 +175,14 @@
                         <span v-if="dipilih.gred" class="text-gray-400"> · {{ dipilih.gred }}</span>
                       </p>
                     </div>
+                    <div>
+                      <p class="text-[9px] text-gray-400 font-bold uppercase tracking-wide">Kaedah Bayaran</p>
+                      <p class="font-semibold text-gray-700 text-[11px] mt-0.5">{{ dipilih.jenis_potongan || '—' }}</p>
+                    </div>
+                    <div v-if="isAngkasa(dipilih)">
+                      <p class="text-[9px] text-gray-400 font-bold uppercase tracking-wide">Yuran Bulanan</p>
+                      <p class="font-semibold text-gray-700 text-[11px] mt-0.5">RM {{ parseFloat(dipilih.yuran_kelab_bulanan || 0).toFixed(2) }}</p>
+                    </div>
                   </div>
                 </div>
 
@@ -219,7 +230,9 @@
                           <p class="text-[11px] font-bold text-gray-700">Keputusan Jawatankuasa</p>
                           <template v-if="dipilih.status_permohonan === 'LULUS'">
                             <p class="text-[11px] font-black text-emerald-700 mt-1">Diluluskan — keahlian ditamatkan</p>
-                            <p class="text-[10px] text-emerald-600 mt-0.5">Status akaun ahli telah ditetapkan kepada tidak aktif.</p>
+                            <p v-if="dipilih.tarikh_berhenti" class="text-[10px] text-emerald-600 mt-0.5">
+                              Tarikh berhenti: <strong>{{ formatTarikh(dipilih.tarikh_berhenti) }}</strong>
+                            </p>
                           </template>
                           <template v-else-if="dipilih.status_permohonan === 'DITOLAK'">
                             <p class="text-[10px] font-bold text-rose-600 uppercase tracking-wide mt-1">Sebab Penolakan:</p>
@@ -233,6 +246,40 @@
                         <span v-else-if="dipilih.status_permohonan === 'DITOLAK'" class="text-[9px] font-bold bg-rose-50 text-rose-600 border border-rose-100 px-2 py-0.5 rounded-md shrink-0">Tolak</span>
                         <span v-else class="text-[9px] font-bold bg-gray-50 text-gray-400 border border-gray-100 px-2 py-0.5 rounded-md shrink-0">Belum</span>
                       </div>
+
+                      <!-- Step 3: Angkasa (hanya ahli Angkasa yang diluluskan) -->
+                      <template v-if="dipilih.status_permohonan === 'LULUS' && isAngkasa(dipilih)">
+                        <div class="flex items-start gap-3 px-4 py-3">
+                          <div :class="['w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 mt-0.5',
+                            dipilih.id_transaksi_bayar_semula ? 'bg-emerald-100 border-emerald-300'
+                            : dipilih.jumlah_lebih_potong ? 'bg-blue-100 border-blue-300'
+                            : 'bg-gray-50 border-gray-200']">
+                            <div :class="['w-2 h-2 rounded-full',
+                              dipilih.id_transaksi_bayar_semula ? 'bg-emerald-500'
+                              : dipilih.jumlah_lebih_potong ? 'bg-blue-500'
+                              : 'bg-gray-300']"></div>
+                          </div>
+                          <div class="flex-1">
+                            <p class="text-[11px] font-bold text-gray-700">Pembayaran Semula Potongan Angkasa</p>
+                            <template v-if="dipilih.id_transaksi_bayar_semula">
+                              <p class="text-[11px] font-black text-emerald-700 mt-1">Selesai — RM {{ parseFloat(dipilih.jumlah_lebih_potong || 0).toFixed(2) }} dikembalikan</p>
+                              <p class="text-[10px] text-emerald-600 mt-0.5">Rujukan: {{ dipilih.no_rujukan_bayar_semula || `#${dipilih.id_transaksi_bayar_semula}` }}</p>
+                            </template>
+                            <template v-else-if="dipilih.jumlah_lebih_potong">
+                              <p class="text-[11px] text-amber-700 mt-1">
+                                {{ dipilih.bil_bulan_lebih }} bulan lebih potong · RM {{ parseFloat(dipilih.jumlah_lebih_potong).toFixed(2) }}
+                              </p>
+                              <p class="text-[10px] text-amber-600 mt-0.5">Menunggu pembayaran semula kepada ahli</p>
+                            </template>
+                            <template v-else>
+                              <p class="text-[10px] text-gray-400 mt-0.5">Belum dikira — tetapkan tarikh henti Angkasa di bawah</p>
+                            </template>
+                          </div>
+                          <span v-if="dipilih.id_transaksi_bayar_semula" class="text-[9px] font-bold bg-emerald-50 text-emerald-600 border border-emerald-100 px-2 py-0.5 rounded-md shrink-0">Selesai</span>
+                          <span v-else-if="dipilih.jumlah_lebih_potong" class="text-[9px] font-bold bg-amber-50 text-amber-600 border border-amber-100 px-2 py-0.5 rounded-md shrink-0">Belum</span>
+                          <span v-else class="text-[9px] font-bold bg-gray-50 text-gray-400 border border-gray-100 px-2 py-0.5 rounded-md shrink-0">Belum</span>
+                        </div>
+                      </template>
 
                     </div>
                   </div>
@@ -260,6 +307,78 @@
                     <strong>Jika diluluskan</strong>, akaun ahli akan ditetapkan kepada <strong>tidak aktif</strong> secara automatik dan ahli tidak akan dapat log masuk ke aplikasi.
                   </p>
                 </div>
+
+                <!-- ─── SEKSYEN ANGKASA (hanya jika sudah LULUS + ahli Angkasa) ─── -->
+                <template v-if="dipilih.status_permohonan === 'LULUS' && isAngkasa(dipilih)">
+                  <div class="border border-blue-200 rounded-xl overflow-hidden">
+                    <div class="bg-blue-50 px-4 py-2.5 border-b border-blue-100">
+                      <p class="text-[10px] font-bold text-blue-800 uppercase tracking-wider">Pengurusan Potongan Biro Angkasa</p>
+                    </div>
+                    <div class="p-4 space-y-4">
+
+                      <!-- Tarikh henti angkasa -->
+                      <div v-if="!dipilih.id_transaksi_bayar_semula">
+                        <p class="text-[9px] font-bold text-gray-500 uppercase tracking-wide mb-2">
+                          Tarikh Akhir Potongan Angkasa
+                          <span class="font-normal text-gray-400">(bulan terakhir potongan masih berlaku)</span>
+                        </p>
+                        <div class="flex gap-2 items-end">
+                          <div class="flex-1">
+                            <input type="date" v-model="tarikhHentiAngkasa"
+                              :max="new Date().toISOString().split('T')[0]"
+                              class="w-full text-[12px] bg-white border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" />
+                          </div>
+                          <button @click="kiraMlebihPotong" :disabled="!tarikhHentiAngkasa || memprosesAngkasa"
+                            class="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-lg text-[11px] font-bold transition-colors shrink-0 whitespace-nowrap">
+                            {{ memprosesAngkasa ? 'Mengira...' : 'Kira Lebih Potong' }}
+                          </button>
+                        </div>
+                      </div>
+
+                      <!-- Hasil kiraan -->
+                      <div v-if="dipilih.jumlah_lebih_potong !== null && dipilih.jumlah_lebih_potong !== undefined"
+                        class="bg-amber-50 border border-amber-200 rounded-xl p-4">
+                        <p class="text-[9px] font-bold text-amber-700 uppercase tracking-wider mb-3">Lebih Potong Dikira</p>
+                        <div class="grid grid-cols-3 gap-4">
+                          <div>
+                            <p class="text-[9px] text-gray-400">Tarikh Berhenti</p>
+                            <p class="font-bold text-gray-800 text-[12px]">{{ formatTarikh(dipilih.tarikh_berhenti) }}</p>
+                          </div>
+                          <div>
+                            <p class="text-[9px] text-gray-400">Henti Angkasa</p>
+                            <p class="font-bold text-gray-800 text-[12px]">{{ formatTarikh(dipilih.tarikh_henti_angkasa) }}</p>
+                          </div>
+                          <div>
+                            <p class="text-[9px] text-gray-400">Bulan Lebih Potong</p>
+                            <p class="font-bold text-gray-800 text-[12px]">{{ dipilih.bil_bulan_lebih }} bulan</p>
+                          </div>
+                        </div>
+                        <div class="mt-3 pt-3 border-t border-amber-200 flex items-center justify-between">
+                          <div>
+                            <p class="text-[9px] text-amber-700 font-bold uppercase">Jumlah Perlu Dikembalikan</p>
+                            <p class="text-xl font-black text-amber-800 tabular-nums">RM {{ parseFloat(dipilih.jumlah_lebih_potong).toFixed(2) }}</p>
+                          </div>
+                          <!-- Butang bayar semula -->
+                          <button v-if="!dipilih.id_transaksi_bayar_semula"
+                            @click="bukaModalBayarSemula"
+                            class="px-4 py-2 bg-[#0F4C3A] hover:bg-[#155d47] text-white rounded-lg text-[11px] font-bold transition-colors shadow-sm whitespace-nowrap">
+                            Rekod Pembayaran Semula
+                          </button>
+                          <div v-else class="text-right">
+                            <span class="text-[9px] font-bold bg-emerald-100 text-emerald-700 border border-emerald-200 px-2.5 py-1 rounded-md">Sudah Dibayar</span>
+                            <p class="text-[10px] text-emerald-600 mt-1">{{ dipilih.no_rujukan_bayar_semula }}</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Jika belum ada kiraan -->
+                      <div v-else class="bg-gray-50 rounded-lg border border-gray-200 px-4 py-3 text-center">
+                        <p class="text-[11px] text-gray-400">Masukkan tarikh akhir potongan dan klik <strong>Kira Lebih Potong</strong> untuk mengira.</p>
+                      </div>
+
+                    </div>
+                  </div>
+                </template>
 
               </div>
             </div>
@@ -319,6 +438,23 @@
               <p class="font-bold text-gray-900 text-[12px]">{{ dipilih?.nama_pegawai }}</p>
               <p class="text-[10px] font-mono text-gray-500 mt-0.5">{{ dipilih?.no_kp }}</p>
             </div>
+
+            <!-- Tarikh berhenti -->
+            <div class="space-y-1.5 mb-4">
+              <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">
+                Tarikh Berhenti <span class="text-rose-500">*</span>
+              </label>
+              <input type="date" v-model="tarikhBerhentiLulus"
+                :max="new Date().toISOString().split('T')[0]"
+                :class="['w-full text-[12px] bg-gray-50 border rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 transition-all',
+                  tunjukRalatLulus && !tarikhBerhentiLulus
+                    ? 'border-rose-400 focus:ring-rose-500/20 focus:border-rose-500'
+                    : 'border-gray-300 focus:ring-[#0F4C3A]/20 focus:border-[#0F4C3A]']" />
+              <p v-if="tunjukRalatLulus && !tarikhBerhentiLulus" class="text-[10px] text-rose-600 font-bold">
+                Tarikh berhenti wajib diisi.
+              </p>
+            </div>
+
             <div class="bg-amber-50 border border-amber-100 rounded-lg px-3 py-2.5 mb-5">
               <p class="text-[11px] text-amber-800 leading-relaxed">
                 Akaun ahli ini akan ditetapkan kepada <strong>tidak aktif</strong>. Ahli tidak akan dapat log masuk selepas ini.
@@ -392,6 +528,77 @@
       </Transition>
     </Teleport>
 
+
+    <!-- ==================== MODAL BAYAR SEMULA ==================== -->
+    <Teleport to="body">
+      <Transition name="modal">
+        <div v-if="showModalBayarSemula"
+          class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center px-4"
+          @click.self="showModalBayarSemula = false">
+          <div class="bg-white border border-gray-200 rounded-2xl p-6 w-full max-w-sm shadow-2xl">
+            <div class="flex items-center gap-3 mb-4">
+              <div class="w-9 h-9 rounded-xl bg-blue-100 flex items-center justify-center shrink-0">
+                <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/>
+                </svg>
+              </div>
+              <div>
+                <h3 class="font-bold text-gray-900 text-sm">Rekod Pembayaran Semula</h3>
+                <p class="text-[10px] text-gray-500">Masukkan ke ledjer sebagai perbelanjaan</p>
+              </div>
+            </div>
+
+            <div class="bg-blue-50 border border-blue-100 rounded-lg p-3 mb-4 space-y-1">
+              <div class="flex justify-between">
+                <span class="text-[10px] text-gray-500">Penerima</span>
+                <span class="text-[11px] font-bold text-gray-800">{{ dipilih?.nama_pegawai }}</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-[10px] text-gray-500">Bulan lebih potong</span>
+                <span class="text-[11px] font-bold text-gray-800">{{ dipilih?.bil_bulan_lebih }} bulan</span>
+              </div>
+              <div class="flex justify-between border-t border-blue-200 pt-1 mt-1">
+                <span class="text-[10px] font-bold text-blue-700">Jumlah Bayar Semula</span>
+                <span class="text-[13px] font-black text-blue-800 tabular-nums">RM {{ parseFloat(dipilih?.jumlah_lebih_potong || 0).toFixed(2) }}</span>
+              </div>
+            </div>
+
+            <div class="space-y-3 mb-4">
+              <div>
+                <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">Tarikh Bayaran</label>
+                <input type="date" v-model="tarikhBayarSemula"
+                  :max="new Date().toISOString().split('T')[0]"
+                  class="w-full text-[12px] bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" />
+              </div>
+              <div>
+                <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider block mb-1">Nota (pilihan)</label>
+                <input type="text" v-model="notaBayarSemula"
+                  placeholder="Nota tambahan..."
+                  class="w-full text-[12px] bg-gray-50 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" />
+              </div>
+            </div>
+
+            <div class="bg-amber-50 border border-amber-100 rounded-lg px-3 py-2.5 mb-4">
+              <p class="text-[11px] text-amber-800 leading-relaxed">
+                Rekod ini akan dimasukkan ke <strong>Ledjer Utama</strong> sebagai perbelanjaan kategori Kebajikan.
+              </p>
+            </div>
+
+            <div class="flex gap-2 pt-3 border-t border-gray-100">
+              <button @click="showModalBayarSemula = false"
+                class="flex-1 py-2.5 bg-white border border-gray-200 text-gray-600 rounded-lg text-[11px] font-semibold hover:bg-gray-50 transition-colors">
+                Batal
+              </button>
+              <button @click="sahkanBayarSemula" :disabled="memprosesAngkasa"
+                class="flex-[2] py-2.5 bg-[#0F4C3A] hover:bg-[#155d47] text-white rounded-lg text-[11px] font-bold transition-colors disabled:opacity-60 shadow-sm">
+                {{ memprosesAngkasa ? 'Memproses...' : 'Sahkan & Rekod Pembayaran' }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
+
   </div>
 </template>
 
@@ -407,14 +614,24 @@ const showModal  = ref(false);
 const dipilih    = ref(null);
 const catatanAdmin = ref('');
 
-const showModalLulus = ref(false);
-const showModalTolak = ref(false);
-const sebabTolak     = ref('');
-const tunjukRalat    = ref(false);
-const memproses      = ref(false);
+const showModalLulus    = ref(false);
+const showModalTolak    = ref(false);
+const showModalBayarSemula = ref(false);
+
+const sebabTolak         = ref('');
+const tunjukRalat        = ref(false);
+const tunjukRalatLulus   = ref(false);
+const memproses          = ref(false);
+const memprosesAngkasa   = ref(false);
+
+const tarikhBerhentiLulus = ref('');
+const tarikhHentiAngkasa  = ref('');
+const tarikhBayarSemula   = ref(new Date().toISOString().split('T')[0]);
+const notaBayarSemula     = ref('');
 
 // ── Helpers ──────────────────────────────────────────────────────────
-const isMenunggu = (status) => !status || status === 'MENUNGGU';
+const isMenunggu  = (status) => !status || status === 'MENUNGGU';
+const isAngkasa   = (p) => p?.jenis_potongan === 'Potongan Biro angkasa';
 
 const labelStatus = (s) => {
   if (!s || s === 'MENUNGGU') return 'Menunggu';
@@ -465,12 +682,19 @@ const muatData = async () => {
 
 // ── Modal ─────────────────────────────────────────────────────────────
 const bukaModal = (p) => {
-  dipilih.value    = p;
-  catatanAdmin.value = p.catatan_admin || '';
-  showModal.value  = true;
+  dipilih.value         = { ...p };
+  catatanAdmin.value    = p.catatan_admin || '';
+  tarikhHentiAngkasa.value = p.tarikh_henti_angkasa
+    ? new Date(p.tarikh_henti_angkasa).toISOString().split('T')[0]
+    : '';
+  showModal.value = true;
 };
 
 const bukaModalLulus = () => {
+  tunjukRalatLulus.value   = false;
+  tarikhBerhentiLulus.value = dipilih.value?.tarikh_berhenti
+    ? new Date(dipilih.value.tarikh_berhenti).toISOString().split('T')[0]
+    : new Date().toISOString().split('T')[0];
   showModalLulus.value = true;
 };
 
@@ -480,13 +704,22 @@ const bukaModalTolak = () => {
   showModalTolak.value = true;
 };
 
+const bukaModalBayarSemula = () => {
+  tarikhBayarSemula.value = new Date().toISOString().split('T')[0];
+  notaBayarSemula.value   = '';
+  showModalBayarSemula.value = true;
+};
+
 const sahkanLulus = async () => {
+  tunjukRalatLulus.value = true;
+  if (!tarikhBerhentiLulus.value) return;
   memproses.value = true;
   try {
     await api.put(`/admin/berhenti/${dipilih.value.id}`, {
       no_kp: dipilih.value.no_kp,
       status_permohonan: 'LULUS',
       catatan_admin: catatanAdmin.value || null,
+      tarikh_berhenti: tarikhBerhentiLulus.value,
     });
     showModalLulus.value = false;
     showModal.value      = false;
@@ -512,6 +745,42 @@ const sahkanTolak = async () => {
   } catch (e) {
     alert(e.response?.data?.message || 'Ralat menolak permohonan.');
   } finally { memproses.value = false; }
+};
+
+const kiraMlebihPotong = async () => {
+  if (!tarikhHentiAngkasa.value) return;
+  memprosesAngkasa.value = true;
+  try {
+    const { data } = await api.put(`/admin/berhenti/${dipilih.value.id}/angkasa`, {
+      tarikh_henti_angkasa: tarikhHentiAngkasa.value,
+    });
+    if (data.success) {
+      dipilih.value.tarikh_henti_angkasa = tarikhHentiAngkasa.value;
+      dipilih.value.bil_bulan_lebih      = data.bil_bulan_lebih;
+      dipilih.value.jumlah_lebih_potong  = data.jumlah_lebih_potong;
+      await muatData();
+    }
+  } catch (e) {
+    alert(e.response?.data?.message || 'Ralat mengira lebih potong.');
+  } finally { memprosesAngkasa.value = false; }
+};
+
+const sahkanBayarSemula = async () => {
+  memprosesAngkasa.value = true;
+  try {
+    const { data } = await api.post(`/admin/berhenti/${dipilih.value.id}/bayar-semula`, {
+      tarikh: tarikhBayarSemula.value,
+      nota:   notaBayarSemula.value || null,
+    });
+    if (data.success) {
+      showModalBayarSemula.value = false;
+      showModal.value = false;
+      await muatData();
+      alert(data.message);
+    }
+  } catch (e) {
+    alert(e.response?.data?.message || 'Ralat merekod pembayaran semula.');
+  } finally { memprosesAngkasa.value = false; }
 };
 
 onMounted(muatData);
