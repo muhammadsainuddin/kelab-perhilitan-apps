@@ -1236,11 +1236,12 @@ import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { BiometricAuth, BiometryErrorType } from '@aparajita/capacitor-biometric-auth';
 import api from '../../services/api';
 import { useAuthStore } from '../../stores/auth';
+import { cetakResitTransaksi, buatHtmlResit, headerResitHTML, footerResitHTML } from '../../config/kelab';
+import { useToast } from '../../composables/useToast';
 
 const uploadBase = import.meta.env.VITE_UPLOAD_URL || 'http://localhost:5001';
 const appVersion = __APP_VERSION__;
-import { cetakResitTransaksi, buatHtmlResit, headerResitHTML, footerResitHTML } from '../../config/kelab';
-
+const toast  = useToast();
 const router = useRouter();
 const route  = useRoute();
 const authStore = useAuthStore();
@@ -1503,12 +1504,12 @@ const triggerUpload = async () => {
       const formData = new FormData();
       formData.append('gambar', blob, `profile-${Date.now()}.jpg`);
       await api.put('/user/kemaskini-gambar', formData);
+      toast.sukses('Gambar profil anda berjaya dikemas kini.');
       await fetchProfil();
-      alert("Gambar profil anda berjaya dikemas kini!");
     } catch (err) {
       const msg = err?.message || '';
       if (!msg.includes('cancel') && !msg.includes('dismiss') && !msg.includes('No image')) {
-        alert("Gagal memuat naik gambar profil.");
+        toast.ralat('Gagal memuat naik gambar profil.');
       }
     } finally {
       uploadingGambar.value = false;
@@ -1530,10 +1531,10 @@ const onFileChange = async (e) => {
     const formData = new FormData();
     formData.append('gambar', blob, `profile-${Date.now()}.jpg`);
     await api.put('/user/kemaskini-gambar', formData);
+    toast.sukses('Gambar profil anda berjaya dikemas kini.');
     await fetchProfil();
-    alert("Gambar profil anda berjaya dikemas kini!");
   } catch {
-    alert("Gagal memuat naik gambar profil.");
+    toast.ralat('Gagal memuat naik gambar profil.');
   } finally {
     uploadingGambar.value = false;
     e.target.value = '';
@@ -1574,7 +1575,7 @@ const bukaDetailTiket = async (id) => {
   } catch {
     paparanTiket.value = 'senarai'; // reset dulu sebelum alert
     tiketDipilih.value = null;
-    alert('Gagal memuatkan tiket. Sila cuba lagi.');
+    toast.ralat('Gagal memuatkan tiket. Sila cuba lagi.');
   } finally { loadingDetailTiket.value = false; }
 };
 
@@ -1582,12 +1583,12 @@ const hantarTiketBaru = async () => {
   loadingHantarTiket.value = true;
   try {
     const { data } = await api.post('/sokongan', formTiketBaru.value);
-    alert(`Tiket ${data.no_tiket} berjaya dihantar. Kami akan membalas melalui sistem ini.`);
+    toast.sukses(`Tiket ${data.no_tiket} berjaya dihantar. Kami akan membalas melalui sistem ini.`);
     formTiketBaru.value = { kategori: '', subjek: '', kandungan: '' };
     await muatSenaraiTiket();
     paparanTiket.value = 'senarai';
   } catch (e) {
-    alert(e.response?.data?.message || 'Gagal menghantar tiket. Sila cuba lagi.');
+    toast.ralat(e.response?.data?.message || 'Gagal menghantar tiket. Sila cuba lagi.');
   } finally { loadingHantarTiket.value = false; }
 };
 
@@ -1599,7 +1600,7 @@ const hantarBalasanTiket = async () => {
     kandunganBalasan.value = '';
     await bukaDetailTiket(tiketDipilih.value.id);
   } catch (e) {
-    alert(e.response?.data?.message || 'Gagal menghantar balasan.');
+    toast.ralat(e.response?.data?.message || 'Gagal menghantar balasan.');
   } finally { loadingBalasan.value = false; }
 };
 
@@ -1650,7 +1651,7 @@ const simpanProfil = async () => {
 
     if (pwdForm.value.newPassword && pwdForm.value.newPassword.trim() !== '') {
       if (pwdForm.value.newPassword !== pwdForm.value.confirmPassword) {
-        alert("Sila pastikan pengesahan kata laluan baru adalah sepadan.");
+        toast.amaran('Sila pastikan pengesahan kata laluan baru adalah sepadan.');
         loading.value = false;
         return;
       }
@@ -1660,11 +1661,11 @@ const simpanProfil = async () => {
       });
     }
 
-    alert("Segala perubahan profil berjaya disimpan.");
+    toast.sukses('Segala perubahan profil berjaya disimpan.');
     modalEdit.value = false;
     fetchProfil();
   } catch (e) {
-    alert(e.response?.data?.message || "Gagal mengemaskini maklumat akaun.");
+    toast.ralat(e.response?.data?.message || 'Gagal mengemaskini maklumat akaun.');
   } finally { loading.value = false; }
 };
 
@@ -1689,11 +1690,11 @@ const hantarBerhenti = async () => {
     await api.post('/user/mohon-berhenti', {
       sebab_berhenti: `${formBerhenti.value.sebab_utama}: ${formBerhenti.value.ulasan}`
     });
-    alert("Permohonan berhenti anda telah dihantar kepada urusetia untuk semakan.");
+    toast.sukses('Permohonan berhenti anda telah dihantar kepada urusetia untuk semakan.');
     modalBerhenti.value = false;
     await muatStatusBerhenti();
   } catch (error) {
-    alert(error.response?.data?.message || "Gagal memproses permohonan penamatan.");
+    toast.ralat(error.response?.data?.message || 'Gagal memproses permohonan penamatan.');
   } finally { loading.value = false; }
 };
 
@@ -1718,7 +1719,7 @@ const togolBiometrik = async () => {
   } catch (err) {
     const cancelCodes = [BiometryErrorType.userCancel, BiometryErrorType.systemCancel, BiometryErrorType.appCancel];
     if (!cancelCodes.includes(err?.code)) {
-      alert('Cap jari tidak dapat disahkan. Sila cuba lagi.');
+      toast.ralat('Cap jari tidak dapat disahkan. Sila cuba lagi.');
     }
   }
 };

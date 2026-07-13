@@ -402,9 +402,11 @@
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import api from '../../services/api';
+import { useToast } from '../../composables/useToast';
 
 const uploadBase = import.meta.env.VITE_UPLOAD_URL || 'http://localhost:5001';
 
+const toast  = useToast();
 const router = useRouter();
 const profil = ref({});
 const sejarahBantuan = ref([]);
@@ -444,7 +446,7 @@ const handleFileUpload = (e) => {
   if (file && file.type === 'application/pdf') {
     failTerpilih.value = file;
   } else {
-    alert("Hanya fail berformat PDF (.pdf) sahaja dibenarkan.");
+    toast.amaran('Hanya fail berformat PDF (.pdf) sahaja dibenarkan.');
     e.target.value = '';
     failTerpilih.value = null;
   }
@@ -479,8 +481,7 @@ const hantarPermohonan = async () => {
       headers: { 'Content-Type': 'multipart/form-data' }
     });
 
-    // Alert dipapar untuk beri feedback pantas kemudian tutup modal
-    alert('Permohonan kebajikan anda berjaya dihantar ke sistem untuk semakan urusetia.');
+    toast.sukses('Permohonan kebajikan anda berjaya dihantar ke sistem untuk semakan urusetia.');
     closeModal();
     fetchSejarahBantuan();
 

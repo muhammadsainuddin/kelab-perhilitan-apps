@@ -468,7 +468,9 @@ import api from '../../services/api';
 import ModalBorangAcara from '../../components/aktiviti/ModalBorangAcara.vue';
 import ModalSenaraiPeserta from '../../components/aktiviti/ModalSenaraiPeserta.vue';
 import PanelKontinjenSukan from '../../components/aktiviti/PanelKontinjenSukan.vue';
+import { useToast } from '../../composables/useToast';
 
+const toast   = useToast();
 const apiBase = (import.meta.env.VITE_API_URL || 'http://localhost:5001/api').replace('/api', '');
 
 // STATE UTAMA
@@ -594,7 +596,7 @@ const padamAcaraId = async (id) => {
       setTimeout(() => { successMsg.value = ''; }, 3000);
     }
   } catch {
-    alert('Gagal memadam acara.');
+    toast.ralat('Gagal memadam acara.');
   }
 };
 
@@ -610,7 +612,7 @@ const paparkanPeserta = async (acara) => {
       paparanModalPeserta.value = true;
     }
   } catch {
-    alert('Gagal mengambil senarai peserta.');
+    toast.ralat('Gagal mengambil senarai peserta.');
   }
 };
 

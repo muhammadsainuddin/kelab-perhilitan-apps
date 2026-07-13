@@ -265,6 +265,9 @@
 import { ref, computed, watch } from 'vue';
 import api from '../../services/api';
 import { KELAB } from '../../config/kelab';
+import { useToast } from '../../composables/useToast';
+
+const toast = useToast();
 
 const props = defineProps({
   show: Boolean,
@@ -298,7 +301,7 @@ watch(() => props.show, async (val) => {
       });
     }
   } catch {
-    alert('Gagal memuatkan data analisis kontinjen.');
+    toast.ralat('Gagal memuatkan data analisis kontinjen.');
     emit('tutup');
   } finally {
     loading.value = false;
@@ -361,7 +364,7 @@ const simpanJersi = async (penyertaan_id, sukan, nilai) => {
       if (p) p.no_jersi = nilai;
     }
   } catch {
-    alert('Gagal menyimpan nombor jersi.');
+    toast.ralat('Gagal menyimpan nombor jersi.');
   } finally {
     jersiLoading.value[key] = false;
   }

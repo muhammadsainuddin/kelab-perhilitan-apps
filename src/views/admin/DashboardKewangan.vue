@@ -193,6 +193,7 @@
               <th class="px-4 py-3">Pihak</th>
               <th class="px-5 py-3 text-right text-rose-600">Debit (–) RM</th>
               <th class="px-5 py-3 text-right text-emerald-600">Kredit (+) RM</th>
+              <th class="px-4 py-3">Direkod Oleh</th>
               <th class="px-4 py-3 text-center">Tindakan</th>
             </tr>
           </thead>
@@ -245,8 +246,12 @@
                 <span v-if="tx.jenis_aliran === 'MASUK'" class="font-bold tabular-nums text-emerald-600 text-[12px]">{{ num(tx.amaun) }}</span>
                 <span v-else class="text-gray-300 text-[11px]">—</span>
               </td>
+              <td class="px-4 py-2.5">
+                <span v-if="tx.nama_direkod_oleh" class="text-[11px] text-gray-700">{{ tx.nama_direkod_oleh }}</span>
+                <span v-else class="text-[9px] text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded font-medium">AUTO</span>
+              </td>
               <td class="px-4 py-2.5 text-center">
-                <div class="flex items-center justify-center gap-1">
+                <div v-if="tx.direkod_oleh" class="flex items-center justify-center gap-1">
                   <button @click="bukaEdit(tx)" title="Edit rekod"
                     class="w-7 h-7 rounded-md flex items-center justify-center text-blue-600 hover:bg-blue-50 border border-transparent hover:border-blue-200 transition-colors">
                     <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -260,6 +265,7 @@
                     </svg>
                   </button>
                 </div>
+                <span v-else class="text-[9px] text-gray-400 font-medium">AUTO</span>
               </td>
             </tr>
           </tbody>
@@ -653,15 +659,16 @@
               <th class="px-4 py-3">Tarikh</th>
               <th class="px-4 py-3">Nota</th>
               <th class="px-5 py-3 text-right">Amaun (RM)</th>
+              <th class="px-4 py-3">Direkod Oleh</th>
               <th class="px-4 py-3 text-center">Tindakan</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-100">
             <tr v-if="loadingSumbangan">
-              <td colspan="7" class="px-5 py-10 text-center text-gray-400 text-xs">Memuatkan...</td>
+              <td colspan="8" class="px-5 py-10 text-center text-gray-400 text-xs">Memuatkan...</td>
             </tr>
             <tr v-else-if="rekodSumbanganSemua.length === 0">
-              <td colspan="7" class="px-5 py-14 text-center text-gray-400 text-xs">
+              <td colspan="8" class="px-5 py-14 text-center text-gray-400 text-xs">
                 Tiada rekod sumbangan. Mulakan dengan tambah sumbangan syarikat untuk sesuatu acara.
               </td>
             </tr>
@@ -672,6 +679,7 @@
               <td class="px-4 py-2.5 text-[10px] text-gray-500 font-mono">{{ r.tarikh }}</td>
               <td class="px-4 py-2.5 text-[10px] text-gray-400 max-w-[160px] truncate">{{ r.nota || '—' }}</td>
               <td class="px-5 py-2.5 text-right font-black text-amber-700 tabular-nums text-[12px]">{{ num(r.amaun) }}</td>
+              <td class="px-4 py-2.5 text-[11px] text-gray-700">{{ r.nama_direkod_oleh || r.direkod_oleh || '—' }}</td>
               <td class="px-4 py-2.5 text-center">
                 <div class="flex items-center justify-center gap-1">
                   <button @click="bukaSumbanganView(r)" title="Lihat"
@@ -699,7 +707,7 @@
           </tbody>
           <tfoot v-if="rekodSumbanganSemua.length > 0" class="border-t-2 border-gray-200 bg-gray-50">
             <tr>
-              <td colspan="6" class="px-5 py-2.5 text-[10px] font-bold text-gray-500 uppercase">
+              <td colspan="7" class="px-5 py-2.5 text-[10px] font-bold text-gray-500 uppercase">
                 Jumlah {{ rekodSumbanganSemua.length }} rekod
               </td>
               <td class="px-5 py-2.5 text-right font-black text-amber-800 tabular-nums text-[13px]">
@@ -727,6 +735,7 @@
               <th class="px-4 py-2">Nota</th>
               <th class="px-4 py-2 text-right">Jumlah Kasar</th>
               <th class="px-5 py-2 text-right">Bersih Diterima</th>
+              <th class="px-4 py-2">Direkod Oleh</th>
               <th class="px-4 py-2 text-center">Dokumen</th>
             </tr>
           </thead>
@@ -738,6 +747,7 @@
               <td class="px-4 py-2.5 text-[10px] text-gray-400 max-w-[160px] truncate">{{ t.nota || '—' }}</td>
               <td class="px-4 py-2.5 text-right text-[11px] text-amber-700 font-semibold tabular-nums">{{ num(t.jumlah_kasar) }}</td>
               <td class="px-5 py-2.5 text-right text-[12px] font-black text-emerald-700 tabular-nums">{{ num(t.jumlah_bersih) }}</td>
+              <td class="px-4 py-2.5 text-[11px] text-gray-700">{{ t.nama_direkod_oleh || t.direkod_oleh || '—' }}</td>
               <td class="px-4 py-2.5 text-center">
                 <a v-if="t.fail_dokumen" :href="apiBase + t.fail_dokumen" target="_blank"
                   class="inline-flex items-center gap-1 text-[9px] font-bold text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-2 py-0.5 rounded transition-colors">
@@ -1099,6 +1109,119 @@
                 <textarea v-model="formEdit.nota" rows="2" placeholder="Huraian transaksi..."
                   class="w-full bg-gray-50 border border-gray-300 text-gray-900 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-[#0F4C3A] resize-none"></textarea>
               </div>
+
+              <!-- Dokumen Sokongan -->
+              <div>
+                <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2">Dokumen Sokongan</label>
+
+                <!-- Fail sedia ada -->
+                <div v-if="failEditSediaAda.length" class="space-y-1.5 mb-2">
+                  <div v-for="(fp, i) in failEditSediaAda" :key="i"
+                    :class="['flex items-center gap-2 rounded-lg px-3 py-2 border transition-colors',
+                      failEditPadam.includes(fp) ? 'bg-rose-50 border-rose-300 opacity-60' : 'bg-gray-50 border-gray-200']">
+                    <!-- Thumbnail / ikon -->
+                    <div class="w-7 h-7 rounded overflow-hidden bg-gray-100 shrink-0 flex items-center justify-center">
+                      <img v-if="/\.(webp|jpg|jpeg|png|gif)$/i.test(fp)" :src="apiBase + fp"
+                        class="w-full h-full object-cover" @error="$event.target.style.display='none'" />
+                      <svg v-else class="w-3.5 h-3.5 text-rose-500" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M7 3a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8l-5-5H7zm5 1l4 4h-4V4zM9 13h6v1H9v-1zm0 3h4v1H9v-1z"/>
+                      </svg>
+                    </div>
+                    <span class="flex-1 text-[10px] text-gray-600 truncate">{{ fp.split('/').pop() }}</span>
+                    <!-- Lihat -->
+                    <a :href="apiBase + fp" target="_blank"
+                      class="text-[9px] font-bold text-blue-600 hover:text-blue-800 px-1.5 py-0.5 rounded bg-blue-50 hover:bg-blue-100 transition-colors shrink-0">
+                      Lihat
+                    </a>
+                    <!-- Tanda padam / batal -->
+                    <button type="button" @click="tandaPadam(fp)"
+                      :class="['text-[9px] font-bold px-1.5 py-0.5 rounded transition-colors shrink-0',
+                        failEditPadam.includes(fp)
+                          ? 'bg-amber-100 text-amber-700 hover:bg-amber-200'
+                          : 'bg-rose-50 text-rose-600 hover:bg-rose-100']">
+                      {{ failEditPadam.includes(fp) ? 'Batal' : 'Padam' }}
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Fail baru dipilih -->
+                <div v-if="failEditBaru.length" class="space-y-1.5 mb-2">
+                  <div v-for="(e, i) in failEditBaru" :key="i"
+                    class="flex items-center gap-2 bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-2">
+                    <div class="w-7 h-7 rounded overflow-hidden bg-white shrink-0 flex items-center justify-center border border-emerald-200">
+                      <img v-if="e.preview" :src="e.preview" class="w-full h-full object-cover" />
+                      <svg v-else class="w-3.5 h-3.5 text-rose-500" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M7 3a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8l-5-5H7zm5 1l4 4h-4V4zM9 13h6v1H9v-1zm0 3h4v1H9v-1z"/>
+                      </svg>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                      <p class="text-[10px] font-semibold text-emerald-800 truncate">{{ e.fail.name }}</p>
+                      <p class="text-[9px] text-emerald-600">{{ (e.fail.size / 1024).toFixed(0) }} KB · Baru</p>
+                    </div>
+                    <button type="button" @click="buangFailEdit(i)"
+                      class="text-emerald-600 hover:text-rose-500 transition-colors shrink-0">
+                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Drop zone tambah fail -->
+                <div @click="$refs.inputFailEdit.click()" @dragover.prevent
+                  @drop.prevent="tambahFailEdit($event.dataTransfer.files)"
+                  class="flex items-center justify-center gap-2 border border-dashed border-gray-300 rounded-lg px-3 py-3 cursor-pointer hover:bg-gray-50 transition-colors">
+                  <svg class="w-3.5 h-3.5 text-gray-400 shrink-0" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/>
+                  </svg>
+                  <p class="text-[10px] text-gray-500"><span class="font-semibold text-gray-700">Tambah fail</span> — gambar atau PDF (maks 5)</p>
+                  <input ref="inputFailEdit" type="file" multiple accept=".jpg,.jpeg,.jfif,.png,.webp,.pdf"
+                    class="hidden" @change="tambahFailEdit($event.target.files)" />
+                </div>
+                <p v-if="ralatFailEdit" class="mt-1 text-[10px] text-rose-600 font-medium">{{ ralatFailEdit }}</p>
+              </div>
+            </div>
+
+            <!-- Sejarah Edit -->
+            <div v-if="loadingLog || logEdit.length" class="border-t border-gray-100 px-6 py-4 bg-gray-50/40">
+              <p class="text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-3">Sejarah Kemaskini</p>
+
+              <div v-if="loadingLog" class="flex items-center gap-2 text-gray-400">
+                <div class="w-3 h-3 rounded-full border-2 border-gray-300 border-t-gray-500 animate-spin"></div>
+                <span class="text-[11px]">Memuatkan...</span>
+              </div>
+
+              <div v-else class="space-y-3">
+                <div v-for="log in logEdit" :key="log.id" class="bg-white border border-gray-200 rounded-xl p-3">
+                  <!-- Header log -->
+                  <div class="flex items-center justify-between mb-2">
+                    <div class="flex items-center gap-2">
+                      <div class="w-5 h-5 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
+                        <svg class="w-2.5 h-2.5 text-blue-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+                        </svg>
+                      </div>
+                      <span class="text-[11px] font-bold text-gray-800">{{ log.nama_editor || log.diedit_oleh || '—' }}</span>
+                    </div>
+                    <span class="text-[10px] text-gray-400 font-mono">{{ new Date(log.tarikh_edit).toLocaleString('ms-MY', { dateStyle: 'short', timeStyle: 'short' }) }}</span>
+                  </div>
+
+                  <!-- Perubahan -->
+                  <div class="space-y-1">
+                    <template v-for="(nilaiSelepas, kunci) in (typeof log.selepas === 'string' ? JSON.parse(log.selepas) : log.selepas)" :key="kunci">
+                      <div v-if="(typeof log.sebelum === 'string' ? JSON.parse(log.sebelum) : log.sebelum)[kunci] != nilaiSelepas"
+                        class="flex items-start gap-2 text-[10px]">
+                        <span class="text-gray-400 w-24 shrink-0 capitalize">{{ kunci.replace('_', ' ') }}</span>
+                        <span class="text-rose-600 line-through truncate max-w-[100px]">{{ (typeof log.sebelum === 'string' ? JSON.parse(log.sebelum) : log.sebelum)[kunci] ?? '—' }}</span>
+                        <svg class="w-2.5 h-2.5 text-gray-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                        </svg>
+                        <span class="text-emerald-700 font-semibold truncate max-w-[100px]">{{ nilaiSelepas ?? '—' }}</span>
+                      </div>
+                    </template>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <!-- Footer -->
@@ -1432,9 +1555,11 @@ import { Chart, registerables } from 'chart.js';
 import api from '../../services/api';
 import { headerResitHTML, footerResitHTML } from '../../config/kelab';
 import ModalBorangKewangan from '../../components/kewangan/ModalBorangKewangan.vue';
+import { useToast } from '../../composables/useToast';
 
 Chart.register(...registerables);
 
+const toast = useToast();
 const apiBase = (import.meta.env.VITE_API_URL || 'http://localhost:5001/api').replace('/api', '');
 
 const LABEL_KATEGORI = {
@@ -1494,10 +1619,16 @@ const produkLaris      = ref([]);
 const loadingProduk    = ref(false);
 
 // Edit transaksi
-const showEditModal  = ref(false);
-const savingEdit     = ref(false);
-const editingId      = ref(null);
-const formEdit       = ref({ jenis_aliran: 'KELUAR', kategori: '', amaun: '', nota: '', rujukan: '', penerima_bayaran: '', tarikh: '' });
+const showEditModal      = ref(false);
+const savingEdit         = ref(false);
+const editingId          = ref(null);
+const formEdit           = ref({ jenis_aliran: 'KELUAR', kategori: '', amaun: '', nota: '', rujukan: '', penerima_bayaran: '', tarikh: '' });
+const failEditSediaAda   = ref([]);
+const failEditPadam      = ref([]);
+const failEditBaru       = ref([]);
+const ralatFailEdit      = ref('');
+const logEdit            = ref([]);
+const loadingLog         = ref(false);
 
 // Sumbangan MAKSWIP
 const showFormSumbangan       = ref(false);
@@ -1817,7 +1948,6 @@ const onTransaksiBerjaya = async (jenis) => {
 // ── Edit & Padam Transaksi ──
 const bukaEdit = (tx) => {
   editingId.value = tx.id;
-  // tx.tarikh format dari DB: "DD-MM-YYYY HH:mm" — balik sekali sahaja jadi YYYY-MM-DD
   const tarikh = tx.tarikh
     ? tx.tarikh.substring(0, 10).split('-').reverse().join('-')
     : new Date().toISOString().split('T')[0];
@@ -1830,12 +1960,54 @@ const bukaEdit = (tx) => {
     penerima_bayaran: tx.penerima_bayaran || tx.nama_ahli || '',
     tarikh,
   };
-  showEditModal.value = true;
+  // Dokumen sedia ada — mysql2 auto-parse JSON column
+  let fd = tx.fail_dokumen;
+  if (typeof fd === 'string') { try { fd = JSON.parse(fd); } catch { fd = []; } }
+  failEditSediaAda.value = Array.isArray(fd) ? fd : [];
+  failEditPadam.value    = [];
+  failEditBaru.value     = [];
+  ralatFailEdit.value    = '';
+  logEdit.value          = [];
+  showEditModal.value    = true;
+
+  // Muatkan log edit secara async
+  loadingLog.value = true;
+  api.get(`/admin/kewangan/transaksi/${tx.id}/log`)
+    .then(r => { logEdit.value = r.data.data || []; })
+    .catch(() => {})
+    .finally(() => { loadingLog.value = false; });
+};
+
+const tambahFailEdit = (files) => {
+  ralatFailEdit.value = '';
+  const senarai = Array.from(files || []);
+  const jumlahKekal = failEditSediaAda.value.filter(f => !failEditPadam.value.includes(f)).length;
+  if (jumlahKekal + failEditBaru.value.length + senarai.length > 5) {
+    ralatFailEdit.value = 'Maksimum 5 fail sahaja dibenarkan.'; return;
+  }
+  for (const f of senarai) {
+    if (f.size > 20 * 1024 * 1024) { ralatFailEdit.value = `${f.name} melebihi had 20MB.`; continue; }
+    failEditBaru.value.push({ fail: f, preview: f.type.startsWith('image/') ? URL.createObjectURL(f) : null });
+  }
+};
+
+const buangFailEdit = (i) => {
+  const e = failEditBaru.value[i];
+  if (e?.preview) URL.revokeObjectURL(e.preview);
+  failEditBaru.value.splice(i, 1);
+};
+
+const tandaPadam = (path) => {
+  if (failEditPadam.value.includes(path)) {
+    failEditPadam.value = failEditPadam.value.filter(p => p !== path);
+  } else {
+    failEditPadam.value.push(path);
+  }
 };
 
 const simpanEdit = async () => {
   if (!formEdit.value.kategori || !formEdit.value.amaun || parseFloat(formEdit.value.amaun) <= 0) {
-    return alert('Sila isi kategori dan amaun yang sah.');
+    toast.amaran('Sila isi kategori dan amaun yang sah.'); return;
   }
   const jenis = formEdit.value.jenis_aliran === 'MASUK' ? 'KREDIT' : 'DEBIT';
   const sahkan = confirm(
@@ -1849,15 +2021,30 @@ const simpanEdit = async () => {
 
   savingEdit.value = true;
   try {
-    const { data } = await api.put(`/admin/kewangan/transaksi/${editingId.value}`, formEdit.value);
+    const fd = new FormData();
+    fd.append('jenis_aliran',     formEdit.value.jenis_aliran);
+    fd.append('kategori',         formEdit.value.kategori);
+    fd.append('amaun',            formEdit.value.amaun);
+    fd.append('nota',             formEdit.value.nota || '');
+    fd.append('rujukan',          formEdit.value.rujukan || '');
+    fd.append('penerima_bayaran', formEdit.value.penerima_bayaran || '');
+    fd.append('tarikh',           formEdit.value.tarikh || '');
+    fd.append('fail_padam',       JSON.stringify(failEditPadam.value));
+    failEditBaru.value.forEach(e => fd.append('dokumen', e.fail));
+
+    const { data } = await api.put(`/admin/kewangan/transaksi/${editingId.value}`, fd);
     if (data.success) {
+      toast.sukses('Rekod berjaya dikemaskini.');
+      failEditBaru.value.forEach(e => e.preview && URL.revokeObjectURL(e.preview));
+      api.get(`/admin/kewangan/transaksi/${editingId.value}/log`)
+        .then(r => { logEdit.value = r.data.data || []; }).catch(() => {});
       showEditModal.value = false;
       await Promise.all([muatData(), muatTransaksi()]);
     } else {
-      alert(data.message || 'Gagal mengemaskini rekod.');
+      toast.ralat(data.message || 'Gagal mengemaskini rekod.');
     }
   } catch (e) {
-    alert(e.response?.data?.message || 'Ralat mengemaskini rekod.');
+    toast.ralat(e.response?.data?.message || 'Ralat mengemaskini rekod.');
   } finally {
     savingEdit.value = false;
   }
@@ -1868,13 +2055,14 @@ const padamTx = async (tx) => {
   try {
     const { data } = await api.delete(`/admin/kewangan/transaksi/${tx.id}`);
     if (data.success) {
+      toast.sukses('Rekod berjaya dipadam.');
       await muatData();
       await muatTransaksi();
     } else {
-      alert(data.message || 'Gagal memadam rekod.');
+      toast.ralat(data.message || 'Gagal memadam rekod.');
     }
   } catch (e) {
-    alert(e.response?.data?.message || 'Ralat memadam rekod.');
+    toast.ralat(e.response?.data?.message || 'Ralat memadam rekod.');
   }
 };
 
@@ -1974,10 +2162,11 @@ const bukaModalTuntutan = () => {
 };
 
 const sahkanTuntutan = async () => {
-  if (!formTuntutan.value.acara_khas_id) return alert('Sila pilih acara khas.');
-  if (!formTuntutan.value.jumlah_bersih || parseFloat(formTuntutan.value.jumlah_bersih) <= 0)
-    return alert('Sila masukkan jumlah bersih diterima.');
-  if (!formTuntutan.value.tarikh_tuntutan) return alert('Sila pilih tarikh tuntutan.');
+  if (!formTuntutan.value.acara_khas_id) { toast.amaran('Sila pilih acara khas.'); return; }
+  if (!formTuntutan.value.jumlah_bersih || parseFloat(formTuntutan.value.jumlah_bersih) <= 0) {
+    toast.amaran('Sila masukkan jumlah bersih diterima.'); return;
+  }
+  if (!formTuntutan.value.tarikh_tuntutan) { toast.amaran('Sila pilih tarikh tuntutan.'); return; }
 
   savingTuntutan.value = true;
   try {
@@ -1992,13 +2181,13 @@ const sahkanTuntutan = async () => {
       headers: { 'Content-Type': 'multipart/form-data' }
     });
     if (data.success) {
+      toast.sukses(data.message || 'Tuntutan berjaya direkod.');
       showModalTuntutan.value = false;
-      alert(data.message);
       await muatSumbangan();
       await muatData();
       await muatTransaksi();
     }
-  } catch (e) { alert(e.response?.data?.message || 'Ralat menyimpan tuntutan.'); }
+  } catch (e) { toast.ralat(e.response?.data?.message || 'Ralat menyimpan tuntutan.'); }
   finally { savingTuntutan.value = false; }
 };
 
@@ -2033,9 +2222,10 @@ const bukaSumbanganEdit = (r) => {
 
 const simpanEditSumbangan = async () => {
   const f = formEditSumbangan.value;
-  if (!f.acara_khas_id) return alert('Sila pilih acara khas.');
-  if (!f.nama_syarikat?.trim() || !f.amaun || parseFloat(f.amaun) <= 0)
-    return alert('Sila lengkapkan semua medan wajib.');
+  if (!f.acara_khas_id) { toast.amaran('Sila pilih acara khas.'); return; }
+  if (!f.nama_syarikat?.trim() || !f.amaun || parseFloat(f.amaun) <= 0) {
+    toast.amaran('Sila lengkapkan semua medan wajib.'); return;
+  }
   savingEditSumbangan.value = true;
   try {
     const { data } = await api.put(`/admin/kewangan/sumbangan/${f.id}`, {
@@ -2048,10 +2238,11 @@ const simpanEditSumbangan = async () => {
       pic_no_kp:     f.pic_no_kp || null,
     });
     if (data.success) {
+      toast.sukses('Sumbangan berjaya dikemaskini.');
       showEditSumbangan.value = false;
       await muatSumbangan();
     }
-  } catch (e) { alert(e.response?.data?.message || 'Ralat mengemaskini rekod.'); }
+  } catch (e) { toast.ralat(e.response?.data?.message || 'Ralat mengemaskini rekod.'); }
   finally { savingEditSumbangan.value = false; }
 };
 
@@ -2060,7 +2251,7 @@ const padamRekodSumbangan = async (r) => {
   try {
     const { data } = await api.delete(`/admin/kewangan/sumbangan/${r.id}`);
     if (data.success) await muatSumbangan();
-  } catch (e) { alert(e.response?.data?.message || 'Ralat memadam rekod.'); }
+  } catch (e) { toast.ralat(e.response?.data?.message || 'Ralat memadam rekod.'); }
 };
 
 const debounceSearch = () => {
@@ -2123,9 +2314,10 @@ watch(tabAktif, async (newVal) => {
 // ── Simpan sumbangan ──
 const simpanSumbangan = async () => {
   const f = formSumbangan.value;
-  if (!f.acara_khas_id) return alert('Sila pilih acara khas.');
-  if (!f.nama_penyumbang?.trim() || !f.amaun || parseFloat(f.amaun) <= 0)
-    return alert('Sila isi nama syarikat/penyumbang dan amaun yang sah.');
+  if (!f.acara_khas_id) { toast.amaran('Sila pilih acara khas.'); return; }
+  if (!f.nama_penyumbang?.trim() || !f.amaun || parseFloat(f.amaun) <= 0) {
+    toast.amaran('Sila isi nama syarikat/penyumbang dan amaun yang sah.'); return;
+  }
   savingSumbangan.value = true;
   try {
     const { data } = await api.post('/admin/kewangan/sumbangan', {
@@ -2140,10 +2332,11 @@ const simpanSumbangan = async () => {
     if (data.success) {
       const kekalAcara = f.acara_khas_id;
       formSumbangan.value = { acara_khas_id: kekalAcara, pakej_id: '', nama_penyumbang: '', amaun: '', tarikh: new Date().toISOString().split('T')[0], nota: '', pic_no_kp: '', pic_nama: '' };
+      toast.sukses('Sumbangan berjaya direkod.');
       cariPicSumb.value = '';
       await muatSumbangan();
     }
-  } catch (e) { alert(e.response?.data?.message || 'Gagal menyimpan sumbangan.'); }
+  } catch (e) { toast.ralat(e.response?.data?.message || 'Gagal menyimpan sumbangan.'); }
   finally { savingSumbangan.value = false; }
 };
 
@@ -2168,7 +2361,7 @@ const handleCsvSumbangan = async (e) => {
   try {
     const teks = await file.text();
     const baris = teks.split(/\r?\n/).filter(b => b.trim() !== '');
-    if (baris.length === 0) return alert('Fail CSV kosong.');
+    if (baris.length === 0) { toast.amaran('Fail CSV kosong.'); return; }
     const pertama = huraiBarisCSV(baris[0]).map(s => s.toLowerCase());
     const adaTajuk = pertama.some(c => ['nama','syarikat','penyumbang','amaun','jumlah','acara','program','tarikh'].includes(c));
     const mula = adaTajuk ? 1 : 0;
@@ -2181,15 +2374,15 @@ const handleCsvSumbangan = async (e) => {
       // Format: nama_syarikat, amaun, nama_acara, tarikh
       senarai.push({ nama_syarikat: nama, nama_penyumbang: nama, amaun, nama_acara: k[2] || 'Umum', program: k[2] || null, tarikh: k[3] || null });
     }
-    if (senarai.length === 0) return alert('Tiada data sah dijumpai dalam CSV.\nFormat: nama_syarikat, amaun, nama_acara, tarikh');
+    if (senarai.length === 0) { toast.amaran('Tiada data sah dijumpai dalam CSV. Format: nama_syarikat, amaun, nama_acara, tarikh'); return; }
     if (!confirm(`${senarai.length} rekod sumbangan dikesan. Teruskan import?`)) return;
     const { data } = await api.post('/admin/kewangan/sumbangan/import', { senarai });
     if (data.success) {
-      alert(data.message);
+      toast.sukses(data.message || 'Import CSV berjaya.');
       await muatSumbangan();
     }
   } catch (err) {
-    alert(err.response?.data?.message || 'Gagal memproses fail CSV.');
+    toast.ralat(err.response?.data?.message || 'Gagal memproses fail CSV.');
   } finally { e.target.value = ''; }
 };
 
@@ -2278,13 +2471,13 @@ const cetakPenyataTahunan = async () => {
 
     bukaCetakWindow(`Penyata Kewangan Tahunan &bull; Tahun ${d.tahun} &bull; Dicetak: ${tarikhCetak}`, badan);
   } catch (e) {
-    alert('Gagal menjana penyata tahunan.');
+    toast.ralat('Gagal menjana penyata tahunan.');
   } finally { menjanaPenyata.value = false; }
 };
 
 // ── Laporan Harian ──
 const cetakLaporanHarian = async () => {
-  if (!laporanTarikh.value) return alert('Sila pilih tarikh laporan.');
+  if (!laporanTarikh.value) { toast.amaran('Sila pilih tarikh laporan.'); return; }
   menjanaPdf.value.harian = true;
   try {
     const { data } = await api.get(`/admin/kewangan/laporan-harian?tarikh=${laporanTarikh.value}`);
@@ -2327,7 +2520,7 @@ const cetakLaporanHarian = async () => {
 
     bukaCetakWindow(`Laporan Tunai Harian &bull; ${tarikhLaporan}`, badan);
   } catch (e) {
-    alert('Gagal menjana laporan harian.');
+    toast.ralat('Gagal menjana laporan harian.');
   } finally { menjanaPdf.value.harian = false; }
 };
 
@@ -2375,7 +2568,7 @@ const cetakLaporanBulanan = async () => {
 
     bukaCetakWindow(`Laporan Kewangan Bulanan &bull; ${namaBulan} ${laporanTahunBulan.value}`, badan);
   } catch (e) {
-    alert('Gagal menjana laporan bulanan.');
+    toast.ralat('Gagal menjana laporan bulanan.');
   } finally { menjanaPdf.value.bulanan = false; }
 };
 

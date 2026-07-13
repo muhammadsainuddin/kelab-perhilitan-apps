@@ -208,6 +208,8 @@
     </div>
   </div>
 
+  <ToastNotifikasi />
+
   <!-- Modal Info Sistem -->
   <Teleport to="body">
     <Transition name="fade">
@@ -347,6 +349,7 @@ import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useAuthStore } from '../../stores/auth';
 import api from '../../services/api';
+import ToastNotifikasi from '../../components/ToastNotifikasi.vue';
 
 const router    = useRouter();
 const route     = useRoute();

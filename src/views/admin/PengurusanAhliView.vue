@@ -656,8 +656,10 @@ import api from '../../services/api';
 import ProfilAhli360 from '../../components/admin/ProfilAhli360.vue';
 import { KELAB } from '../../config/kelab';
 import { useAuthStore } from '../../stores/auth';
+import { useToast } from '../../composables/useToast';
 
 const authStore = useAuthStore();
+const toast = useToast();
 const isSuperAdmin = computed(() => authStore.user?.role === 'Super Admin');
 
 const semuaAhli = ref([]);
@@ -698,7 +700,7 @@ const tindakanPermohonan = async (no_kp, tindakan) => {
     const { data } = await api.put(`/admin/permohonan-daftar/${no_kp}`, { tindakan });
     if (data.success) await muatPermohonan();
   } catch (e) {
-    alert(e.response?.data?.message || 'Ralat. Sila cuba lagi.');
+    toast.ralat(e.response?.data?.message || 'Ralat. Sila cuba lagi.');
   }
 };
 

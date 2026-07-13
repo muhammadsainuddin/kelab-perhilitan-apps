@@ -605,7 +605,9 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import api from '../../services/api';
+import { useToast } from '../../composables/useToast';
 
+const toast       = useToast();
 const senarai     = ref([]);
 const loading     = ref(true);
 const filterAktif = ref('SEMUA');
@@ -721,11 +723,12 @@ const sahkanLulus = async () => {
       catatan_admin: catatanAdmin.value || null,
       tarikh_berhenti: tarikhBerhentiLulus.value,
     });
+    toast.sukses('Permohonan berhenti telah diluluskan.');
     showModalLulus.value = false;
     showModal.value      = false;
     await muatData();
   } catch (e) {
-    alert(e.response?.data?.message || 'Ralat meluluskan permohonan.');
+    toast.ralat(e.response?.data?.message || 'Ralat meluluskan permohonan.');
   } finally { memproses.value = false; }
 };
 
@@ -739,11 +742,12 @@ const sahkanTolak = async () => {
       status_permohonan: 'DITOLAK',
       catatan_admin: sebabTolak.value.trim(),
     });
+    toast.info('Permohonan berhenti telah ditolak.');
     showModalTolak.value = false;
     showModal.value      = false;
     await muatData();
   } catch (e) {
-    alert(e.response?.data?.message || 'Ralat menolak permohonan.');
+    toast.ralat(e.response?.data?.message || 'Ralat menolak permohonan.');
   } finally { memproses.value = false; }
 };
 
@@ -761,7 +765,7 @@ const kiraMlebihPotong = async () => {
       await muatData();
     }
   } catch (e) {
-    alert(e.response?.data?.message || 'Ralat mengira lebih potong.');
+    toast.ralat(e.response?.data?.message || 'Ralat mengira lebih potong.');
   } finally { memprosesAngkasa.value = false; }
 };
 
@@ -773,13 +777,13 @@ const sahkanBayarSemula = async () => {
       nota:   notaBayarSemula.value || null,
     });
     if (data.success) {
+      toast.sukses(data.message || 'Pembayaran semula berjaya direkod.');
       showModalBayarSemula.value = false;
       showModal.value = false;
       await muatData();
-      alert(data.message);
     }
   } catch (e) {
-    alert(e.response?.data?.message || 'Ralat merekod pembayaran semula.');
+    toast.ralat(e.response?.data?.message || 'Ralat merekod pembayaran semula.');
   } finally { memprosesAngkasa.value = false; }
 };
 

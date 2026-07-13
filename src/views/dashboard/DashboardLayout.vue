@@ -55,6 +55,8 @@
     <UserTabbar />
 
   </div>
+
+  <ToastNotifikasi />
 </template>
 
 <script setup>
@@ -62,6 +64,7 @@ import { ref, onBeforeUnmount } from 'vue';
 import { useRouter } from 'vue-router';
 import UserTabbar from '../../components/UserTabbar.vue';
 import LoadingBar  from '../../components/LoadingBar.vue';
+import ToastNotifikasi from '../../components/ToastNotifikasi.vue';
 
 const router    = useRouter();
 const mainEl    = ref(null);

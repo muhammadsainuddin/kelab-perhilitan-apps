@@ -427,7 +427,9 @@ import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { Capacitor } from '@capacitor/core';
 import api from '../../services/api';
 import { KELAB, cetakResitTransaksi, buatHtmlResit, headerResitHTML, footerResitHTML } from '../../config/kelab';
+import { useToast } from '../../composables/useToast';
 
+const toast  = useToast();
 const profil = ref({});
 const showResitModal = ref(false);
 const resitHtml = ref('');
@@ -694,7 +696,7 @@ const bayarYuran = async () => {
       window.location.href = response.data.bill_url;
     }
   } catch (error) {
-    alert(error.response?.data?.message || "Gagal memproses pautan ToyyibPay.");
+    toast.ralat(error.response?.data?.message || "Gagal memproses pautan ToyyibPay.");
   } finally { isProcessing.value = false; }
 };
 

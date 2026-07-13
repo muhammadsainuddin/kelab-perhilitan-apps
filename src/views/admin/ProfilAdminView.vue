@@ -146,7 +146,9 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import api from '../../services/api';
+import { useToast } from '../../composables/useToast';
 
+const toast   = useToast();
 const apiBase = (import.meta.env.VITE_API_URL || 'http://localhost:5001/api').replace('/api', '');
 
 const loading = ref(true);
@@ -207,9 +209,10 @@ const muatNaikGambar = async (e) => {
   form.append('gambar', fail);
   try {
     await api.put('/user/kemaskini-gambar', form, { headers: { 'Content-Type': 'multipart/form-data' } });
+    toast.sukses('Gambar profil berjaya dikemas kini.');
     await muatProfil();
   } catch (e) {
-    alert(e.response?.data?.message || 'Gagal muat naik gambar.');
+    toast.ralat(e.response?.data?.message || 'Gagal muat naik gambar.');
   }
 };
 

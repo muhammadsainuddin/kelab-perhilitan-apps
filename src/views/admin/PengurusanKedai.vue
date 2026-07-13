@@ -832,7 +832,9 @@
 import { ref, computed, onMounted, watch } from 'vue';
 import api from '../../services/api';
 import { headerResitHTML, footerResitHTML } from '../../config/kelab';
+import { useToast } from '../../composables/useToast';
 
+const toast   = useToast();
 const apiBase = (import.meta.env.VITE_API_URL || 'http://localhost:5001/api').replace('/api', '');
 
 // ── State ──
@@ -1011,13 +1013,14 @@ const muatProdukSemak = async () => {
 
 const semakProduk = async (id, status) => {
   const nota = notaTolakProduk.value[id] || '';
-  if (status === 'DITOLAK' && !nota.trim()) { alert('Sila masukkan nota penolakan untuk penjual.'); return; }
+  if (status === 'DITOLAK' && !nota.trim()) { toast.amaran('Sila masukkan nota penolakan untuk penjual.'); return; }
   try {
     await api.put(`/kedai/admin/produk-semak/${id}`, { status, nota_tolak: nota });
+    toast.sukses(status === 'AKTIF' ? 'Produk berjaya diluluskan.' : 'Produk telah ditolak.');
     senaraiprodukSemak.value = senaraiprodukSemak.value.filter(p => p.id !== id);
     notaTolakProduk.value[id] = '';
-    if (status === 'AKTIF') await muatProduk(); // refresh inventori
-  } catch(e) { alert(e.response?.data?.message || 'Gagal mengemaskini.'); }
+    if (status === 'AKTIF') await muatProduk();
+  } catch(e) { toast.ralat(e.response?.data?.message || 'Gagal mengemaskini.'); }
 };
 
 // Muat penjual/semak bila tab dibuka
@@ -1222,7 +1225,7 @@ const cetakSemua = () => {
 
 const cetakPengeluaran = () => {
   let sumber = pesananSah.value;
-  if (!sumber.length) { alert('Tiada pesanan sah untuk dijana laporan.'); return; }
+  if (!sumber.length) { toast.amaran('Tiada pesanan sah untuk dijana laporan.'); return; }
   const fokus = produkPilihanLaporan.value;
   const produkMap = {};
   for (const p of sumber) {
@@ -1238,7 +1241,7 @@ const cetakPengeluaran = () => {
       produkMap[nama].baris.push({nama:p.nama_ahli||'—',ptj,no_kp:p.no_kp||'—',saiz,kuantiti:qty});
     }
   }
-  if (!Object.keys(produkMap).length) { alert('Tiada data untuk produk dipilih.'); return; }
+  if (!Object.keys(produkMap).length) { toast.amaran('Tiada data untuk produk dipilih.'); return; }
   const esc=(s)=>String(s??'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
   const seksyen = Object.entries(produkMap).map(([nama,d])=>{
     const total=Object.values(d.saizKira).reduce((a,b)=>a+b,0);

@@ -523,6 +523,9 @@
 import { ref, computed } from 'vue';
 import api from '../../services/api';
 import { KELAB } from '../../config/kelab';
+import { useToast } from '../../composables/useToast';
+
+const toast = useToast();
 
 const props = defineProps({
   show: Boolean,
@@ -757,10 +760,10 @@ const padamPeserta = async (p) => {
     if (res.data.success) {
       emit('pesertaDitambah');
     } else {
-      alert(res.data.message || 'Gagal memadam peserta.');
+      toast.ralat(res.data.message || 'Gagal memadam peserta.');
     }
   } catch (err) {
-    alert(err.response?.data?.message || 'Ralat semasa memadam peserta.');
+    toast.ralat(err.response?.data?.message || 'Ralat semasa memadam peserta.');
   }
 };
 

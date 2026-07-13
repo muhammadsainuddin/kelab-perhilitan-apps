@@ -1199,7 +1199,9 @@
 import { ref, computed, onMounted } from 'vue';
 import api from '../../services/api';
 import VuePdfEmbed from 'vue-pdf-embed';
+import { useToast } from '../../composables/useToast';
 
+const toast = useToast();
 const apiBase = (import.meta.env.VITE_API_URL || 'http://localhost:5001/api').replace('/api', '');
 
 // ── PDF Viewer ────────────────────────────────────────────────────────
@@ -1353,14 +1355,15 @@ const batalEdit = () => { editKunci.value = null; editNilai.value = ''; };
 
 const simpanKadar = async (kunci) => {
   const amaun = parseFloat(editNilai.value);
-  if (isNaN(amaun) || amaun < 0) return alert('Sila masukkan amaun yang sah.');
+  if (isNaN(amaun) || amaun < 0) { toast.amaran('Sila masukkan amaun yang sah.'); return; }
   simpanLoading.value = true;
   try {
     await api.put(`/bantuan/kadar/${kunci}`, { amaun });
+    toast.sukses('Kadar berjaya disimpan.');
     await muatKadar();
     batalEdit();
   } catch (e) {
-    alert(e.response?.data?.message || 'Ralat menyimpan kadar.');
+    toast.ralat(e.response?.data?.message || 'Ralat menyimpan kadar.');
   } finally { simpanLoading.value = false; }
 };
 
@@ -1388,13 +1391,13 @@ const kemukakan = async () => {
     showModal.value = false;
     await muatKebajikan();
   } catch (e) {
-    alert(e.response?.data?.message || 'Ralat memproses.');
+    toast.ralat(e.response?.data?.message || 'Ralat memproses.');
   } finally { memproses.value = false; }
 };
 
 const sahkanLulus = async () => {
   if (!amaunLulus.value || parseFloat(amaunLulus.value) <= 0) {
-    return alert('Sila masukkan amaun yang sah (> RM 0.00).');
+    toast.amaran('Sila masukkan amaun yang sah (> RM 0.00).'); return;
   }
   memproses.value = true;
   try {
@@ -1403,11 +1406,12 @@ const sahkanLulus = async () => {
       amaun_lulus: amaunLulus.value,
       catatan_admin: catatanAdmin.value || null,
     });
+    toast.sukses('Permohonan berjaya diluluskan.');
     showModalLulus.value = false;
     showModal.value = false;
     await muatKebajikan();
   } catch (e) {
-    alert(e.response?.data?.message || 'Ralat meluluskan permohonan.');
+    toast.ralat(e.response?.data?.message || 'Ralat meluluskan permohonan.');
   } finally { memproses.value = false; }
 };
 
@@ -1421,11 +1425,12 @@ const sahkanTolak = async () => {
       sebab_tolak: sebabTolak.value.trim(),
       catatan_admin: catatanAdmin.value || null,
     });
+    toast.info('Permohonan telah ditolak.');
     showModalTolak.value = false;
     showModal.value = false;
     await muatKebajikan();
   } catch (e) {
-    alert(e.response?.data?.message || 'Ralat menolak permohonan.');
+    toast.ralat(e.response?.data?.message || 'Ralat menolak permohonan.');
   } finally { memproses.value = false; }
 };
 
@@ -1468,7 +1473,7 @@ const onFailEdit = (e) => {
 };
 
 const simpanEdit = async () => {
-  if (!formEdit.value.jenis_bantuan) return alert('Jenis bantuan wajib dipilih.');
+  if (!formEdit.value.jenis_bantuan) { toast.amaran('Jenis bantuan wajib dipilih.'); return; }
   memprosesEdit.value = true;
   try {
     const fd = new FormData();
@@ -1490,12 +1495,13 @@ const simpanEdit = async () => {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
 
+    toast.sukses('Permohonan berjaya dikemaskini.');
     showModalEdit.value = false;
     await muatKebajikan();
     const updated = senarai.value.find(p => p.id === dipilih.value.id);
     if (updated) dipilih.value = updated;
   } catch (e) {
-    alert(e.response?.data?.message || 'Ralat menyimpan perubahan.');
+    toast.ralat(e.response?.data?.message || 'Ralat menyimpan perubahan.');
   } finally {
     memprosesEdit.value = false;
   }
@@ -1592,9 +1598,9 @@ const hantarBagiPihak = async () => {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
     if (data.success) {
+      toast.sukses(data.message || 'Permohonan bagi pihak waris berjaya dihantar.');
       showModalBagiPihak.value = false;
       await muatKebajikan();
-      alert(data.message);
     }
   } catch (e) {
     ralatBagiPihak.value = e.response?.data?.message || 'Ralat menghantar permohonan.';

@@ -739,8 +739,10 @@ import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import api from '../../services/api';
 import { cetakResitPesananKedai } from '../../config/kelab';
+import { useToast } from '../../composables/useToast';
 
-const router = useRouter();
+const toast   = useToast();
+const router  = useRouter();
 const apiBase = (import.meta.env.VITE_API_URL || 'http://localhost:5001/api').replace('/api', '');
 
 const tabUtama = ref('produk');
@@ -893,7 +895,7 @@ const muatPesananSaya = async () => {
 };
 
 const bayarFPX = (billCode) => {
-  if (!billCode) return alert("Pautan bayaran tiada. Sila hubungi admin.");
+  if (!billCode) { toast.amaran('Pautan bayaran tiada. Sila hubungi admin.'); return; }
   const toyyibpayBase = import.meta.env.VITE_TOYYIBPAY_URL || 'https://toyyibpay.com';
   window.location.href = `${toyyibpayBase}/${billCode}`;
 };
@@ -1071,7 +1073,7 @@ const padamProdukSaya = async (id) => {
     toastBerjaya.value = 'Produk dipadam.';
     await muatProdukPenjual();
     setTimeout(() => toastBerjaya.value = '', 2500);
-  } catch(e) { alert(e.response?.data?.message || 'Gagal memadam.'); }
+  } catch(e) { toast.ralat(e.response?.data?.message || 'Gagal memadam.'); }
 };
 
 onMounted(() => {

@@ -551,7 +551,9 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import api from '../../services/api';
+import { useToast } from '../../composables/useToast';
 
+const toast      = useToast();
 const uploadBase = import.meta.env.VITE_UPLOAD_URL || 'http://localhost:5001';
 
 const senaraiAcara = ref([]);
@@ -708,14 +710,14 @@ const hantarPendaftaran = async () => {
       catatan: modal.value.catatan,
       sukan_dipilih: sukanDipilih.length > 0 ? sukanDipilih : null
     });
-    alert(res.data.message || 'Pendaftaran berjaya!');
+    toast.sukses(res.data.message || 'Pendaftaran berjaya!');
     modal.value.show = false;
     await fetchAcara();
     if (acaraTerpilih.value) {
       acaraTerpilih.value = senaraiAcara.value.find(a => a.id === acaraTerpilih.value.id) || null;
     }
   } catch (error) {
-    alert(error.response?.data?.message || 'Gagal mendaftar acara.');
+    toast.ralat(error.response?.data?.message || 'Gagal mendaftar acara.');
   } finally { aksiLoading.value = false; }
 };
 
@@ -724,13 +726,13 @@ const batalDaftar = async (acara) => {
   aksiLoading.value = true;
   try {
     const res = await api.delete(`/acara/batal/${acara.id}`);
-    alert(res.data.message || 'Pendaftaran dibatalkan.');
+    toast.info(res.data.message || 'Pendaftaran dibatalkan.');
     await fetchAcara();
     if (acaraTerpilih.value) {
       acaraTerpilih.value = senaraiAcara.value.find(a => a.id === acaraTerpilih.value.id) || null;
     }
   } catch (error) {
-    alert(error.response?.data?.message || 'Gagal membatalkan pendaftaran.');
+    toast.ralat(error.response?.data?.message || 'Gagal membatalkan pendaftaran.');
   } finally { aksiLoading.value = false; }
 };
 

@@ -346,7 +346,9 @@
 <script setup>
 import { ref, computed, onMounted, nextTick } from 'vue';
 import api from '../../services/api';
+import { useToast } from '../../composables/useToast';
 
+const toast        = useToast();
 const loading      = ref(false);
 const senaraiTiket = ref([]);
 const bilBaru      = ref(0);
@@ -410,7 +412,7 @@ const bukaTiket = async (id) => {
     await nextTick();
     if (adminThreadEl.value) adminThreadEl.value.scrollTop = adminThreadEl.value.scrollHeight;
   } catch {
-    alert('Gagal memuatkan tiket.');
+    toast.ralat('Gagal memuatkan tiket.');
     modalDetail.value = false;
   } finally {
     loadingDetail.value = false;
@@ -426,7 +428,7 @@ const hantarBalasanAdmin = async () => {
     await bukaTiket(tiketAktif.value.id);
     await muatTiket();
   } catch (e) {
-    alert(e.response?.data?.message || 'Gagal menghantar balasan.');
+    toast.ralat(e.response?.data?.message || 'Gagal menghantar balasan.');
   } finally {
     savingBalasan.value = false;
   }
@@ -456,7 +458,7 @@ const laksanakanTukarStatus = async () => {
     await bukaTiket(tiketAktif.value.id);
     await muatTiket();
   } catch (e) {
-    alert(e.response?.data?.message || 'Gagal kemaskini status.');
+    toast.ralat(e.response?.data?.message || 'Gagal kemaskini status.');
     statusBaharu.value = tiketAktif.value?.status;
   } finally {
     savingStatus.value = false;
