@@ -38,10 +38,10 @@
 
     <!-- ── KPI CARDS ── -->
     <div v-if="!loading" class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
-      <!-- Kredit -->
+      <!-- Debit -->
       <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
         <div class="flex items-start justify-between mb-2">
-          <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wider leading-tight">Jumlah Kredit<br/><span class="text-[9px] normal-case font-normal text-gray-400">Pendapatan {{ tahunPilihan }}</span></p>
+          <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wider leading-tight">Jumlah Debit<br/><span class="text-[9px] normal-case font-normal text-gray-400">Pendapatan {{ tahunPilihan }}</span></p>
           <div class="w-7 h-7 rounded-md bg-emerald-100 flex items-center justify-center shrink-0">
             <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
               <path stroke-linecap="round" stroke-linejoin="round" d="M7 11l5-5m0 0l5 5m-5-5v12"/>
@@ -51,10 +51,10 @@
         <p class="text-lg font-black text-emerald-700 tabular-nums leading-none">{{ fmt(statistik.jumlah_masuk) }}</p>
         <p class="text-[9px] text-gray-400 mt-1">Yuran + Jualan + Sumbangan</p>
       </div>
-      <!-- Debit -->
+      <!-- Kredit -->
       <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
         <div class="flex items-start justify-between mb-2">
-          <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wider leading-tight">Jumlah Debit<br/><span class="text-[9px] normal-case font-normal text-gray-400">Perbelanjaan {{ tahunPilihan }}</span></p>
+          <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wider leading-tight">Jumlah Kredit<br/><span class="text-[9px] normal-case font-normal text-gray-400">Perbelanjaan {{ tahunPilihan }}</span></p>
           <div class="w-7 h-7 rounded-md bg-rose-100 flex items-center justify-center shrink-0">
             <svg class="w-3.5 h-3.5 text-rose-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
               <path stroke-linecap="round" stroke-linejoin="round" d="M17 13l-5 5m0 0l-5-5m5 5V6"/>
@@ -126,8 +126,8 @@
         <div class="flex items-center justify-between mb-4">
           <h3 class="text-xs font-bold text-gray-700 uppercase tracking-wider">Aliran Kewangan Bulanan {{ tahunPilihan }}</h3>
           <div class="flex items-center gap-3 text-[10px] text-gray-500">
-            <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-sm bg-emerald-500 inline-block"></span>Kredit</span>
-            <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-sm bg-rose-500 inline-block"></span>Debit</span>
+            <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-sm bg-emerald-500 inline-block"></span>Debit</span>
+            <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-sm bg-rose-500 inline-block"></span>Kredit</span>
           </div>
         </div>
         <div class="h-56">
@@ -142,8 +142,8 @@
         <select v-model="filterJenis" @change="setFilterJenis(filterJenis)"
           class="bg-white border border-gray-300 text-gray-700 text-xs font-semibold rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0F4C3A]/20 focus:border-[#0F4C3A]">
           <option value="">Semua Jenis</option>
-          <option value="MASUK">▲ Kredit (Masuk)</option>
-          <option value="KELUAR">▼ Debit (Keluar)</option>
+          <option value="MASUK">▲ Debit (Masuk)</option>
+          <option value="KELUAR">▼ Kredit (Keluar)</option>
         </select>
 
         <!-- Bulan -->
@@ -189,17 +189,18 @@
               <th class="px-5 py-3">Tarikh</th>
               <th class="px-4 py-3">Jenis</th>
               <th class="px-4 py-3">Kategori</th>
+              <th class="px-4 py-3">Sempena</th>
               <th class="px-4 py-3">Nota / Rujukan</th>
               <th class="px-4 py-3">Pihak</th>
-              <th class="px-5 py-3 text-right text-rose-600">Debit (–) RM</th>
-              <th class="px-5 py-3 text-right text-emerald-600">Kredit (+) RM</th>
+              <th class="px-5 py-3 text-right text-rose-600">Kredit (–) RM</th>
+              <th class="px-5 py-3 text-right text-emerald-600">Debit (+) RM</th>
               <th class="px-4 py-3">Direkod Oleh</th>
               <th class="px-4 py-3 text-center">Tindakan</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-100">
             <tr v-if="transaksiLoading">
-              <td colspan="8" class="px-5 py-10 text-center">
+              <td colspan="9" class="px-5 py-10 text-center">
                 <div class="flex items-center justify-center gap-2 text-gray-500 text-xs">
                   <svg class="animate-spin w-4 h-4 text-[#0F4C3A]" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
@@ -210,7 +211,7 @@
               </td>
             </tr>
             <tr v-else-if="transaksi.length === 0">
-              <td colspan="8" class="px-5 py-14 text-center text-gray-400 text-xs">Tiada rekod transaksi dijumpai.</td>
+              <td colspan="9" class="px-5 py-14 text-center text-gray-400 text-xs">Tiada rekod transaksi dijumpai.</td>
             </tr>
             <tr v-for="tx in transaksi" :key="tx.id" class="hover:bg-gray-50/70 transition-colors group">
               <td class="px-5 py-2.5 text-gray-600 whitespace-nowrap font-mono text-[11px]">{{ tx.tarikh }}</td>
@@ -219,17 +220,18 @@
                   tx.jenis_aliran === 'MASUK'
                     ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
                     : 'bg-rose-50 text-rose-700 border-rose-200']">
-                  {{ tx.jenis_aliran === 'MASUK' ? '▲ KREDIT' : '▼ DEBIT' }}
+                  {{ tx.jenis_aliran === 'MASUK' ? '▲ DEBIT' : '▼ KREDIT' }}
                 </span>
               </td>
               <td class="px-4 py-2.5">
-                <div class="flex flex-wrap items-center gap-1">
-                  <span class="text-[10px] bg-gray-100 text-gray-700 border border-gray-200 px-2 py-0.5 rounded font-semibold">{{ labelKat(tx.kategori) }}</span>
-                  <span v-if="tx.nama_acara_khas"
-                    class="text-[9px] bg-violet-100 text-violet-700 border border-violet-200 px-1.5 py-0.5 rounded font-bold">
-                    {{ tx.nama_acara_khas }}
-                  </span>
-                </div>
+                <span class="text-[10px] bg-gray-100 text-gray-700 border border-gray-200 px-2 py-0.5 rounded font-semibold">{{ labelKat(tx.kategori) }}</span>
+              </td>
+              <td class="px-4 py-2.5">
+                <span v-if="tx.nama_acara_khas"
+                  class="text-[9px] bg-violet-100 text-violet-700 border border-violet-200 px-1.5 py-0.5 rounded font-bold whitespace-nowrap">
+                  {{ tx.nama_acara_khas }}
+                </span>
+                <span v-else class="text-[10px] text-gray-300">—</span>
               </td>
               <td class="px-4 py-2.5 max-w-48">
                 <p class="font-semibold text-gray-800 truncate text-[11px]">{{ tx.nota || '—' }}</p>
@@ -251,21 +253,30 @@
                 <span v-else class="text-[9px] text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded font-medium">AUTO</span>
               </td>
               <td class="px-4 py-2.5 text-center">
-                <div v-if="tx.direkod_oleh" class="flex items-center justify-center gap-1">
-                  <button @click="bukaEdit(tx)" title="Edit rekod"
-                    class="w-7 h-7 rounded-md flex items-center justify-center text-blue-600 hover:bg-blue-50 border border-transparent hover:border-blue-200 transition-colors">
+                <div class="flex items-center justify-center gap-1">
+                  <button @click="txDetail = tx" title="Lihat details"
+                    class="w-7 h-7 rounded-md flex items-center justify-center text-gray-500 hover:bg-gray-100 border border-transparent hover:border-gray-200 transition-colors">
                     <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                     </svg>
                   </button>
-                  <button @click="padamTx(tx)" title="Padam rekod"
-                    class="w-7 h-7 rounded-md flex items-center justify-center text-rose-500 hover:bg-rose-50 border border-transparent hover:border-rose-200 transition-colors">
-                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                    </svg>
-                  </button>
+                  <template v-if="tx.direkod_oleh">
+                    <button @click="bukaEdit(tx)" title="Edit rekod"
+                      class="w-7 h-7 rounded-md flex items-center justify-center text-blue-600 hover:bg-blue-50 border border-transparent hover:border-blue-200 transition-colors">
+                      <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                      </svg>
+                    </button>
+                    <button @click="padamTx(tx)" title="Padam rekod"
+                      class="w-7 h-7 rounded-md flex items-center justify-center text-rose-500 hover:bg-rose-50 border border-transparent hover:border-rose-200 transition-colors">
+                      <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                      </svg>
+                    </button>
+                  </template>
+                  <span v-else class="text-[9px] text-gray-400 font-medium">AUTO</span>
                 </div>
-                <span v-else class="text-[9px] text-gray-400 font-medium">AUTO</span>
               </td>
             </tr>
           </tbody>
@@ -389,6 +400,190 @@
             Jana Penyata Tahunan
           </button>
         </div>
+      </div>
+
+      <!-- ── Laporan Mengikut Kategori ── -->
+      <div class="mt-5 border border-gray-200 rounded-xl overflow-hidden">
+        <!-- Header -->
+        <div class="flex items-center gap-2.5 px-5 py-3.5 bg-gray-50 border-b border-gray-200">
+          <div class="w-7 h-7 rounded-md bg-orange-100 flex items-center justify-center shrink-0">
+            <svg class="w-3.5 h-3.5 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12"/>
+            </svg>
+          </div>
+          <div>
+            <h4 class="text-xs font-bold text-gray-800">Laporan Mengikut Kategori</h4>
+            <p class="text-[10px] text-gray-500">Filter mengikut tarikh, kategori, acara &amp; jenis aliran</p>
+          </div>
+        </div>
+
+        <!-- Filter bar -->
+        <div class="px-5 py-4 bg-white">
+          <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+            <div>
+              <label class="block text-[9px] font-bold text-gray-500 uppercase tracking-wider mb-1">Dari</label>
+              <input v-model="filtKat.dari" type="date"
+                class="w-full bg-gray-50 border border-gray-300 text-gray-900 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-orange-400"/>
+            </div>
+            <div>
+              <label class="block text-[9px] font-bold text-gray-500 uppercase tracking-wider mb-1">Hingga</label>
+              <input v-model="filtKat.hingga" type="date"
+                class="w-full bg-gray-50 border border-gray-300 text-gray-900 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-orange-400"/>
+            </div>
+            <div>
+              <label class="block text-[9px] font-bold text-gray-500 uppercase tracking-wider mb-1">Kategori</label>
+              <select v-model="filtKat.kategori"
+                class="w-full bg-gray-50 border border-gray-300 text-gray-900 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-orange-400">
+                <option value="">Semua Kategori</option>
+                <option v-for="k in senaraiKategoriKewangan.filter(c => c.aktif)" :key="k.kod" :value="k.kod">{{ k.nama }}</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-[9px] font-bold text-gray-500 uppercase tracking-wider mb-1">Acara</label>
+              <select v-model="filtKat.acara_khas_id"
+                class="w-full bg-gray-50 border border-gray-300 text-gray-900 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-orange-400">
+                <option value="">Semua Acara</option>
+                <option v-for="a in senaraiAcaraKhas" :key="a.id" :value="a.id">{{ a.nama }}</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-[9px] font-bold text-gray-500 uppercase tracking-wider mb-1">Jenis</label>
+              <select v-model="filtKat.jenis"
+                class="w-full bg-gray-50 border border-gray-300 text-gray-900 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-orange-400">
+                <option value="">Masuk &amp; Keluar</option>
+                <option value="MASUK">Debit (Masuk) sahaja</option>
+                <option value="KELUAR">Kredit (Keluar) sahaja</option>
+              </select>
+            </div>
+          </div>
+          <div class="flex items-center gap-2 mt-3">
+            <button @click="muatLaporanKategori" :disabled="loadingLaporanKat"
+              class="flex items-center gap-1.5 bg-orange-500 hover:bg-orange-600 text-white font-bold text-[11px] px-4 py-2 rounded-lg transition-colors disabled:opacity-60">
+              <span v-if="loadingLaporanKat" class="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+              <svg v-else class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z"/>
+              </svg>
+              Lihat Ringkasan
+            </button>
+            <button v-if="dataLaporanKat" @click="cetakLaporanKategori"
+              class="flex items-center gap-1.5 bg-gray-700 hover:bg-gray-800 text-white font-bold text-[11px] px-4 py-2 rounded-lg transition-colors">
+              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2z"/>
+              </svg>
+              Cetak
+            </button>
+            <button v-if="dataLaporanKat" @click="dataLaporanKat = null"
+              class="text-[11px] text-gray-400 hover:text-gray-600 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors">
+              Kosongkan
+            </button>
+          </div>
+        </div>
+
+        <!-- Hasil -->
+        <div v-if="loadingLaporanKat" class="flex items-center gap-2 justify-center py-10 text-gray-400">
+          <div class="w-5 h-5 rounded-full border-2 border-orange-200 border-t-orange-500 animate-spin"></div>
+          <span class="text-[11px]">Memuatkan...</span>
+        </div>
+
+        <template v-else-if="dataLaporanKat">
+          <div class="border-t border-gray-100 px-5 py-4 bg-white space-y-5">
+            <!-- KPI -->
+            <div class="grid grid-cols-3 gap-3">
+              <div class="bg-emerald-50 border border-emerald-100 rounded-xl p-3 text-center">
+                <p class="text-[9px] font-bold uppercase tracking-wider text-emerald-600">Jumlah Debit (Masuk)</p>
+                <p class="text-[15px] font-black text-emerald-700 tabular-nums mt-1">RM {{ fmtRM(dataLaporanKat.ringkasan.masuk) }}</p>
+              </div>
+              <div class="bg-rose-50 border border-rose-100 rounded-xl p-3 text-center">
+                <p class="text-[9px] font-bold uppercase tracking-wider text-rose-600">Jumlah Kredit (Keluar)</p>
+                <p class="text-[15px] font-black text-rose-700 tabular-nums mt-1">RM {{ fmtRM(dataLaporanKat.ringkasan.keluar) }}</p>
+              </div>
+              <div :class="['border rounded-xl p-3 text-center', dataLaporanKat.ringkasan.lebihan >= 0 ? 'bg-violet-50 border-violet-100' : 'bg-orange-50 border-orange-100']">
+                <p :class="['text-[9px] font-bold uppercase tracking-wider', dataLaporanKat.ringkasan.lebihan >= 0 ? 'text-violet-600' : 'text-orange-600']">Lebihan / Kurangan</p>
+                <p :class="['text-[15px] font-black tabular-nums mt-1', dataLaporanKat.ringkasan.lebihan >= 0 ? 'text-violet-700' : 'text-orange-700']">
+                  RM {{ fmtRM(dataLaporanKat.ringkasan.lebihan) }}
+                </p>
+              </div>
+            </div>
+
+            <!-- Pecahan kategori -->
+            <div>
+              <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2">Pecahan Mengikut Kategori</p>
+              <div class="overflow-x-auto rounded-xl border border-gray-200">
+                <table class="w-full text-[11px]">
+                  <thead class="bg-gray-50 border-b border-gray-200">
+                    <tr>
+                      <th class="px-4 py-2.5 text-left font-bold text-gray-500 uppercase tracking-wider text-[9px]">Kategori</th>
+                      <th class="px-4 py-2.5 text-right font-bold text-emerald-600 uppercase tracking-wider text-[9px]">Debit (+) RM</th>
+                      <th class="px-4 py-2.5 text-right font-bold text-rose-600 uppercase tracking-wider text-[9px]">Kredit (−) RM</th>
+                      <th class="px-4 py-2.5 text-right font-bold text-gray-600 uppercase tracking-wider text-[9px]">Lebihan RM</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-gray-100">
+                    <tr v-for="[kod, v] in Object.entries(dataLaporanKat.by_kategori).sort(([,a],[,b])=>(b.masuk+b.keluar)-(a.masuk+a.keluar))" :key="kod"
+                      class="hover:bg-gray-50/80">
+                      <td class="px-4 py-2.5 font-medium text-gray-700">{{ labelKat(kod) }}</td>
+                      <td class="px-4 py-2.5 text-right tabular-nums" :class="v.masuk > 0 ? 'text-emerald-600 font-semibold' : 'text-gray-300'">
+                        {{ v.masuk > 0 ? fmtRM(v.masuk) : '—' }}
+                      </td>
+                      <td class="px-4 py-2.5 text-right tabular-nums" :class="v.keluar > 0 ? 'text-rose-600 font-semibold' : 'text-gray-300'">
+                        {{ v.keluar > 0 ? fmtRM(v.keluar) : '—' }}
+                      </td>
+                      <td class="px-4 py-2.5 text-right tabular-nums font-bold" :class="(v.masuk - v.keluar) >= 0 ? 'text-gray-700' : 'text-rose-600'">
+                        {{ fmtRM(v.masuk - v.keluar) }}
+                      </td>
+                    </tr>
+                  </tbody>
+                  <tfoot class="bg-gray-50 border-t-2 border-gray-200">
+                    <tr>
+                      <td class="px-4 py-2.5 font-bold text-gray-700">JUMLAH ({{ dataLaporanKat.ringkasan.bil }} transaksi)</td>
+                      <td class="px-4 py-2.5 text-right font-black text-emerald-700 tabular-nums">{{ fmtRM(dataLaporanKat.ringkasan.masuk) }}</td>
+                      <td class="px-4 py-2.5 text-right font-black text-rose-700 tabular-nums">{{ fmtRM(dataLaporanKat.ringkasan.keluar) }}</td>
+                      <td class="px-4 py-2.5 text-right font-black tabular-nums" :class="dataLaporanKat.ringkasan.lebihan >= 0 ? 'text-violet-700' : 'text-orange-600'">
+                        {{ fmtRM(dataLaporanKat.ringkasan.lebihan) }}
+                      </td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </div>
+
+            <!-- Senarai transaksi -->
+            <div v-if="dataLaporanKat.data.length">
+              <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2">
+                Senarai Transaksi ({{ dataLaporanKat.data.length }})
+              </p>
+              <div class="overflow-x-auto rounded-xl border border-gray-200 max-h-80 overflow-y-auto">
+                <table class="w-full text-[11px]">
+                  <thead class="bg-gray-50 border-b border-gray-200 sticky top-0">
+                    <tr>
+                      <th class="px-3 py-2 text-left font-bold text-gray-500 uppercase tracking-wider text-[9px]">Tarikh</th>
+                      <th class="px-3 py-2 text-left font-bold text-gray-500 uppercase tracking-wider text-[9px]">Jenis</th>
+                      <th class="px-3 py-2 text-left font-bold text-gray-500 uppercase tracking-wider text-[9px]">Kategori</th>
+                      <th class="px-3 py-2 text-left font-bold text-gray-500 uppercase tracking-wider text-[9px]">Nota / Penerima</th>
+                      <th class="px-3 py-2 text-right font-bold text-gray-500 uppercase tracking-wider text-[9px]">Amaun RM</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-gray-100">
+                    <tr v-for="t in dataLaporanKat.data" :key="t.id" class="hover:bg-gray-50/80">
+                      <td class="px-3 py-2 text-gray-500 font-mono">{{ t.tarikh }}</td>
+                      <td class="px-3 py-2">
+                        <span :class="['px-1.5 py-0.5 rounded text-[9px] font-bold', t.jenis_aliran==='MASUK'?'bg-emerald-100 text-emerald-700':'bg-rose-100 text-rose-700']">
+                          {{ t.jenis_aliran === 'MASUK' ? '▲ DEBIT' : '▼ KREDIT' }}
+                        </span>
+                      </td>
+                      <td class="px-3 py-2 text-gray-600">{{ labelKat(t.kategori) }}</td>
+                      <td class="px-3 py-2 text-gray-500 max-w-[180px] truncate">{{ t.nota || t.penerima_bayaran || t.nama_ahli || '—' }}</td>
+                      <td :class="['px-3 py-2 text-right font-bold tabular-nums', t.jenis_aliran==='MASUK'?'text-emerald-600':'text-rose-600']">
+                        {{ t.jenis_aliran === 'KELUAR' ? '- ' : '+ ' }}{{ fmtRM(t.amaun) }}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <p v-else class="text-center text-[11px] text-gray-400 py-4">Tiada transaksi ditemui untuk penapis yang dipilih.</p>
+          </div>
+        </template>
       </div>
 
       <!-- Nota laporan -->
@@ -1062,8 +1257,8 @@
                   <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">Jenis Aliran *</label>
                   <select v-model="formEdit.jenis_aliran"
                     class="w-full bg-gray-50 border border-gray-300 text-gray-900 rounded-lg px-3 py-2 text-xs font-semibold focus:outline-none focus:border-[#0F4C3A]">
-                    <option value="MASUK">▲ KREDIT (Masuk)</option>
-                    <option value="KELUAR">▼ DEBIT (Keluar)</option>
+                    <option value="MASUK">▲ DEBIT (Masuk)</option>
+                    <option value="KELUAR">▼ KREDIT (Keluar)</option>
                   </select>
                 </div>
                 <div>
@@ -1079,7 +1274,13 @@
                   <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">Kategori *</label>
                   <select v-model="formEdit.kategori"
                     class="w-full bg-gray-50 border border-gray-300 text-gray-900 rounded-lg px-3 py-2 text-xs font-semibold focus:outline-none focus:border-[#0F4C3A]">
-                    <option v-for="(label, key) in LABEL_KATEGORI" :key="key" :value="key">{{ label }}</option>
+                    <option v-if="senaraiKategoriKewangan.length" value="" disabled>-- Pilih kategori --</option>
+                    <template v-if="senaraiKategoriKewangan.length">
+                      <option v-for="k in senaraiKategoriKewangan.filter(c => c.aktif)" :key="k.kod" :value="k.kod">{{ k.nama }}</option>
+                    </template>
+                    <template v-else>
+                      <option v-for="(label, key) in LABEL_KATEGORI_FALLBACK" :key="key" :value="key">{{ label }}</option>
+                    </template>
                   </select>
                 </div>
                 <div>
@@ -1089,10 +1290,45 @@
                 </div>
               </div>
 
+              <!-- Sempena -->
+              <div>
+                <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">Sempena</label>
+                <select v-model="formEdit.acara_khas_id"
+                  class="w-full bg-gray-50 border border-gray-300 text-gray-900 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-[#0F4C3A]">
+                  <option :value="null">{{ formEdit.jenis_aliran === 'MASUK' ? 'Pendapatan Biasa' : 'Perbelanjaan Biasa' }}</option>
+                  <option v-for="a in senaraiAcaraKhas" :key="a.id" :value="a.id">{{ a.nama }}</option>
+                </select>
+              </div>
+
               <!-- Pihak -->
               <div>
-                <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">Nama Pihak / Penerima</label>
-                <input v-model="formEdit.penerima_bayaran" type="text" placeholder="Nama individu atau syarikat"
+                <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">
+                  {{ formEdit.jenis_aliran === 'MASUK' ? 'Diterima Daripada' : 'Nama Pihak / Penerima' }}
+                </label>
+                <template v-if="formEdit.jenis_aliran === 'MASUK'">
+                  <div class="flex gap-4 py-1">
+                    <label class="flex items-center gap-1.5 text-[11px] font-medium text-gray-700 cursor-pointer">
+                      <input type="radio" :value="false" v-model="editMasukDariAhli" class="accent-[#0F4C3A]" />
+                      Nama Bebas
+                    </label>
+                    <label class="flex items-center gap-1.5 text-[11px] font-medium text-gray-700 cursor-pointer">
+                      <input type="radio" :value="true" v-model="editMasukDariAhli" class="accent-[#0F4C3A]" />
+                      Ahli Kelab
+                    </label>
+                  </div>
+                  <select v-if="editMasukDariAhli" v-model="formEdit.no_kp_pihak"
+                    class="w-full bg-gray-50 border border-emerald-300 text-gray-900 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-emerald-500">
+                    <option value="" disabled>-- Pilih ahli --</option>
+                    <option v-for="a in senaraiAhli" :key="a.no_kp" :value="a.no_kp">
+                      {{ a.nama_pegawai }} ({{ a.no_kp }})
+                    </option>
+                  </select>
+                  <input v-else v-model="formEdit.penerima_bayaran" type="text"
+                    placeholder="Nama pembayar (kosongkan jika kolektif)"
+                    class="w-full bg-gray-50 border border-gray-300 text-gray-900 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-[#0F4C3A]"/>
+                </template>
+                <input v-else v-model="formEdit.penerima_bayaran" type="text"
+                  placeholder="Nama individu atau syarikat"
                   class="w-full bg-gray-50 border border-gray-300 text-gray-900 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-[#0F4C3A]"/>
               </div>
 
@@ -1338,6 +1574,13 @@
             <p class="text-[11px] text-gray-500 mt-0.5">Semua transaksi yang ditag di bawah acara ini</p>
           </div>
           <div class="flex items-center gap-2">
+            <button v-if="penyataAcara" @click="cetakLaporanPerbelanjaanAcara"
+              class="flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-lg transition-colors">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17 13l-5 5m0 0l-5-5m5 5V6"/>
+              </svg>
+              Laporan Perbelanjaan
+            </button>
             <button v-if="penyataAcara" @click="cetakPenyataAcara"
               class="flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-bold text-violet-700 bg-violet-50 hover:bg-violet-100 border border-violet-200 rounded-lg transition-colors">
               <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -1485,6 +1728,43 @@
             </p>
           </div>
 
+          <!-- Filter transaksi acara -->
+          <div v-if="penyataAcara.transaksi.length" class="mb-3 flex flex-wrap items-end gap-2">
+            <div class="flex-1 min-w-[130px]">
+              <label class="block text-[9px] font-bold text-gray-500 uppercase tracking-wider mb-1">Kategori</label>
+              <select v-model="filtAcara.kategori"
+                class="w-full bg-gray-50 border border-gray-200 text-gray-800 rounded-lg px-2.5 py-1.5 text-xs focus:outline-none focus:border-violet-400">
+                <option value="">Semua Kategori</option>
+                <option v-for="k in kategoriDalamAcara" :key="k.kod" :value="k.kod">{{ k.nama }}</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-[9px] font-bold text-gray-500 uppercase tracking-wider mb-1">Dari</label>
+              <input v-model="filtAcara.tarikhMula" type="date"
+                class="bg-gray-50 border border-gray-200 text-gray-800 rounded-lg px-2.5 py-1.5 text-xs focus:outline-none focus:border-violet-400"/>
+            </div>
+            <div>
+              <label class="block text-[9px] font-bold text-gray-500 uppercase tracking-wider mb-1">Hingga</label>
+              <input v-model="filtAcara.tarikhAkhir" type="date"
+                class="bg-gray-50 border border-gray-200 text-gray-800 rounded-lg px-2.5 py-1.5 text-xs focus:outline-none focus:border-violet-400"/>
+            </div>
+            <button v-if="filtAcara.kategori || filtAcara.tarikhMula || filtAcara.tarikhAkhir"
+              @click="filtAcara = { kategori: '', tarikhMula: '', tarikhAkhir: '' }"
+              class="text-[10px] text-gray-400 hover:text-gray-600 px-2 py-1.5 rounded-lg hover:bg-gray-100 transition-colors">
+              Reset
+            </button>
+            <!-- Mini KPI apabila filter aktif -->
+            <div v-if="filtAcara.kategori || filtAcara.tarikhMula || filtAcara.tarikhAkhir"
+              class="ml-auto flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-lg px-3 py-1.5">
+              <span class="text-[10px] text-gray-500">{{ transaksiAcaraFiltered.length }} rekod</span>
+              <span class="text-[10px] font-bold text-emerald-600 tabular-nums">+RM {{ fmtRM(filtAcaraRingkasan.masuk) }}</span>
+              <span class="text-[10px] font-bold text-rose-600 tabular-nums">−RM {{ fmtRM(filtAcaraRingkasan.keluar) }}</span>
+              <span class="text-[10px] font-bold tabular-nums" :class="filtAcaraRingkasan.baki >= 0 ? 'text-violet-600' : 'text-orange-600'">
+                = RM {{ fmtRM(filtAcaraRingkasan.baki) }}
+              </span>
+            </div>
+          </div>
+
           <!-- Jadual transaksi -->
           <div v-if="penyataAcara.transaksi.length" class="overflow-x-auto rounded-xl border border-gray-200 shadow-sm">
             <table class="w-full text-[11px]">
@@ -1498,12 +1778,12 @@
                 </tr>
               </thead>
               <tbody class="divide-y divide-gray-100">
-                <tr v-for="t in penyataAcara.transaksi" :key="t.id" class="hover:bg-gray-50/80">
+                <tr v-for="t in transaksiAcaraFiltered" :key="t.id" class="hover:bg-gray-50/80">
                   <td class="px-3 py-2.5 text-gray-500 font-mono">{{ t.tarikh }}</td>
                   <td class="px-3 py-2.5">
                     <span :class="['px-1.5 py-0.5 rounded text-[9px] font-bold uppercase',
                       t.jenis_aliran === 'MASUK' ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700']">
-                      {{ t.jenis_aliran === 'MASUK' ? 'Masuk' : 'Keluar' }}
+                      {{ t.jenis_aliran === 'MASUK' ? '▲ DEBIT' : '▼ KREDIT' }}
                     </span>
                   </td>
                   <td class="px-3 py-2.5 text-gray-600">{{ labelKat(t.kategori) }}</td>
@@ -1515,13 +1795,20 @@
                     {{ t.jenis_aliran === 'KELUAR' ? '- ' : '+ ' }}{{ fmtRM(t.amaun) }}
                   </td>
                 </tr>
+                <tr v-if="!transaksiAcaraFiltered.length">
+                  <td colspan="5" class="px-3 py-6 text-center text-[11px] text-gray-400">
+                    Tiada transaksi sepadan dengan penapis yang dipilih.
+                  </td>
+                </tr>
               </tbody>
               <tfoot class="bg-gray-50 border-t-2 border-gray-200">
                 <tr>
-                  <td colspan="4" class="px-3 py-2.5 font-bold text-gray-700 text-right">Baki Acara</td>
+                  <td colspan="4" class="px-3 py-2.5 font-bold text-gray-700 text-right">
+                    {{ filtAcara.kategori || filtAcara.tarikhMula || filtAcara.tarikhAkhir ? 'Baki (Ditapis)' : 'Baki Acara' }}
+                  </td>
                   <td :class="['px-3 py-2.5 font-black text-right tabular-nums',
-                    penyataAcara.ringkasan.baki >= 0 ? 'text-violet-700' : 'text-rose-700']">
-                    RM {{ fmtRM(penyataAcara.ringkasan.baki) }}
+                    filtAcaraRingkasan.baki >= 0 ? 'text-violet-700' : 'text-rose-700']">
+                    RM {{ fmtRM(filtAcaraRingkasan.baki) }}
                   </td>
                 </tr>
               </tfoot>
@@ -1546,6 +1833,213 @@
       @berjaya="onTransaksiBerjaya"
     />
 
+    <!-- ==================== PDF VIEWER ==================== -->
+    <Teleport to="body">
+      <Transition name="fade">
+        <div v-if="pdfPratontonUrl"
+          class="fixed inset-0 z-[70] bg-black/80 backdrop-blur-sm flex flex-col"
+          @click.self="tutupPreviewPdf">
+          <div class="flex items-center justify-between px-4 py-3 shrink-0">
+            <div class="flex items-center gap-2 text-white">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+              </svg>
+              <span class="text-[12px] font-bold">Dokumen PDF</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <a :href="pdfPratontonUrl" download
+                class="text-[11px] font-bold text-gray-300 hover:text-white px-3 py-1.5 rounded-lg hover:bg-white/10 transition-colors inline-flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                </svg>
+                Muat turun
+              </a>
+              <button @click="tutupPreviewPdf"
+                class="w-8 h-8 rounded-lg flex items-center justify-center text-gray-300 hover:text-white hover:bg-white/10 transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div class="flex-1 overflow-y-auto flex flex-col items-center py-6 px-4 gap-4">
+            <div v-if="pdfMuatLoading && !pdfMuatRalat"
+              class="flex flex-col items-center justify-center gap-3 text-white/60 py-20">
+              <div class="w-8 h-8 rounded-full border-2 border-white/30 border-t-white animate-spin"></div>
+              <p class="text-[12px]">Memuatkan PDF...</p>
+            </div>
+            <div v-if="pdfMuatRalat" class="flex flex-col items-center gap-3 text-white/60 py-20">
+              <svg class="w-10 h-10" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"/>
+              </svg>
+              <p class="text-[13px] font-bold text-white">Gagal memuatkan PDF</p>
+            </div>
+            <VuePdfEmbed
+              :source="pdfPratontonUrl"
+              class="w-full max-w-3xl shadow-2xl"
+              @loaded="pdfMuatLoading = false"
+              @loading-failed="pdfMuatLoading = false; pdfMuatRalat = true"
+            />
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
+
+    <!-- ==================== IMAGE LIGHTBOX ==================== -->
+    <Teleport to="body">
+      <Transition name="fade">
+        <div v-if="imgPratontonUrl"
+          class="fixed inset-0 z-[70] bg-black/90 backdrop-blur-sm flex flex-col"
+          @click.self="imgPratontonUrl = null">
+          <div class="flex items-center justify-end px-4 py-3 shrink-0">
+            <button @click="imgPratontonUrl = null"
+              class="w-8 h-8 rounded-lg flex items-center justify-center text-gray-300 hover:text-white hover:bg-white/10 transition-colors">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+            </button>
+          </div>
+          <div class="flex-1 overflow-auto flex items-center justify-center px-4 pb-6">
+            <img :src="imgPratontonUrl" alt="Pratonton gambar"
+              class="max-w-full max-h-full object-contain rounded-xl shadow-2xl" />
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
+
+    <!-- ═══ MODAL DETAIL TRANSAKSI ═══ -->
+    <Teleport to="body">
+      <Transition name="fade">
+        <div v-if="txDetail" class="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style="background:rgba(0,0,0,0.55);backdrop-filter:blur(4px)"
+          @click.self="txDetail = null">
+          <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col">
+
+            <!-- Header -->
+            <div class="flex items-start justify-between px-6 py-4 border-b border-gray-100 shrink-0">
+              <div class="flex-1 min-w-0">
+                <div class="flex flex-wrap items-center gap-2 mb-1.5">
+                  <span :class="['inline-flex items-center gap-1 text-[9px] font-bold px-2 py-0.5 rounded border uppercase tracking-wider',
+                    txDetail.jenis_aliran === 'MASUK'
+                      ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                      : 'bg-rose-50 text-rose-700 border-rose-200']">
+                    {{ txDetail.jenis_aliran === 'MASUK' ? '▲ DEBIT' : '▼ KREDIT' }}
+                  </span>
+                  <span class="text-[10px] bg-gray-100 text-gray-700 border border-gray-200 px-2 py-0.5 rounded font-semibold">
+                    {{ labelKat(txDetail.kategori) }}
+                  </span>
+                  <span v-if="txDetail.nama_acara_khas"
+                    class="text-[9px] bg-violet-100 text-violet-700 border border-violet-200 px-1.5 py-0.5 rounded font-bold">
+                    {{ txDetail.nama_acara_khas }}
+                  </span>
+                </div>
+                <p class="text-[11px] text-gray-400 font-mono">Rekod #{{ txDetail.id }} &bull; {{ txDetail.tarikh }}</p>
+              </div>
+              <button @click="txDetail = null"
+                class="ml-3 w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors shrink-0">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+              </button>
+            </div>
+
+            <!-- Scroll body -->
+            <div class="overflow-y-auto flex-1 px-6 py-5 space-y-5">
+
+              <!-- Amaun hero -->
+              <div :class="['text-center py-4 rounded-xl', txDetail.jenis_aliran==='MASUK' ? 'bg-emerald-50' : 'bg-rose-50']">
+                <p class="text-[10px] font-bold uppercase tracking-wider mb-1"
+                  :class="txDetail.jenis_aliran==='MASUK' ? 'text-emerald-600' : 'text-rose-600'">
+                  {{ txDetail.jenis_aliran === 'MASUK' ? 'Jumlah Diterima' : 'Jumlah Dibayar' }}
+                </p>
+                <p :class="['text-3xl font-black tabular-nums', txDetail.jenis_aliran==='MASUK' ? 'text-emerald-700' : 'text-rose-700']">
+                  RM {{ num(txDetail.amaun) }}
+                </p>
+              </div>
+
+              <!-- Fields -->
+              <div class="grid grid-cols-2 gap-x-6 gap-y-4">
+                <div v-if="txDetail.nota" class="col-span-2">
+                  <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-0.5">Nota / Keterangan</p>
+                  <p class="text-xs text-gray-800 font-semibold leading-relaxed">{{ txDetail.nota }}</p>
+                </div>
+                <div v-if="txDetail.rujukan">
+                  <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-0.5">No. Rujukan</p>
+                  <p class="text-xs text-gray-700 font-mono break-all">{{ txDetail.rujukan }}</p>
+                </div>
+                <div v-if="txDetail.nama_ahli || txDetail.penerima_bayaran">
+                  <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-0.5">Pihak Berkaitan</p>
+                  <p class="text-xs text-gray-700">{{ txDetail.nama_ahli || txDetail.penerima_bayaran }}</p>
+                </div>
+                <div>
+                  <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-0.5">Direkod Oleh</p>
+                  <p class="text-xs text-gray-700">
+                    <span v-if="txDetail.nama_direkod_oleh">{{ txDetail.nama_direkod_oleh }}</span>
+                    <span v-else class="text-[9px] bg-gray-100 text-gray-400 px-1.5 py-0.5 rounded font-medium">SISTEM / AUTO</span>
+                  </p>
+                </div>
+              </div>
+
+              <!-- Dokumen / Resit -->
+              <div>
+                <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+                  <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/>
+                  </svg>
+                  Dokumen / Resit
+                  <span v-if="failDokumenDetail.length" class="bg-[#0F4C3A]/10 text-[#0F4C3A] text-[9px] font-bold px-1.5 py-0.5 rounded-full">{{ failDokumenDetail.length }}</span>
+                </p>
+
+                <div v-if="failDokumenDetail.length" class="space-y-2">
+                  <template v-for="(fp, i) in failDokumenDetail" :key="fp">
+                    <!-- Gambar — papar inline, klik untuk besarkan -->
+                    <div v-if="isGambar(fp)" class="rounded-xl overflow-hidden border border-gray-200">
+                      <button type="button" class="w-full block group relative" @click="imgPratontonUrl = apiBase + fp">
+                        <img :src="apiBase + fp" :alt="`Dokumen ${i + 1}`"
+                          class="w-full max-h-48 object-contain bg-gray-50 group-hover:opacity-90 transition-opacity" />
+                        <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/10">
+                          <div class="bg-white/90 rounded-full p-1.5 shadow">
+                            <svg class="w-4 h-4 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"/>
+                            </svg>
+                          </div>
+                        </div>
+                      </button>
+                      <div class="px-3 py-1.5 bg-gray-50 border-t border-gray-100 flex items-center justify-between">
+                        <span class="text-[10px] text-gray-500">Gambar {{ i + 1 }}</span>
+                        <button type="button" @click="imgPratontonUrl = apiBase + fp"
+                          class="text-[10px] font-bold text-blue-600 hover:text-blue-800">Besarkan ↗</button>
+                      </div>
+                    </div>
+                    <!-- PDF — buka inline viewer -->
+                    <button v-else type="button"
+                      @click="bukaPreviewPdf(apiBase + fp)"
+                      class="w-full flex items-center gap-3 bg-red-50 border border-red-100 text-red-700 px-3 py-2.5 rounded-xl hover:bg-red-100 transition-colors text-left">
+                      <svg class="w-5 h-5 shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm-1 1.5L18.5 9H13V3.5z"/>
+                      </svg>
+                      <div class="flex-1 min-w-0">
+                        <p class="text-[11px] font-bold truncate">{{ fp.split('/').pop() }}</p>
+                        <p class="text-[9px] opacity-60">Klik untuk lihat</p>
+                      </div>
+                      <svg class="w-3.5 h-3.5 shrink-0 opacity-50" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                      </svg>
+                    </button>
+                  </template>
+                </div>
+                <p v-else class="text-[11px] text-gray-400 italic bg-gray-50 border border-gray-100 rounded-lg px-3 py-2.5">
+                  Tiada dokumen atau resit dilampirkan.
+                </p>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
+
   </div>
 </template>
 
@@ -1555,6 +2049,7 @@ import { Chart, registerables } from 'chart.js';
 import api from '../../services/api';
 import { headerResitHTML, footerResitHTML } from '../../config/kelab';
 import ModalBorangKewangan from '../../components/kewangan/ModalBorangKewangan.vue';
+import VuePdfEmbed from 'vue-pdf-embed';
 import { useToast } from '../../composables/useToast';
 
 Chart.register(...registerables);
@@ -1562,18 +2057,37 @@ Chart.register(...registerables);
 const toast = useToast();
 const apiBase = (import.meta.env.VITE_API_URL || 'http://localhost:5001/api').replace('/api', '');
 
-const LABEL_KATEGORI = {
-  YURAN: 'Yuran Kelab (FPX)', YURAN_BA: 'Yuran Biro Angkasa', KEDAI: 'Jualan Kedai', SUMBANGAN: 'Sumbangan', ACARA: 'Bayaran Acara',
-  KEBAJIKAN: 'Kebajikan', BELIAN_BARANG: 'Pembelian Barang', PERKHIDMATAN: 'Perkhidmatan',
-  OPERASI: 'Kos Operasi (FPX)', 'LAIN-LAIN': 'Lain-lain', LAIN: 'Lain-lain',
-  ACARA_KHAS: 'Acara Khas',
+// Kategori kewangan dari API
+const senaraiKategoriKewangan = ref([]);
+const LABEL_KATEGORI_FALLBACK = {
+  YURAN: 'Yuran Keahlian', YURAN_FPX: 'Yuran Kelab (FPX)',
+  KEDAI: 'Jualan Kedai', ACARA: 'Bayaran Penyertaan Acara',
+  SUMBANGAN_AHLI: 'Sumbangan Ahli', KEBAJIKAN: 'Bantuan Kebajikan Ahli',
+  TIKET_KAPALTERBANG: 'Tiket Kapal Terbang', SEWAAN_KENDERAAN: 'Sewaan Kenderaan',
+  TOKEN_MAKAN: 'Token Makan', TOKEN_PENGANGKUTAN: 'Token Pengangkutan',
+  LATIHAN_PASUKAN: 'Latihan Pasukan', PERALATAN_SUKAN: 'Peralatan Sukan',
+  PERUBATAN: 'Perubatan', PENGINAPAN: 'Penginapan', PERCETAKAN: 'Percetakan',
+  KOS_OPERASI_FPX: 'Kos Operasi (FPX)', 'LAIN-LAIN': 'Lain-lain',
+  // Kod lama (backward compat)
+  BELI_TIKET: 'Beli Tiket', BELI_MAKANAN: 'Beli Makanan', BELI_BARANG: 'Beli Barang',
+  BAYAR_PERKHIDMATAN: 'Bayar Perkhidmatan', OPERASI: 'Kos Operasi',
+  BELIAN_BARANG: 'Pembelian Barang', PERKHIDMATAN: 'Perkhidmatan',
+  ACARA_KHAS: 'Acara Khas', LAIN: 'Lain-lain',
 };
-const labelKat = (k) => LABEL_KATEGORI[k] || k;
+const labelKat = (k) =>
+  senaraiKategoriKewangan.value.find(c => c.kod === k)?.nama || LABEL_KATEGORI_FALLBACK[k] || k;
 
-// Senarai unik untuk butang filter (buang alias LAIN)
-const filterKategoriOps = Object.entries(LABEL_KATEGORI)
-  .filter(([k]) => k !== 'LAIN')
-  .map(([k, label]) => ({ val: k, label }));
+// Pilihan filter — semua kategori aktif
+const filterKategoriOps = computed(() => {
+  if (senaraiKategoriKewangan.value.length) {
+    return senaraiKategoriKewangan.value
+      .filter(k => k.aktif)
+      .map(k => ({ val: k.kod, label: k.nama }));
+  }
+  return Object.entries(LABEL_KATEGORI_FALLBACK)
+    .filter(([k]) => k !== 'LAIN')
+    .map(([k, label]) => ({ val: k, label }));
+});
 
 // ── Tabs ──
 const tabs = [
@@ -1614,21 +2128,54 @@ const laporanTahunBulan = ref(new Date().getFullYear());
 const menjanaPenyata   = ref(false);
 const menjanaPdf       = ref({ harian: false, bulanan: false });
 
+// Filter laporan kategori (Laporan Berkala tab)
+const today = new Date().toISOString().split('T')[0];
+const firstOfMonth = today.substring(0, 8) + '01';
+const filtKat = ref({ dari: firstOfMonth, hingga: today, kategori: '', acara_khas_id: '', jenis: '' });
+const loadingLaporanKat = ref(false);
+const dataLaporanKat    = ref(null);
+
 // Produk laris
 const produkLaris      = ref([]);
 const loadingProduk    = ref(false);
+
+// Detail rekod transaksi
+const txDetail = ref(null);
+const failDokumenDetail = computed(() => {
+  if (!txDetail.value?.fail_dokumen) return [];
+  let fd = txDetail.value.fail_dokumen;
+  if (typeof fd === 'string') { try { fd = JSON.parse(fd); } catch { return []; } }
+  return Array.isArray(fd) ? fd : [];
+});
+const isGambar = (p) => /\.(jpg|jpeg|png|gif|webp)$/i.test(p);
+
+// PDF Viewer (inline — sama seperti kebajikan)
+const pdfPratontonUrl = ref(null);
+const pdfMuatLoading  = ref(false);
+const pdfMuatRalat    = ref(false);
+const bukaPreviewPdf  = (url) => { pdfPratontonUrl.value = url; pdfMuatLoading.value = true; pdfMuatRalat.value = false; };
+const tutupPreviewPdf = () => { pdfPratontonUrl.value = null; };
+
+// Image Lightbox
+const imgPratontonUrl = ref(null);
 
 // Edit transaksi
 const showEditModal      = ref(false);
 const savingEdit         = ref(false);
 const editingId          = ref(null);
-const formEdit           = ref({ jenis_aliran: 'KELUAR', kategori: '', amaun: '', nota: '', rujukan: '', penerima_bayaran: '', tarikh: '' });
+const formEdit           = ref({ jenis_aliran: 'KELUAR', kategori: '', amaun: '', nota: '', rujukan: '', penerima_bayaran: '', no_kp_pihak: '', tarikh: '', acara_khas_id: null });
+const editMasukDariAhli  = ref(false);
 const failEditSediaAda   = ref([]);
 const failEditPadam      = ref([]);
 const failEditBaru       = ref([]);
 const ralatFailEdit      = ref('');
 const logEdit            = ref([]);
 const loadingLog         = ref(false);
+
+watch(editMasukDariAhli, () => {
+  formEdit.value.no_kp_pihak      = '';
+  formEdit.value.penerima_bayaran = '';
+});
 
 // Sumbangan MAKSWIP
 const showFormSumbangan       = ref(false);
@@ -1735,6 +2282,33 @@ const acaraKhasDipilih  = ref(null);
 const penyataAcara      = ref(null);
 const loadingPenyata    = ref(false);
 
+// Filter transaksi dalam penyata acara khas — dideklarasi selepas penyataAcara
+const filtAcara = ref({ kategori: '', tarikhMula: '', tarikhAkhir: '' });
+const kategoriDalamAcara = computed(() => {
+  if (!penyataAcara.value?.transaksi) return [];
+  const kods = [...new Set(penyataAcara.value.transaksi.map(t => t.kategori))];
+  return kods.map(k => ({ kod: k, nama: labelKat(k) })).sort((a, b) => a.nama.localeCompare(b.nama));
+});
+const transaksiAcaraFiltered = computed(() => {
+  if (!penyataAcara.value?.transaksi) return [];
+  const { kategori, tarikhMula, tarikhAkhir } = filtAcara.value;
+  return penyataAcara.value.transaksi.filter(t => {
+    if (kategori && t.kategori !== kategori) return false;
+    if (tarikhMula || tarikhAkhir) {
+      const p = t.tarikh.split('-');
+      const iso = `${p[2]}-${p[1]}-${p[0]}`;
+      if (tarikhMula && iso < tarikhMula) return false;
+      if (tarikhAkhir && iso > tarikhAkhir) return false;
+    }
+    return true;
+  });
+});
+const filtAcaraRingkasan = computed(() => {
+  const masuk  = transaksiAcaraFiltered.value.filter(t => t.jenis_aliran === 'MASUK').reduce((s, t) => s + parseFloat(t.amaun), 0);
+  const keluar = transaksiAcaraFiltered.value.filter(t => t.jenis_aliran === 'KELUAR').reduce((s, t) => s + parseFloat(t.amaun), 0);
+  return { masuk, keluar, baki: masuk - keluar };
+});
+
 const muatAcaraKhas = async () => {
   loadingAcaraKhas.value = true;
   try {
@@ -1747,10 +2321,107 @@ const bukaAcara = async (acara) => {
   acaraKhasDipilih.value = acara;
   penyataAcara.value = null;
   loadingPenyata.value = true;
+  filtAcara.value = { kategori: '', tarikhMula: '', tarikhAkhir: '' };
   try {
     const { data } = await api.get(`/admin/kewangan/acara-khas/${acara.id}/penyata`);
     penyataAcara.value = data;
   } catch { /* */ } finally { loadingPenyata.value = false; }
+};
+
+// ── Laporan Mengikut Kategori ──────────────────────────────────────
+const muatLaporanKategori = async () => {
+  loadingLaporanKat.value = true;
+  dataLaporanKat.value = null;
+  try {
+    const q = new URLSearchParams();
+    if (filtKat.value.dari)          q.set('dari',          filtKat.value.dari);
+    if (filtKat.value.hingga)        q.set('hingga',        filtKat.value.hingga);
+    if (filtKat.value.kategori)      q.set('kategori',      filtKat.value.kategori);
+    if (filtKat.value.acara_khas_id) q.set('acara_khas_id', filtKat.value.acara_khas_id);
+    if (filtKat.value.jenis)         q.set('jenis',         filtKat.value.jenis);
+    const { data } = await api.get('/admin/kewangan/laporan-kategori?' + q.toString());
+    if (data.success) dataLaporanKat.value = data;
+    else toast.ralat('Gagal memuatkan laporan kategori.');
+  } catch { toast.ralat('Gagal memuatkan laporan kategori.'); }
+  finally { loadingLaporanKat.value = false; }
+};
+
+const cetakLaporanKategori = () => {
+  if (!dataLaporanKat.value) return;
+  const d  = dataLaporanKat.value;
+  const r  = d.ringkasan;
+  const tc = new Date().toLocaleDateString('ms-MY', { day: 'numeric', month: 'long', year: 'numeric' });
+  const perihal = [
+    filtKat.value.dari && filtKat.value.hingga ? `${filtKat.value.dari} hingga ${filtKat.value.hingga}` : 'Semua Tarikh',
+    filtKat.value.kategori ? labelKat(filtKat.value.kategori) : 'Semua Kategori',
+    filtKat.value.acara_khas_id ? (senaraiAcaraKhas.value.find(a => a.id == filtKat.value.acara_khas_id)?.nama || '') : 'Semua Acara',
+    filtKat.value.jenis === 'MASUK' ? 'Pendapatan Sahaja' : filtKat.value.jenis === 'KELUAR' ? 'Perbelanjaan Sahaja' : 'Masuk & Keluar',
+  ].filter(Boolean).join(' · ');
+
+  // Senarai pecahan kategori
+  const barisKat = Object.entries(d.by_kategori)
+    .sort(([, a], [, b]) => (b.masuk + b.keluar) - (a.masuk + a.keluar))
+    .map(([kod, v]) => `
+      <tr>
+        <td style="padding:4px 8px">${labelKat(kod)}</td>
+        <td style="padding:4px 8px;text-align:right;color:#059669">${v.masuk > 0 ? 'RM ' + fmtRM(v.masuk) : '—'}</td>
+        <td style="padding:4px 8px;text-align:right;color:#e11d48">${v.keluar > 0 ? 'RM ' + fmtRM(v.keluar) : '—'}</td>
+        <td style="padding:4px 8px;text-align:right;font-weight:bold">${v.masuk > 0 || v.keluar > 0 ? 'RM ' + fmtRM(v.masuk - v.keluar) : '—'}</td>
+      </tr>`).join('');
+
+  // Senarai transaksi
+  const barisTx = d.data.map(t => `
+    <tr>
+      <td style="padding:3px 6px;font-family:monospace;color:#475569">${t.tarikh}</td>
+      <td style="padding:3px 6px"><span style="font-size:9px;font-weight:bold;padding:1px 5px;border-radius:3px;background:${t.jenis_aliran==='MASUK'?'#dcfce7':'#fee2e2'};color:${t.jenis_aliran==='MASUK'?'#166534':'#991b1b'}">${t.jenis_aliran==='MASUK'?'DEBIT':'KREDIT'}</span></td>
+      <td style="padding:3px 6px;color:#475569">${labelKat(t.kategori)}</td>
+      <td style="padding:3px 6px;color:#475569">${t.nota || t.penerima_bayaran || t.nama_ahli || '—'}</td>
+      <td style="padding:3px 6px;text-align:right;font-weight:600;color:${t.jenis_aliran==='MASUK'?'#059669':'#e11d48'}">${t.jenis_aliran==='KELUAR'?'- ':'+ '}${fmtRM(t.amaun)}</td>
+    </tr>`).join('');
+
+  const badan = `
+    <div style="display:flex;justify-content:space-between;margin-bottom:10px;font-size:11px">
+      <div><strong>PENAPIS:</strong> ${perihal}</div>
+      <div style="text-align:right"><strong>DICETAK:</strong> ${tc}</div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px">
+      <div style="border:1px solid #d1fae5;background:#f0fdf4;padding:8px 10px;border-radius:6px;text-align:center">
+        <div style="font-size:9px;font-weight:bold;color:#059669;text-transform:uppercase;letter-spacing:.05em">Jumlah Debit (Masuk)</div>
+        <div style="font-size:15px;font-weight:900;color:#059669;margin-top:3px">RM ${fmtRM(r.masuk)}</div>
+      </div>
+      <div style="border:1px solid #fee2e2;background:#fff1f2;padding:8px 10px;border-radius:6px;text-align:center">
+        <div style="font-size:9px;font-weight:bold;color:#e11d48;text-transform:uppercase;letter-spacing:.05em">Jumlah Kredit (Keluar)</div>
+        <div style="font-size:15px;font-weight:900;color:#e11d48;margin-top:3px">RM ${fmtRM(r.keluar)}</div>
+      </div>
+      <div style="border:1px solid #e9d5ff;background:#faf5ff;padding:8px 10px;border-radius:6px;text-align:center">
+        <div style="font-size:9px;font-weight:bold;color:#7c3aed;text-transform:uppercase;letter-spacing:.05em">Lebihan / Kurangan</div>
+        <div style="font-size:15px;font-weight:900;color:${r.lebihan>=0?'#7c3aed':'#e11d48'};margin-top:3px">RM ${fmtRM(r.lebihan)}</div>
+      </div>
+    </div>
+    <p style="font-size:10px;font-weight:bold;color:#374151;text-transform:uppercase;letter-spacing:.06em;margin:0 0 6px">Pecahan Mengikut Kategori</p>
+    <table style="width:100%;border-collapse:collapse;font-size:11px;margin-bottom:14px">
+      <thead><tr style="background:#f3f4f6;border-bottom:2px solid #d1d5db">
+        <th style="padding:5px 8px;text-align:left;font-size:9px;color:#6b7280;text-transform:uppercase">Kategori</th>
+        <th style="padding:5px 8px;text-align:right;font-size:9px;color:#6b7280;text-transform:uppercase">Debit (+)</th>
+        <th style="padding:5px 8px;text-align:right;font-size:9px;color:#6b7280;text-transform:uppercase">Kredit (−)</th>
+        <th style="padding:5px 8px;text-align:right;font-size:9px;color:#6b7280;text-transform:uppercase">Lebihan</th>
+      </tr></thead>
+      <tbody style="border-bottom:1px solid #e5e7eb">${barisKat}</tbody>
+    </table>
+    <p style="font-size:10px;font-weight:bold;color:#374151;text-transform:uppercase;letter-spacing:.06em;margin:0 0 6px">Senarai Transaksi (${r.bil} rekod)</p>
+    <table style="width:100%;border-collapse:collapse;font-size:10.5px">
+      <thead><tr style="background:#f3f4f6;border-bottom:2px solid #d1d5db">
+        <th style="padding:4px 6px;text-align:left;font-size:8.5px;color:#6b7280;text-transform:uppercase">Tarikh</th>
+        <th style="padding:4px 6px;text-align:left;font-size:8.5px;color:#6b7280;text-transform:uppercase">Jenis</th>
+        <th style="padding:4px 6px;text-align:left;font-size:8.5px;color:#6b7280;text-transform:uppercase">Kategori</th>
+        <th style="padding:4px 6px;text-align:left;font-size:8.5px;color:#6b7280;text-transform:uppercase">Nota / Penerima</th>
+        <th style="padding:4px 6px;text-align:right;font-size:8.5px;color:#6b7280;text-transform:uppercase">Amaun (RM)</th>
+      </tr></thead>
+      <tbody>${barisTx}</tbody>
+    </table>
+    <div style="margin-top:6px;font-size:8.5px;color:#64748b">${r.bil} rekod &bull; Laporan dijana: ${tc}</div>`;
+
+  bukaCetakWindow(`Laporan Mengikut Kategori &bull; ${perihal}`, badan);
 };
 
 const fmtRM = (n) => parseFloat(n || 0).toLocaleString('ms-MY', { minimumFractionDigits: 2 });
@@ -1761,56 +2432,29 @@ const cetakPenyataAcara = () => {
   const acara = acaraKhasDipilih.value;
   const tarikhCetak = new Date().toLocaleDateString('ms-MY', { day: 'numeric', month: 'long', year: 'numeric' });
 
-  // Jadual sumbangan
-  const barisSumbangan = d.sumbangan?.length
-    ? d.sumbangan.map((s, i) => `<tr>
-        <td style="text-align:center;color:#64748b">${i + 1}</td>
-        <td>${s.tarikh || '—'}</td>
-        <td style="font-weight:600">${s.nama_syarikat}</td>
-        <td>${s.nama_pakej ? `<span style="background:#ede9fe;color:#6d28d9;padding:1px 5px;border-radius:3px;font-size:9px;font-weight:700">${s.nama_pakej}</span>` : '—'}</td>
-        <td style="color:#475569">${s.nama_pic || '—'}</td>
-        <td style="text-align:right;font-family:monospace;font-weight:700;color:#b45309">${num(s.amaun)}</td>
-      </tr>`).join('')
-    : `<tr><td colspan="6" style="text-align:center;color:#999;padding:12px">Tiada rekod sumbangan.</td></tr>`;
-
-  // Jadual tuntutan MAKSWIP
-  const barisTuntutan = d.tuntutan?.length
-    ? d.tuntutan.map((t, i) => `<tr>
-        <td style="text-align:center;color:#64748b">${i + 1}</td>
-        <td>${t.tarikh_tuntutan || '—'}</td>
-        <td style="text-align:right;font-family:monospace;font-weight:700;color:#0369a1">${num(t.jumlah_bersih)}</td>
-        <td style="color:#475569;font-size:10px">${t.nota || '—'}</td>
-      </tr>`).join('')
-    : `<tr><td colspan="4" style="text-align:center;color:#999;padding:12px">Tiada tuntutan MAKSWIP.</td></tr>`;
-
-  // Jadual lejar
+  // Hanya transaksi lejar (transaksi_kewangan) — kutipan sumbangan tidak dicetak
   const barisLejar = d.transaksi?.length
     ? d.transaksi.map((t, i) => `<tr>
         <td style="text-align:center;color:#64748b">${i + 1}</td>
         <td>${t.tarikh || '—'}</td>
-        <td><span style="font-size:8px;font-weight:700;color:${t.jenis_aliran === 'MASUK' ? '#047857' : '#b91c1c'}">${t.jenis_aliran === 'MASUK' ? '▲ KREDIT' : '▼ DEBIT'}</span></td>
+        <td><span style="font-size:8px;font-weight:700;color:${t.jenis_aliran === 'MASUK' ? '#047857' : '#b91c1c'}">${t.jenis_aliran === 'MASUK' ? '▲ DEBIT' : '▼ KREDIT'}</span></td>
         <td>${labelKat(t.kategori)}</td>
-        <td style="color:#475569;font-size:10px">${(t.nota || t.rujukan || '—').substring(0, 40)}</td>
+        <td style="color:#475569;font-size:10px">${(t.nota || t.penerima_bayaran || t.nama_ahli || '—').substring(0, 40)}</td>
         <td style="text-align:right;font-family:monospace;color:#b91c1c;font-weight:700">${t.jenis_aliran === 'KELUAR' ? num(t.amaun) : ''}</td>
         <td style="text-align:right;font-family:monospace;color:#047857;font-weight:700">${t.jenis_aliran === 'MASUK'  ? num(t.amaun) : ''}</td>
       </tr>`).join('')
-    : `<tr><td colspan="7" style="text-align:center;color:#999;padding:12px">Tiada transaksi lejar.</td></tr>`;
+    : `<tr><td colspan="7" style="text-align:center;color:#999;padding:12px">Tiada transaksi lejar direkodkan.</td></tr>`;
 
   const badan = `
     <div style="margin-bottom:14px;font-size:11px;color:#475569">
       Tarikh Cetak: <strong>${tarikhCetak}</strong>
     </div>
 
-    <!-- KPI ringkasan -->
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:18px">
-      <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:6px;padding:8px 10px;text-align:center">
-        <div style="font-size:8px;color:#92400e;font-weight:700;text-transform:uppercase;letter-spacing:.05em">Kutipan Sumbangan</div>
-        <div style="font-size:13px;font-weight:800;color:#b45309;font-family:monospace;margin-top:2px">${rm(rk.sumbangan_kasar)}</div>
-        <div style="font-size:8px;color:#b45309;margin-top:2px">${rk.bil_sumbangan} penyumbang</div>
-      </div>
-      <div style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:6px;padding:8px 10px;text-align:center">
-        <div style="font-size:8px;color:#075985;font-weight:700;text-transform:uppercase;letter-spacing:.05em">Diterima MAKSWIP</div>
-        <div style="font-size:13px;font-weight:800;color:#0369a1;font-family:monospace;margin-top:2px">${rm(rk.jumlah_diterima_makswip)}</div>
+    <!-- KPI ringkasan — lejar sahaja -->
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:18px">
+      <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:6px;padding:8px 10px;text-align:center">
+        <div style="font-size:8px;color:#065f46;font-weight:700;text-transform:uppercase;letter-spacing:.05em">Pendapatan</div>
+        <div style="font-size:13px;font-weight:800;color:#047857;font-family:monospace;margin-top:2px">${rm(rk.jumlah_masuk)}</div>
       </div>
       <div style="background:#fff1f2;border:1px solid #fecdd3;border-radius:6px;padding:8px 10px;text-align:center">
         <div style="font-size:8px;color:#9f1239;font-weight:700;text-transform:uppercase;letter-spacing:.05em">Perbelanjaan</div>
@@ -1822,55 +2466,19 @@ const cetakPenyataAcara = () => {
       </div>
     </div>
 
-    ${d.sumbangan?.length ? `
-    <h3 style="font-size:10px;color:#1e293b;margin:0 0 5px;border-bottom:1.5px solid #334155;padding-bottom:3px;font-weight:700;letter-spacing:.05em;text-transform:uppercase">A. Kutipan Sumbangan (dari Penyumbang ke MAKSWIP)</h3>
+    <h3 style="font-size:10px;color:#1e293b;margin:0 0 5px;border-bottom:1.5px solid #334155;padding-bottom:3px;font-weight:700;letter-spacing:.05em;text-transform:uppercase">Transaksi Lejar</h3>
     <table>
       <thead><tr>
         <th style="width:24px;text-align:center">#</th>
-        <th>Tarikh</th><th>Syarikat / Penyumbang</th><th>Pakej</th><th>PIC</th>
-        <th style="text-align:right">Amaun (RM)</th>
-      </tr></thead>
-      <tbody>${barisSumbangan}
-        <tr style="font-weight:700;background:#fef9c3;border-top:1.5px solid #fbbf24">
-          <td colspan="5" style="text-align:right">JUMLAH DIKUTIP</td>
-          <td style="text-align:right;font-family:monospace">${num(rk.sumbangan_kasar)}</td>
-        </tr>
-      </tbody>
-    </table>` : ''}
-
-    ${d.tuntutan?.length ? `
-    <h3 style="font-size:10px;color:#1e293b;margin:14px 0 5px;border-bottom:1.5px solid #334155;padding-bottom:3px;font-weight:700;letter-spacing:.05em;text-transform:uppercase">B. Penerimaan daripada MAKSWIP</h3>
-    <table>
-      <thead><tr>
-        <th style="width:24px;text-align:center">#</th>
-        <th>Tarikh Terima</th>
-        <th style="text-align:right">Bersih Diterima (RM)</th>
-        <th>Nota</th>
-      </tr></thead>
-      <tbody>${barisTuntutan}
-        <tr style="font-weight:700;background:#e0f2fe;border-top:1.5px solid #7dd3fc">
-          <td colspan="2" style="text-align:right">JUMLAH BERSIH DITERIMA</td>
-          <td style="text-align:right;font-family:monospace;color:#0369a1">${num(rk.jumlah_diterima_makswip)}</td>
-          <td></td>
-        </tr>
-      </tbody>
-    </table>` : `<p style="font-size:10px;color:#92400e;background:#fffbeb;padding:8px 12px;border-radius:4px;border:1px solid #fde68a;margin:14px 0 0">Tiada tuntutan MAKSWIP direkodkan untuk acara ini.</p>`}
-
-    ${d.transaksi?.length ? `
-    <h3 style="font-size:10px;color:#1e293b;margin:14px 0 5px;border-bottom:1.5px solid #334155;padding-bottom:3px;font-weight:700;letter-spacing:.05em;text-transform:uppercase">C. Transaksi Lejar</h3>
-    <table>
-      <thead><tr>
-        <th style="width:24px;text-align:center">#</th>
-        <th>Tarikh</th><th>Jenis</th><th>Kategori</th><th>Nota / Rujukan</th>
-        <th style="text-align:right">Debit (–) RM</th>
-        <th style="text-align:right">Kredit (+) RM</th>
+        <th>Tarikh</th><th>Jenis</th><th>Kategori</th><th>Nota / Penerima</th>
+        <th style="text-align:right">Kredit (–) RM</th>
+        <th style="text-align:right">Debit (+) RM</th>
       </tr></thead>
       <tbody>${barisLejar}</tbody>
-    </table>` : ''}
+    </table>
 
     <div class="ringkas" style="margin-top:18px">
-      <div class="r"><span>Jumlah Kutipan Sumbangan (dari penyumbang)</span><span style="color:#b45309;font-weight:700">${rm(rk.sumbangan_kasar)}</span></div>
-      <div class="r"><span>Jumlah Diterima daripada MAKSWIP</span><span style="color:#0369a1;font-weight:700">${rm(rk.jumlah_diterima_makswip)}</span></div>
+      <div class="r"><span>Jumlah Pendapatan</span><span style="color:#047857;font-weight:700">${rm(rk.jumlah_masuk)}</span></div>
       <div class="r"><span>Jumlah Perbelanjaan</span><span class="neg">${rm(rk.jumlah_keluar)}</span></div>
       <div class="r akhir"><span>BAKI LEJAR ACARA</span><span style="color:${rk.baki >= 0 ? '#a78bfa' : '#fb923c'}">${rm(rk.baki)}</span></div>
     </div>
@@ -1881,6 +2489,74 @@ const cetakPenyataAcara = () => {
     </div>`;
 
   bukaCetakWindow(`Penyata Acara Khas &bull; ${acara.nama} &bull; Dicetak: ${tarikhCetak}`, badan);
+};
+
+const cetakLaporanPerbelanjaanAcara = async () => {
+  if (!acaraKhasDipilih.value) return;
+  const tarikhCetak = new Date().toLocaleDateString('ms-MY', { day: 'numeric', month: 'long', year: 'numeric' });
+  try {
+    const { data } = await api.get(`/admin/kewangan/acara-khas/${acaraKhasDipilih.value.id}/laporan-perbelanjaan`);
+    if (!data.success) { toast.ralat('Gagal muat laporan perbelanjaan.'); return; }
+    const { acara, transaksi, by_kategori, ringkasan } = data;
+
+    const barisKategori = by_kategori?.length
+      ? by_kategori.map((k, i) => `<tr>
+          <td style="text-align:center;color:#64748b">${i + 1}</td>
+          <td style="font-weight:600">${k.nama_kategori || labelKat(k.kategori)}</td>
+          <td style="text-align:center">${k.bil}</td>
+          <td style="text-align:right;font-family:monospace;font-weight:700;color:#b91c1c">${num(k.jumlah)}</td>
+        </tr>`).join('')
+      : `<tr><td colspan="4" style="text-align:center;color:#999;padding:12px">Tiada perbelanjaan.</td></tr>`;
+
+    const barisTransaksi = transaksi?.length
+      ? transaksi.map((t, i) => `<tr>
+          <td style="text-align:center;color:#64748b">${i + 1}</td>
+          <td>${t.tarikh || '—'}</td>
+          <td>${labelKat(t.kategori)}</td>
+          <td style="color:#475569;font-size:10px">${(t.pihak || t.nota || '—').substring(0, 40)}</td>
+          <td style="text-align:right;font-family:monospace;font-weight:700;color:#b91c1c">${num(t.amaun)}</td>
+        </tr>`).join('')
+      : `<tr><td colspan="5" style="text-align:center;color:#999;padding:12px">Tiada perbelanjaan direkodkan.</td></tr>`;
+
+    const badan = `
+      <div style="margin-bottom:14px;font-size:11px;color:#475569">Tarikh Cetak: <strong>${tarikhCetak}</strong></div>
+      <div style="background:#fff1f2;border:1px solid #fecdd3;border-radius:8px;padding:12px;text-align:center;margin-bottom:18px">
+        <div style="font-size:9px;color:#9f1239;font-weight:700;text-transform:uppercase;letter-spacing:.05em">Jumlah Perbelanjaan</div>
+        <div style="font-size:22px;font-weight:800;color:#be123c;font-family:monospace;margin-top:3px">RM ${num(ringkasan.jumlah_perbelanjaan)}</div>
+        <div style="font-size:9px;color:#9f1239;margin-top:2px">${ringkasan.bil_transaksi} transaksi</div>
+      </div>
+      <h3 style="font-size:10px;color:#1e293b;margin:0 0 5px;border-bottom:1.5px solid #334155;padding-bottom:3px;font-weight:700;letter-spacing:.05em;text-transform:uppercase">A. Pecahan Ikut Kategori</h3>
+      <table>
+        <thead><tr>
+          <th style="width:24px;text-align:center">#</th>
+          <th>Kategori</th><th style="text-align:center">Bil</th>
+          <th style="text-align:right">Amaun (RM)</th>
+        </tr></thead>
+        <tbody>${barisKategori}
+          <tr style="font-weight:700;background:#fff1f2;border-top:1.5px solid #fca5a5">
+            <td colspan="3" style="text-align:right">JUMLAH</td>
+            <td style="text-align:right;font-family:monospace;color:#b91c1c">${num(ringkasan.jumlah_perbelanjaan)}</td>
+          </tr>
+        </tbody>
+      </table>
+      <h3 style="font-size:10px;color:#1e293b;margin:18px 0 5px;border-bottom:1.5px solid #334155;padding-bottom:3px;font-weight:700;letter-spacing:.05em;text-transform:uppercase">B. Senarai Perbelanjaan</h3>
+      <table>
+        <thead><tr>
+          <th style="width:24px;text-align:center">#</th>
+          <th>Tarikh</th><th>Kategori</th><th>Pihak / Nota</th>
+          <th style="text-align:right">Amaun (RM)</th>
+        </tr></thead>
+        <tbody>${barisTransaksi}</tbody>
+      </table>
+      <div style="display:flex;justify-content:space-between;margin-top:40px;font-size:10px;color:#444">
+        <div style="text-align:center">________________________<br/>Disediakan oleh (Bendahari)</div>
+        <div style="text-align:center">________________________<br/>Disahkan oleh (Yang Dipertua)</div>
+      </div>`;
+
+    bukaCetakWindow(`Laporan Perbelanjaan Acara &bull; ${acara.nama} &bull; Dicetak: ${tarikhCetak}`, badan);
+  } catch (e) {
+    toast.ralat(e.response?.data?.message || 'Gagal menjana laporan perbelanjaan.');
+  }
 };
 
 const senaraiMinggu = [
@@ -1957,9 +2633,12 @@ const bukaEdit = (tx) => {
     amaun:            tx.amaun,
     nota:             tx.nota || '',
     rujukan:          tx.rujukan || '',
-    penerima_bayaran: tx.penerima_bayaran || tx.nama_ahli || '',
+    penerima_bayaran: tx.penerima_bayaran || '',
+    no_kp_pihak:      tx.no_kp_pihak || '',
     tarikh,
+    acara_khas_id:    tx.acara_khas_id || null,
   };
+  editMasukDariAhli.value = !!(tx.no_kp_pihak);
   // Dokumen sedia ada — mysql2 auto-parse JSON column
   let fd = tx.fail_dokumen;
   if (typeof fd === 'string') { try { fd = JSON.parse(fd); } catch { fd = []; } }
@@ -2009,7 +2688,7 @@ const simpanEdit = async () => {
   if (!formEdit.value.kategori || !formEdit.value.amaun || parseFloat(formEdit.value.amaun) <= 0) {
     toast.amaran('Sila isi kategori dan amaun yang sah.'); return;
   }
-  const jenis = formEdit.value.jenis_aliran === 'MASUK' ? 'KREDIT' : 'DEBIT';
+  const jenis = formEdit.value.jenis_aliran === 'MASUK' ? 'DEBIT' : 'KREDIT';
   const sahkan = confirm(
     `Sahkan kemaskini rekod ini?\n\n` +
     `Jenis   : ${jenis}\n` +
@@ -2027,9 +2706,11 @@ const simpanEdit = async () => {
     fd.append('amaun',            formEdit.value.amaun);
     fd.append('nota',             formEdit.value.nota || '');
     fd.append('rujukan',          formEdit.value.rujukan || '');
-    fd.append('penerima_bayaran', formEdit.value.penerima_bayaran || '');
+    if (formEdit.value.no_kp_pihak)      fd.append('no_kp_pihak',      formEdit.value.no_kp_pihak);
+    fd.append('penerima_bayaran', formEdit.value.no_kp_pihak ? '' : (formEdit.value.penerima_bayaran || ''));
     fd.append('tarikh',           formEdit.value.tarikh || '');
     fd.append('fail_padam',       JSON.stringify(failEditPadam.value));
+    if (formEdit.value.acara_khas_id) fd.append('acara_khas_id', formEdit.value.acara_khas_id);
     failEditBaru.value.forEach(e => fd.append('dokumen', e.fail));
 
     const { data } = await api.put(`/admin/kewangan/transaksi/${editingId.value}`, fd);
@@ -2051,7 +2732,7 @@ const simpanEdit = async () => {
 };
 
 const padamTx = async (tx) => {
-  if (!confirm(`Padam rekod ${tx.jenis_aliran === 'MASUK' ? 'KREDIT' : 'DEBIT'} ${fmt(tx.amaun)}?\n\nTindakan ini tidak boleh dibatalkan.`)) return;
+  if (!confirm(`Padam rekod ${tx.jenis_aliran === 'MASUK' ? 'DEBIT' : 'KREDIT'} ${fmt(tx.amaun)}?\n\nTindakan ini tidak boleh dibatalkan.`)) return;
   try {
     const { data } = await api.delete(`/admin/kewangan/transaksi/${tx.id}`);
     if (data.success) {
@@ -2272,8 +2953,8 @@ const renderChart = (bulanan) => {
     data: {
       labels,
       datasets: [
-        { label: 'Kredit (+)', data: bulanan.map(b => b.masuk),  backgroundColor: '#059669', borderRadius: 4, barPercentage: 0.6, categoryPercentage: 0.75 },
-        { label: 'Debit (–)', data: bulanan.map(b => b.keluar), backgroundColor: '#e11d48', borderRadius: 4, barPercentage: 0.6, categoryPercentage: 0.75 },
+        { label: 'Debit (+)', data: bulanan.map(b => b.masuk),  backgroundColor: '#059669', borderRadius: 4, barPercentage: 0.6, categoryPercentage: 0.75 },
+        { label: 'Kredit (–)', data: bulanan.map(b => b.keluar), backgroundColor: '#e11d48', borderRadius: 4, barPercentage: 0.6, categoryPercentage: 0.75 },
       ],
     },
     options: {
@@ -2403,7 +3084,7 @@ const buatBarisTx = (tx, idx) => `
   <tr>
     <td style="text-align:center;color:#64748b">${idx + 1}</td>
     <td style="font-family:monospace">${fmtTarikhSahaja(tx.tarikh)}</td>
-    <td><span style="font-size:8px;font-weight:700;letter-spacing:.04em;color:${tx.jenis_aliran === 'MASUK' ? '#047857' : '#b91c1c'}">${tx.jenis_aliran === 'MASUK' ? '▲ KREDIT' : '▼ DEBIT'}</span></td>
+    <td><span style="font-size:8px;font-weight:700;letter-spacing:.04em;color:${tx.jenis_aliran === 'MASUK' ? '#047857' : '#b91c1c'}">${tx.jenis_aliran === 'MASUK' ? '▲ DEBIT' : '▼ KREDIT'}</span></td>
     <td>${labelKat(tx.kategori)}</td>
     <td style="color:#475569">${(tx.nota || tx.rujukan || '—').substring(0, 45)}</td>
     <td style="color:#475569">${tx.nama_ahli || tx.penerima_bayaran || '—'}</td>
@@ -2451,16 +3132,16 @@ const cetakPenyataTahunan = async () => {
       : `<tr><td colspan="3" style="text-align:center;color:#999">Tiada rekod perbelanjaan.</td></tr>`;
 
     const badan = `
-      <h3 style="font-size:10px;color:#1e293b;margin:18px 0 5px;border-bottom:1.5px solid #334155;padding-bottom:3px;font-weight:700;letter-spacing:.05em;text-transform:uppercase">A. Pendapatan / Kredit</h3>
+      <h3 style="font-size:10px;color:#1e293b;margin:18px 0 5px;border-bottom:1.5px solid #334155;padding-bottom:3px;font-weight:700;letter-spacing:.05em;text-transform:uppercase">A. Pendapatan / Debit</h3>
       <table><thead><tr><th>Kategori</th><th style="text-align:center">Bil. Transaksi</th><th style="text-align:right">Jumlah (RM)</th></tr></thead>
-      <tbody>${barisPendapatan}<tr style="font-weight:700;background:#f1f5f9;border-top:1.5px solid #334155"><td>JUMLAH KREDIT</td><td></td><td style="text-align:right;font-family:monospace">${num(d.jumlah_pendapatan)}</td></tr></tbody></table>
-      <h3 style="font-size:10px;color:#1e293b;margin:18px 0 5px;border-bottom:1.5px solid #334155;padding-bottom:3px;font-weight:700;letter-spacing:.05em;text-transform:uppercase">B. Perbelanjaan / Debit</h3>
+      <tbody>${barisPendapatan}<tr style="font-weight:700;background:#f1f5f9;border-top:1.5px solid #334155"><td>JUMLAH DEBIT</td><td></td><td style="text-align:right;font-family:monospace">${num(d.jumlah_pendapatan)}</td></tr></tbody></table>
+      <h3 style="font-size:10px;color:#1e293b;margin:18px 0 5px;border-bottom:1.5px solid #334155;padding-bottom:3px;font-weight:700;letter-spacing:.05em;text-transform:uppercase">B. Perbelanjaan / Kredit</h3>
       <table><thead><tr><th>Kategori</th><th style="text-align:center">Bil. Transaksi</th><th style="text-align:right">Jumlah (RM)</th></tr></thead>
-      <tbody>${barisPerbelanjaan}<tr style="font-weight:700;background:#f1f5f9;border-top:1.5px solid #334155"><td>JUMLAH DEBIT</td><td></td><td style="text-align:right;font-family:monospace">${num(d.jumlah_perbelanjaan)}</td></tr></tbody></table>
+      <tbody>${barisPerbelanjaan}<tr style="font-weight:700;background:#f1f5f9;border-top:1.5px solid #334155"><td>JUMLAH KREDIT</td><td></td><td style="text-align:right;font-family:monospace">${num(d.jumlah_perbelanjaan)}</td></tr></tbody></table>
       <div class="ringkas">
         <div class="r"><span>Baki Bawa Ke Hadapan (sebelum ${d.tahun})</span><span>${rm(d.baki_bawa)}</span></div>
-        <div class="r"><span>Jumlah Kredit ${d.tahun}</span><span class="pos">${rm(d.jumlah_pendapatan)}</span></div>
-        <div class="r"><span>Jumlah Debit ${d.tahun}</span><span class="neg">${rm(d.jumlah_perbelanjaan)}</span></div>
+        <div class="r"><span>Jumlah Debit ${d.tahun}</span><span class="pos">${rm(d.jumlah_pendapatan)}</span></div>
+        <div class="r"><span>Jumlah Kredit ${d.tahun}</span><span class="neg">${rm(d.jumlah_perbelanjaan)}</span></div>
         <div class="r"><span>Lebihan / (Kurangan) Tahun Semasa</span><span class="${d.lebihan_kurangan >= 0 ? 'pos' : 'neg'}">${rm(d.lebihan_kurangan)}</span></div>
         <div class="r akhir"><span>BAKI AKHIR TERKUMPUL</span><span>${rm(d.baki_akhir)}</span></div>
       </div>
@@ -2497,11 +3178,11 @@ const cetakLaporanHarian = async () => {
       </div>
       <div style="display:flex;gap:8px;margin-bottom:12px">
         <div style="background:#f8fafc;border:1px solid #cbd5e1;border-radius:5px;padding:7px 14px;text-align:center;flex:1">
-          <div style="font-size:8px;color:#64748b;text-transform:uppercase;letter-spacing:.06em;font-weight:700">Jumlah Kredit</div>
+          <div style="font-size:8px;color:#64748b;text-transform:uppercase;letter-spacing:.06em;font-weight:700">Jumlah Debit</div>
           <div style="font-size:13px;font-weight:700;color:#047857;font-family:monospace">+${rm(r.masuk)}</div>
         </div>
         <div style="background:#f8fafc;border:1px solid #cbd5e1;border-radius:5px;padding:7px 14px;text-align:center;flex:1">
-          <div style="font-size:8px;color:#64748b;text-transform:uppercase;letter-spacing:.06em;font-weight:700">Jumlah Debit</div>
+          <div style="font-size:8px;color:#64748b;text-transform:uppercase;letter-spacing:.06em;font-weight:700">Jumlah Kredit</div>
           <div style="font-size:13px;font-weight:700;color:#b91c1c;font-family:monospace">-${rm(r.keluar)}</div>
         </div>
         <div style="background:#f8fafc;border:1px solid #cbd5e1;border-radius:5px;padding:7px 14px;text-align:center;flex:1">
@@ -2512,8 +3193,8 @@ const cetakLaporanHarian = async () => {
       <table><thead><tr>
         <th style="width:26px;text-align:center">#</th><th>Tarikh</th><th>Jenis</th>
         <th>Kategori</th><th>Nota / Rujukan</th><th>Pihak</th>
-        <th style="text-align:right">Debit (–) RM</th>
-        <th style="text-align:right">Kredit (+) RM</th>
+        <th style="text-align:right">Kredit (–) RM</th>
+        <th style="text-align:right">Debit (+) RM</th>
       </tr></thead>
       <tbody>${baris}</tbody></table>
       <div style="margin-top:6px;font-size:8.5px;color:#64748b">Jumlah: <strong>${r.bil}</strong> transaksi</div>`;
@@ -2545,11 +3226,11 @@ const cetakLaporanBulanan = async () => {
       </div>
       <div style="display:flex;gap:8px;margin-bottom:12px">
         <div style="background:#f8fafc;border:1px solid #cbd5e1;border-radius:5px;padding:7px 14px;text-align:center;flex:1">
-          <div style="font-size:8px;color:#64748b;text-transform:uppercase;letter-spacing:.06em;font-weight:700">Jumlah Kredit</div>
+          <div style="font-size:8px;color:#64748b;text-transform:uppercase;letter-spacing:.06em;font-weight:700">Jumlah Debit</div>
           <div style="font-size:13px;font-weight:700;color:#047857;font-family:monospace">+${rm(r.masuk)}</div>
         </div>
         <div style="background:#f8fafc;border:1px solid #cbd5e1;border-radius:5px;padding:7px 14px;text-align:center;flex:1">
-          <div style="font-size:8px;color:#64748b;text-transform:uppercase;letter-spacing:.06em;font-weight:700">Jumlah Debit</div>
+          <div style="font-size:8px;color:#64748b;text-transform:uppercase;letter-spacing:.06em;font-weight:700">Jumlah Kredit</div>
           <div style="font-size:13px;font-weight:700;color:#b91c1c;font-family:monospace">-${rm(r.keluar)}</div>
         </div>
         <div style="background:#f8fafc;border:1px solid #cbd5e1;border-radius:5px;padding:7px 14px;text-align:center;flex:1">
@@ -2560,8 +3241,8 @@ const cetakLaporanBulanan = async () => {
       <table><thead><tr>
         <th style="width:26px;text-align:center">#</th><th>Tarikh</th><th>Jenis</th>
         <th>Kategori</th><th>Nota / Rujukan</th><th>Pihak</th>
-        <th style="text-align:right">Debit (–) RM</th>
-        <th style="text-align:right">Kredit (+) RM</th>
+        <th style="text-align:right">Kredit (–) RM</th>
+        <th style="text-align:right">Debit (+) RM</th>
       </tr></thead>
       <tbody>${baris}</tbody></table>
       <div style="margin-top:6px;font-size:8.5px;color:#64748b">Jumlah: <strong>${r.bil}</strong> transaksi &bull; ${namaBulan} ${laporanTahunBulan.value}</div>`;
@@ -2593,8 +3274,15 @@ const cetakSumbangan = () => {
   bukaCetakWindow(`Laporan Kutipan Sumbangan &bull; Tahun ${tahunPilihan.value} &bull; Dicetak: ${tarikhCetak}`, badan);
 };
 
+const muatKategoriKewangan = async () => {
+  try {
+    const { data } = await api.get('/admin/kewangan/kategori');
+    senaraiKategoriKewangan.value = data.data || [];
+  } catch { /* fallback ke LABEL_KATEGORI_FALLBACK */ }
+};
+
 onMounted(async () => {
-  await Promise.all([muatSenaraiAhli(), muatData(), muatTransaksi(), muatAcaraKhas()]);
+  await Promise.all([muatSenaraiAhli(), muatData(), muatTransaksi(), muatAcaraKhas(), muatKategoriKewangan()]);
   muatBakiTerkumpul();
   muatStaffSumb();
 });

@@ -59,7 +59,7 @@
               'bg-amber-50 border-amber-200']">
               <p :class="['text-[9px] font-bold uppercase tracking-widest mb-2',
                 jenisAktif === 'masuk' ? 'text-emerald-600' : jenisAktif === 'keluar' ? 'text-rose-600' : 'text-amber-600']">
-                {{ jenisAktif === 'masuk' ? 'KREDIT — Wang Masuk' : jenisAktif === 'keluar' ? 'DEBIT — Wang Keluar' : 'Kutipan Sumbangan Luar' }}
+                {{ jenisAktif === 'masuk' ? 'DEBIT — Wang Masuk' : jenisAktif === 'keluar' ? 'KREDIT — Wang Keluar' : 'Kutipan Sumbangan Luar' }}
               </p>
               <div class="flex items-end gap-4">
                 <div class="flex-1">
@@ -91,22 +91,50 @@
                     <div>
                       <label class="field-label">Kategori Pendapatan *</label>
                       <select v-model="form.kategori" class="field-input">
-                        <option value="YURAN">Yuran Keahlian</option>
-                        <option value="KEDAI">Jualan Kedai / Merchandise</option>
-                        <option value="ACARA">Bayaran Penyertaan Acara</option>
-                        <option value="LAIN">Lain-lain Pendapatan</option>
-                        <optgroup v-if="senaraiAcaraKhas.length" label="── Acara Khas ──">
-                          <option v-for="a in senaraiAcaraKhas" :key="a.id" :value="`ACARA_KHAS_${a.id}`">{{ a.nama }}</option>
-                        </optgroup>
+                        <option value="" disabled>-- Pilih kategori --</option>
+                        <option v-for="k in kategoriMasuk" :key="k.kod" :value="k.kod">{{ k.nama }}</option>
                       </select>
                     </div>
                     <div>
                       <label class="field-label">Diterima Daripada</label>
-                      <input v-model="form.penerima_bayaran" type="text"
+                      <div class="flex gap-4 pt-1.5 pb-1">
+                        <label class="flex items-center gap-1.5 text-[11px] font-medium text-gray-700 cursor-pointer">
+                          <input type="radio" :value="false" v-model="form.masuk_dari_ahli" class="accent-[#0F4C3A]" />
+                          Nama Bebas
+                        </label>
+                        <label class="flex items-center gap-1.5 text-[11px] font-medium text-gray-700 cursor-pointer">
+                          <input type="radio" :value="true" v-model="form.masuk_dari_ahli" class="accent-[#0F4C3A]" />
+                          Ahli Kelab
+                        </label>
+                      </div>
+                      <select v-if="form.masuk_dari_ahli" v-model="form.no_kp_pihak"
+                        class="field-input border-emerald-300 focus:border-emerald-500">
+                        <option value="" disabled>-- Pilih ahli --</option>
+                        <option v-for="a in senaraiAhli" :key="a.no_kp" :value="a.no_kp">
+                          {{ a.nama_pegawai }} ({{ a.no_kp }})
+                        </option>
+                      </select>
+                      <input v-else v-model="form.penerima_bayaran" type="text"
                         placeholder="Nama pembayar (kosongkan jika kolektif)"
                         class="field-input" />
                     </div>
                   </div>
+
+                  <!-- Sempena -->
+                  <div>
+                    <label class="field-label">Sempena</label>
+                    <select v-model="form.acara_khas_id" class="field-input">
+                      <option :value="null">Pendapatan Biasa</option>
+                      <option v-for="a in senaraiAcaraKhas" :key="a.id" :value="a.id">{{ a.nama }}</option>
+                    </select>
+                    <p v-if="form.acara_khas_id" class="text-[10px] text-violet-600 mt-1 font-medium">
+                      Pendapatan ini akan dikira di bawah acara khas yang dipilih.
+                    </p>
+                    <p v-else class="text-[10px] text-gray-400 mt-1">
+                      Tiada acara khas — pendapatan biasa kelab.
+                    </p>
+                  </div>
+
                   <div class="flex items-start gap-2 bg-amber-50 border border-amber-100 rounded-lg px-3 py-2">
                     <svg class="w-3.5 h-3.5 text-amber-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -120,15 +148,8 @@
                   <div>
                     <label class="field-label">Kategori Perbelanjaan *</label>
                     <select v-model="form.kategori" class="field-input">
-                      <option value="KEBAJIKAN">Bantuan Kebajikan Ahli</option>
-                      <option value="ACARA">Kos Acara / Sukan Kelab</option>
-                      <option value="BELIAN_BARANG">Pembelian Barang / Aset</option>
-                      <option value="PERKHIDMATAN">Pembayaran Perkhidmatan</option>
-                      <option value="OPERASI">Perbelanjaan Operasi</option>
-                      <option value="LAIN">Lain-lain Perbelanjaan</option>
-                      <optgroup v-if="senaraiAcaraKhas.length" label="── Acara Khas ──">
-                        <option v-for="a in senaraiAcaraKhas" :key="a.id" :value="`ACARA_KHAS_${a.id}`">{{ a.nama }}</option>
-                      </optgroup>
+                      <option value="" disabled>-- Pilih kategori --</option>
+                      <option v-for="k in kategoriKeluar" :key="k.kod" :value="k.kod">{{ k.nama }}</option>
                     </select>
                   </div>
 
@@ -147,6 +168,21 @@
                     <input v-model="form.penerima_bayaran" type="text"
                       placeholder="Nama vendor / syarikat / individu penerima"
                       class="field-input" />
+                  </div>
+
+                  <!-- Sempena -->
+                  <div>
+                    <label class="field-label">Sempena</label>
+                    <select v-model="form.acara_khas_id" class="field-input">
+                      <option :value="null">Perbelanjaan Biasa</option>
+                      <option v-for="a in senaraiAcaraKhas" :key="a.id" :value="a.id">{{ a.nama }}</option>
+                    </select>
+                    <p v-if="form.acara_khas_id" class="text-[10px] text-violet-600 mt-1 font-medium">
+                      Perbelanjaan ini akan dikira di bawah acara khas yang dipilih.
+                    </p>
+                    <p v-else class="text-[10px] text-gray-400 mt-1">
+                      Tiada acara khas — perbelanjaan biasa kelab.
+                    </p>
                   </div>
                 </template>
 
@@ -303,7 +339,7 @@
                     jenisAktif === 'masuk' ? 'bg-emerald-100 text-emerald-700 border-emerald-200' :
                     jenisAktif === 'keluar' ? 'bg-rose-100 text-rose-700 border-rose-200' :
                     'bg-amber-100 text-amber-700 border-amber-200']">
-                    {{ jenisAktif === 'masuk' ? 'KREDIT (+)' : jenisAktif === 'keluar' ? 'DEBIT (−)' : 'KUTIPAN' }}
+                    {{ jenisAktif === 'masuk' ? 'DEBIT (+)' : jenisAktif === 'keluar' ? 'KREDIT (−)' : 'KUTIPAN' }}
                   </span>
                   <span class="text-[11px] text-gray-500">{{ form.tarikh || '—' }}</span>
                   <span v-if="form.kategori" class="text-[11px] text-gray-600 font-medium">{{ labelKategori(form.kategori) }}</span>
@@ -326,7 +362,7 @@
 </template>
 
 <script setup>
-import { ref, watch, computed } from 'vue';
+import { ref, watch, computed, onMounted } from 'vue';
 import api from '../../services/api';
 import { useAuthStore } from '../../stores/auth';
 import { useToast } from '../../composables/useToast';
@@ -344,13 +380,13 @@ const emit = defineEmits(['tutup', 'berjaya']);
 
 const jenisTab = [
   {
-    id: 'masuk', label: 'Pendapatan (Kredit)',
+    id: 'masuk', label: 'Pendapatan (Debit)',
     aktif: 'bg-emerald-50 text-emerald-700 border-b-2 border-emerald-500',
     aktifKad: 'bg-emerald-600 text-white border-emerald-600 shadow-sm',
     ikon: 'M7 11l5-5m0 0l5 5m-5-5v12',
   },
   {
-    id: 'keluar', label: 'Perbelanjaan (Debit)',
+    id: 'keluar', label: 'Perbelanjaan (Kredit)',
     aktif: 'bg-rose-50 text-rose-700 border-b-2 border-rose-500',
     aktifKad: 'bg-rose-600 text-white border-rose-600 shadow-sm',
     ikon: 'M17 13l-5 5m0 0l-5-5m5 5V6',
@@ -387,12 +423,29 @@ const buangFail = (i) => {
   dokumenFail.value.splice(i, 1);
 };
 
-const LABEL_KATEGORI = {
-  YURAN: 'Yuran Keahlian', KEDAI: 'Jualan Kedai', ACARA: 'Bayaran Acara',
-  SUMBANGAN: 'Sumbangan', LAIN: 'Lain-lain',
-  KEBAJIKAN: 'Bantuan Kebajikan', BELIAN_BARANG: 'Pembelian Barang', PERKHIDMATAN: 'Pembayaran Perkhidmatan',
+// Kategori dari API
+const senaraiKategoriKewangan = ref([]);
+const kategoriKeluar = computed(() =>
+  senaraiKategoriKewangan.value.filter(k => ['KELUAR', 'KEDUA'].includes(k.jenis_aliran) && k.aktif)
+);
+const kategoriMasuk = computed(() =>
+  senaraiKategoriKewangan.value.filter(k => ['MASUK', 'KEDUA'].includes(k.jenis_aliran) && k.aktif)
+);
+
+const LABEL_KATEGORI_FALLBACK = {
+  YURAN: 'Yuran Keahlian', YURAN_FPX: 'Yuran Kelab (FPX)',
+  KEDAI: 'Jualan Kedai', ACARA: 'Bayaran Penyertaan Acara',
+  SUMBANGAN_AHLI: 'Sumbangan Ahli', KEBAJIKAN: 'Bantuan Kebajikan Ahli',
+  TIKET_KAPALTERBANG: 'Tiket Kapal Terbang', SEWAAN_KENDERAAN: 'Sewaan Kenderaan',
+  TOKEN_MAKAN: 'Token Makan', TOKEN_PENGANGKUTAN: 'Token Pengangkutan',
+  LATIHAN_PASUKAN: 'Latihan Pasukan', PERALATAN_SUKAN: 'Peralatan Sukan',
+  PERUBATAN: 'Perubatan', PENGINAPAN: 'Penginapan', PERCETAKAN: 'Percetakan',
+  KOS_OPERASI_FPX: 'Kos Operasi (FPX)', 'LAIN-LAIN': 'Lain-lain',
+  BELI_TIKET: 'Beli Tiket', BELI_MAKANAN: 'Beli Makanan', BELI_BARANG: 'Beli Barang',
+  BAYAR_PERKHIDMATAN: 'Bayar Perkhidmatan', OPERASI: 'Kos Operasi', LAIN: 'Lain-lain',
 };
-const labelKategori = (k) => LABEL_KATEGORI[k] || k;
+const labelKategori = (k) =>
+  senaraiKategoriKewangan.value.find(c => c.kod === k)?.nama || LABEL_KATEGORI_FALLBACK[k] || k;
 
 const todayStr = () => new Date().toISOString().split('T')[0];
 
@@ -404,11 +457,13 @@ const formAsal = (jenis) => ({
   nota: '',
   penerima_bayaran: '',
   no_kp_pihak: '',
+  masuk_dari_ahli: false,
   nama_syarikat: '',
   acara_khas_id_sumbangan: '',
   pakej_id: '',
   pic_no_kp: '',
   pic_nama: '',   // display only, not sent to API
+  acara_khas_id: null,  // sempena (MASUK & KELUAR)
 });
 
 // ── Pakej & PIC (MAKSWIP tab) ──────────────────────────────────────
@@ -451,6 +506,15 @@ const muatStaff = async () => {
 };
 muatStaff();
 
+const muatKategori = async () => {
+  if (senaraiKategoriKewangan.value.length) return;
+  try {
+    const { data } = await api.get('/admin/kewangan/kategori');
+    senaraiKategoriKewangan.value = data.data || [];
+  } catch { /* */ }
+};
+muatKategori();
+
 const jenisAktif = ref(props.jenisAwal);
 const form       = ref(formAsal(jenisAktif.value));
 const saving     = ref(false);
@@ -474,6 +538,12 @@ watch(() => form.value.pakej_id, (id) => {
   if (pakej?.amaun_pakej) form.value.amaun = parseFloat(pakej.amaun_pakej);
 });
 
+// Kosongkan medan pihak apabila toggle diterima-daripada bertukar
+watch(() => form.value.masuk_dari_ahli, () => {
+  form.value.no_kp_pihak     = '';
+  form.value.penerima_bayaran = '';
+});
+
 const pilihJenis = (id) => {
   jenisAktif.value = id;
   form.value = formAsal(id);
@@ -494,6 +564,11 @@ const simpan = async () => {
   const amaun = parseFloat(form.value.amaun);
   if (!amaun || amaun <= 0) { toast.amaran('Sila masukkan amaun yang sah.'); return; }
 
+  if (jenisAktif.value === 'masuk') {
+    if (form.value.masuk_dari_ahli && !form.value.no_kp_pihak) {
+      toast.amaran('Sila pilih ahli yang membuat sumbangan.'); return;
+    }
+  }
   if (jenisAktif.value === 'keluar') {
     const katSekarang = form.value.kategori;
     if (katSekarang === 'KEBAJIKAN' && !form.value.no_kp_pihak) {
@@ -525,20 +600,16 @@ const simpan = async () => {
       });
       respData = data;
     } else {
-      const isAcaraKhas = form.value.kategori.startsWith('ACARA_KHAS_');
-      const kategoriSebenar = isAcaraKhas ? 'ACARA_KHAS' : form.value.kategori;
-      const acaraKhasId = isAcaraKhas ? parseInt(form.value.kategori.replace('ACARA_KHAS_', '')) : null;
-
       const fd = new FormData();
-      fd.append('jenis',            jenisAktif.value === 'masuk' ? 'MASUK' : 'KELUAR');
-      fd.append('kategori',         kategoriSebenar);
-      fd.append('amaun',            form.value.amaun);
+      fd.append('jenis',    jenisAktif.value === 'masuk' ? 'MASUK' : 'KELUAR');
+      fd.append('kategori', form.value.kategori);
+      fd.append('amaun',    form.value.amaun);
       if (form.value.rujukan)          fd.append('rujukan',          form.value.rujukan);
       if (form.value.nota)             fd.append('nota',             form.value.nota);
       if (form.value.no_kp_pihak)      fd.append('no_kp_pihak',      form.value.no_kp_pihak);
       if (form.value.penerima_bayaran) fd.append('penerima_bayaran', form.value.penerima_bayaran);
       if (form.value.tarikh)           fd.append('tarikh',           form.value.tarikh);
-      if (acaraKhasId)                 fd.append('acara_khas_id',    acaraKhasId);
+      if (form.value.acara_khas_id)    fd.append('acara_khas_id',    form.value.acara_khas_id);
       dokumenFail.value.forEach(e => fd.append('dokumen', e.fail));
 
       const { data } = await api.post('/admin/kewangan/rekod', fd);

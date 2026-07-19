@@ -369,6 +369,124 @@
       </div>
     </div>
 
+    <!-- KATEGORI PERBELANJAAN CUSTOM -->
+    <div class="space-y-3">
+      <p class="text-xs font-black uppercase tracking-widest text-gray-400 px-1">Kategori Perbelanjaan</p>
+
+      <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        <div class="flex items-start gap-4 p-5 border-b border-gray-100">
+          <div class="w-11 h-11 rounded-xl flex items-center justify-center shrink-0"
+            style="background: rgba(5,150,105,0.08);">
+            <svg class="w-6 h-6" style="color: #059669;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
+            </svg>
+          </div>
+          <div class="flex-1">
+            <h2 class="text-sm font-black text-gray-900">Kategori Perbelanjaan</h2>
+            <p class="text-xs text-gray-500 mt-0.5 leading-relaxed">
+              Urus kategori dalam borang rekod perbelanjaan. Tambah kategori baharu ikut keperluan kelab.
+              Kategori sistem tidak boleh dipadamkan.
+            </p>
+          </div>
+          <button @click="showFormKategori = !showFormKategori"
+            class="flex items-center gap-1.5 px-3 py-2 text-white text-[11px] font-bold rounded-lg transition-colors shrink-0"
+            style="background: #059669;">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+            </svg>
+            Tambah
+          </button>
+        </div>
+
+        <!-- Form tambah -->
+        <Transition name="expand">
+          <div v-if="showFormKategori" class="px-5 py-4 border-b border-emerald-100 bg-emerald-50/30">
+            <div class="grid sm:grid-cols-3 gap-3 mb-3">
+              <div class="sm:col-span-2">
+                <label class="text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1 block">Nama Kategori *</label>
+                <input v-model="formKategori.nama" type="text" placeholder="Cth: Bayar Bil Utiliti"
+                  class="w-full border border-emerald-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-emerald-500 bg-white"/>
+              </div>
+              <div>
+                <label class="text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1 block">Jenis Aliran</label>
+                <select v-model="formKategori.jenis_aliran"
+                  class="w-full border border-emerald-200 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-emerald-500 bg-white">
+                  <option value="KELUAR">Perbelanjaan (KELUAR)</option>
+                  <option value="MASUK">Pendapatan (MASUK)</option>
+                  <option value="KEDUA">Kedua-dua</option>
+                </select>
+              </div>
+            </div>
+            <div class="flex gap-2">
+              <button @click="simpanKategori" :disabled="savingKategori"
+                class="px-4 py-2 text-white text-[11px] font-bold rounded-lg disabled:opacity-60 transition-colors"
+                style="background: #059669;">
+                {{ savingKategori ? 'Menyimpan...' : 'Simpan' }}
+              </button>
+              <button @click="showFormKategori = false; formKategori = { nama: '', jenis_aliran: 'KELUAR' }"
+                class="px-4 py-2 text-[11px] font-semibold text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                Batal
+              </button>
+            </div>
+          </div>
+        </Transition>
+
+        <!-- Senarai kategori -->
+        <div v-if="loadingKategori" class="px-5 py-6 text-center text-xs text-gray-400">Memuatkan...</div>
+        <div v-else-if="!senaraiKategoriTetapan.length" class="px-5 py-6 text-center text-xs text-gray-400">
+          Tiada kategori. Klik <strong>Tambah</strong> untuk mulakan.
+        </div>
+        <div v-else class="divide-y divide-gray-100">
+          <div v-for="kat in senaraiKategoriTetapan.filter(k => k.aktif || k.adalah_sistem === 0)" :key="kat.id"
+            class="flex items-center justify-between px-5 py-3 gap-3">
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center gap-2 flex-wrap">
+                <p class="text-[12px] font-bold text-gray-800 truncate">{{ kat.nama }}</p>
+                <span class="text-[9px] font-mono text-gray-400">{{ kat.kod }}</span>
+                <span :class="['text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase',
+                  kat.jenis_aliran === 'MASUK' ? 'bg-emerald-100 text-emerald-700' :
+                  kat.jenis_aliran === 'KELUAR' ? 'bg-rose-100 text-rose-700' :
+                  'bg-gray-100 text-gray-600']">
+                  {{ kat.jenis_aliran }}
+                </span>
+                <span v-if="kat.adalah_sistem"
+                  class="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-blue-50 text-blue-600 uppercase">Sistem</span>
+                <span v-if="!kat.aktif"
+                  class="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-400 uppercase">Tidak Aktif</span>
+              </div>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+              <!-- Edit nama (bukan sistem) -->
+              <div v-if="editKategoriId === kat.id" class="flex items-center gap-2">
+                <input v-model="editKategoriNama" type="text"
+                  class="border border-emerald-300 rounded-lg px-2 py-1 text-xs focus:outline-none focus:border-emerald-500 w-36"
+                  @keyup.enter="simpanEditKategori(kat.id)" />
+                <button @click="simpanEditKategori(kat.id)"
+                  class="text-[10px] font-bold px-2 py-1 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700">OK</button>
+                <button @click="editKategoriId = null"
+                  class="text-[10px] font-bold px-2 py-1 rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200">X</button>
+              </div>
+              <template v-else>
+                <button v-if="!kat.adalah_sistem" @click="bukaEditKategori(kat)"
+                  class="text-[10px] font-bold px-2 py-1 rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors">
+                  Edit
+                </button>
+                <button v-if="!kat.adalah_sistem && kat.aktif" @click="togolAktifKategori(kat)"
+                  class="text-[10px] font-bold px-2 py-1 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 transition-colors">
+                  Nyahaktif
+                </button>
+                <button v-else-if="!kat.adalah_sistem && !kat.aktif" @click="togolAktifKategori(kat)"
+                  class="text-[10px] font-bold px-2 py-1 rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition-colors">
+                  Aktif Semula
+                </button>
+              </template>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- MESEJ STATUS -->
     <Transition name="fade">
       <div v-if="mesej" class="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 px-5 py-3 rounded-2xl text-sm font-bold shadow-xl"
@@ -579,6 +697,65 @@ const togolStatusPakej = async (pkj) => {
   } catch (e) { tunjukMesej(e.response?.data?.message || 'Gagal.', false); }
 };
 
+// ── Kategori Perbelanjaan ─────────────────────────────────────────
+const senaraiKategoriTetapan = ref([]);
+const loadingKategori  = ref(false);
+const showFormKategori = ref(false);
+const savingKategori   = ref(false);
+const formKategori     = ref({ nama: '', jenis_aliran: 'KELUAR' });
+const editKategoriId   = ref(null);
+const editKategoriNama = ref('');
+
+const muatKategoriTetapan = async () => {
+  loadingKategori.value = true;
+  try {
+    const { data } = await api.get('/admin/kewangan/kategori');
+    senaraiKategoriTetapan.value = data.data || [];
+  } catch { /* */ } finally { loadingKategori.value = false; }
+};
+
+const simpanKategori = async () => {
+  if (!formKategori.value.nama.trim()) return tunjukMesej('Nama kategori wajib diisi.', false);
+  savingKategori.value = true;
+  try {
+    await api.post('/admin/kewangan/kategori', formKategori.value);
+    showFormKategori.value = false;
+    formKategori.value = { nama: '', jenis_aliran: 'KELUAR' };
+    await muatKategoriTetapan();
+    tunjukMesej('Kategori berjaya ditambah.', true);
+  } catch (e) {
+    tunjukMesej(e.response?.data?.message || 'Gagal menyimpan kategori.', false);
+  } finally { savingKategori.value = false; }
+};
+
+const bukaEditKategori = (kat) => {
+  editKategoriId.value   = kat.id;
+  editKategoriNama.value = kat.nama;
+};
+
+const simpanEditKategori = async (id) => {
+  if (!editKategoriNama.value.trim()) return;
+  try {
+    await api.put(`/admin/kewangan/kategori/${id}`, { nama: editKategoriNama.value.trim() });
+    editKategoriId.value = null;
+    await muatKategoriTetapan();
+    tunjukMesej('Nama kategori dikemaskini.', true);
+  } catch (e) {
+    tunjukMesej(e.response?.data?.message || 'Gagal mengemaskini.', false);
+  }
+};
+
+const togolAktifKategori = async (kat) => {
+  const aktifBaharu = !kat.aktif;
+  try {
+    await api.put(`/admin/kewangan/kategori/${kat.id}`, { aktif: aktifBaharu });
+    await muatKategoriTetapan();
+    tunjukMesej(aktifBaharu ? 'Kategori diaktifkan semula.' : 'Kategori dinyahaktifkan.', true);
+  } catch (e) {
+    tunjukMesej(e.response?.data?.message || 'Gagal.', false);
+  }
+};
+
 onMounted(async () => {
   if (!settingsStore.dimuat) {
     loading.value = true;
@@ -587,6 +764,7 @@ onMounted(async () => {
   }
   muatCategoryCode();
   muatAcara();
+  muatKategoriTetapan();
 });
 </script>
 
