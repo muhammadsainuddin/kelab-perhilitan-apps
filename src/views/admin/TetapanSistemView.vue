@@ -468,9 +468,9 @@
                   class="text-[10px] font-bold px-2 py-1 rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200">X</button>
               </div>
               <template v-else>
-                <button v-if="!kat.adalah_sistem" @click="bukaEditKategori(kat)"
+                <button @click="bukaEditKategori(kat)"
                   class="text-[10px] font-bold px-2 py-1 rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors">
-                  Edit
+                  Rename
                 </button>
                 <button v-if="!kat.adalah_sistem && kat.aktif" @click="togolAktifKategori(kat)"
                   class="text-[10px] font-bold px-2 py-1 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 transition-colors">

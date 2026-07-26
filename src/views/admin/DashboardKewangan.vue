@@ -732,7 +732,7 @@
             <p class="text-base font-black text-emerald-700 leading-tight tabular-nums">{{ fmt(jumlahDiterimaSumbangan) }}</p>
           </div>
           <div class="bg-orange-50 border border-orange-200 rounded-xl px-4 py-2">
-            <p class="text-[9px] font-bold text-orange-700 uppercase tracking-wider">Belum Dituntut</p>
+            <p class="text-[9px] font-bold text-orange-700 uppercase tracking-wider">MAKSWIP DAN MAKSA</p>
             <p class="text-base font-black text-orange-700 leading-tight tabular-nums">{{ fmt(jumlahBelumTuntutSumbangan) }}</p>
           </div>
         </div>
@@ -928,8 +928,8 @@
               <th class="px-4 py-2">Merangkumi</th>
               <th class="px-4 py-2">Tarikh Terima</th>
               <th class="px-4 py-2">Nota</th>
-              <th class="px-4 py-2 text-right">Jumlah Kasar</th>
-              <th class="px-5 py-2 text-right">Bersih Diterima</th>
+              <th class="px-4 py-2 text-right">Yuran Proses MAKSA</th>
+              <th class="px-5 py-2 text-right">MAKSWIP</th>
               <th class="px-4 py-2">Direkod Oleh</th>
               <th class="px-4 py-2 text-center">Dokumen</th>
             </tr>
@@ -1058,7 +1058,7 @@
               </div>
 
               <p class="text-[10px] text-emerald-700 bg-emerald-50 border border-emerald-100 rounded-lg px-3 py-2 leading-relaxed">
-                Amaun <strong>{{ fmt(formTuntutan.jumlah_bersih || 0) }}</strong> akan dimasukkan ke ledger utama sebagai MASUK / SUMBANGAN.
+                Amaun <strong>{{ fmt(formTuntutan.jumlah_bersih || 0) }}</strong> akan dimasukkan ke ledger utama sebagai MASUK / Kutipan Penajaan (Makswip).
               </p>
             </div>
 
@@ -2062,7 +2062,7 @@ const senaraiKategoriKewangan = ref([]);
 const LABEL_KATEGORI_FALLBACK = {
   YURAN: 'Yuran Keahlian', YURAN_FPX: 'Yuran Kelab (FPX)',
   KEDAI: 'Jualan Kedai', ACARA: 'Bayaran Penyertaan Acara',
-  SUMBANGAN_AHLI: 'Sumbangan Ahli', KEBAJIKAN: 'Bantuan Kebajikan Ahli',
+  SUMBANGAN_AHLI: 'Sumbangan Ahli', KUTIPAN_PENAJAAN: 'Kutipan Penajaan (Makswip)', KEBAJIKAN: 'Bantuan Kebajikan Ahli',
   TIKET_KAPALTERBANG: 'Tiket Kapal Terbang', SEWAAN_KENDERAAN: 'Sewaan Kenderaan',
   TOKEN_MAKAN: 'Token Makan', TOKEN_PENGANGKUTAN: 'Token Pengangkutan',
   LATIHAN_PASUKAN: 'Latihan Pasukan', PERALATAN_SUKAN: 'Peralatan Sukan',
@@ -2483,10 +2483,7 @@ const cetakPenyataAcara = () => {
       <div class="r akhir"><span>BAKI LEJAR ACARA</span><span style="color:${rk.baki >= 0 ? '#a78bfa' : '#fb923c'}">${rm(rk.baki)}</span></div>
     </div>
 
-    <div style="display:flex;justify-content:space-between;margin-top:40px;font-size:10px;color:#444">
-      <div style="text-align:center">________________________<br/>Disediakan oleh (Bendahari)</div>
-      <div style="text-align:center">________________________<br/>Disahkan oleh (Yang Dipertua)</div>
-    </div>`;
+    ${htmlTandatangan()}`;
 
   bukaCetakWindow(`Penyata Acara Khas &bull; ${acara.nama} &bull; Dicetak: ${tarikhCetak}`, badan);
 };
@@ -2548,10 +2545,7 @@ const cetakLaporanPerbelanjaanAcara = async () => {
         </tr></thead>
         <tbody>${barisTransaksi}</tbody>
       </table>
-      <div style="display:flex;justify-content:space-between;margin-top:40px;font-size:10px;color:#444">
-        <div style="text-align:center">________________________<br/>Disediakan oleh (Bendahari)</div>
-        <div style="text-align:center">________________________<br/>Disahkan oleh (Yang Dipertua)</div>
-      </div>`;
+      ${htmlTandatangan()}`;
 
     bukaCetakWindow(`Laporan Perbelanjaan Acara &bull; ${acara.nama} &bull; Dicetak: ${tarikhCetak}`, badan);
   } catch (e) {
@@ -2815,7 +2809,7 @@ const muatSumbangan = async () => {
       sejarahTuntutanMakswip.value     = data.sejarah_tuntutan || [];
       jumlahKasarSumbangan.value       = data.jumlah_kasar     || 0;
       jumlahDiterimaSumbangan.value    = data.jumlah_diterima  || 0;
-      jumlahBelumTuntutSumbangan.value = data.jumlah_belum_tuntut || 0;
+      jumlahBelumTuntutSumbangan.value = (data.jumlah_kasar || 0) - (data.jumlah_diterima || 0);
       jumlahSumbangan.value            = data.jumlah           || 0;
       senaraiSumbangan.value           = data.rekod            || [];
     }
@@ -3145,10 +3139,7 @@ const cetakPenyataTahunan = async () => {
         <div class="r"><span>Lebihan / (Kurangan) Tahun Semasa</span><span class="${d.lebihan_kurangan >= 0 ? 'pos' : 'neg'}">${rm(d.lebihan_kurangan)}</span></div>
         <div class="r akhir"><span>BAKI AKHIR TERKUMPUL</span><span>${rm(d.baki_akhir)}</span></div>
       </div>
-      <div style="display:flex;justify-content:space-between;margin-top:40px;font-size:10px;color:#444">
-        <div style="text-align:center">________________________<br/>Disediakan oleh (Bendahari)</div>
-        <div style="text-align:center">________________________<br/>Disahkan oleh (Yang Dipertua)</div>
-      </div>`;
+      ${htmlTandatangan()}`;
 
     bukaCetakWindow(`Penyata Kewangan Tahunan &bull; Tahun ${d.tahun} &bull; Dicetak: ${tarikhCetak}`, badan);
   } catch (e) {
@@ -3281,8 +3272,43 @@ const muatKategoriKewangan = async () => {
   } catch { /* fallback ke LABEL_KATEGORI_FALLBACK */ }
 };
 
+// ── Pegawai Tandatangan (untuk cetakan) ──
+const pegawaiTandatangan = ref({ yangDipertua: '', bendahari: '', pemeriksa1: '', pemeriksa2: '' });
+
+const muatPegawaiTandatangan = async () => {
+  try {
+    const { data } = await api.get('/user/senarai-ajk');
+    const ajk = data.data || [];
+    const cari = (jawatan) => ajk.filter(a => a.jawatan_kelab === jawatan).map(a => a.nama_pegawai);
+    const auditor = cari('Auditor');
+    pegawaiTandatangan.value = {
+      yangDipertua : cari('Yang Dipertua')[0] || '',
+      bendahari    : cari('Bendahari')[0]     || '',
+      pemeriksa1   : auditor[0]               || '',
+      pemeriksa2   : auditor[1]               || '',
+    };
+  } catch { /* guna nama kosong jika gagal */ }
+};
+
+const htmlTandatangan = () => {
+  const p = pegawaiTandatangan.value;
+  const kotak = (nama, jawatan) => `
+    <div style="flex:1;text-align:center;padding:0 10px">
+      <div style="height:38px;border-bottom:1px solid #94a3b8;margin-bottom:5px"></div>
+      ${nama ? `<div style="font-size:9.5px;font-weight:700;color:#1e293b;margin-bottom:2px">${nama}</div>` : ''}
+      <div style="font-size:9px;color:#64748b">${jawatan}</div>
+    </div>`;
+  return `
+    <div style="display:flex;justify-content:space-between;margin-top:48px;gap:8px">
+      ${kotak(p.bendahari,   'Bendahari')}
+      ${kotak(p.pemeriksa1,  'Pemeriksa Kira-Kira')}
+      ${kotak(p.pemeriksa2,  'Pemeriksa Kira-Kira')}
+      ${kotak(p.yangDipertua,'Yang Dipertua')}
+    </div>`;
+};
+
 onMounted(async () => {
-  await Promise.all([muatSenaraiAhli(), muatData(), muatTransaksi(), muatAcaraKhas(), muatKategoriKewangan()]);
+  await Promise.all([muatSenaraiAhli(), muatData(), muatTransaksi(), muatAcaraKhas(), muatKategoriKewangan(), muatPegawaiTandatangan()]);
   muatBakiTerkumpul();
   muatStaffSumb();
 });
