@@ -19,7 +19,7 @@
     </div>
 
     <!-- STATS -->
-    <div class="grid grid-cols-3 gap-3">
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
       <div class="bg-white border border-amber-100 rounded-xl p-4">
         <p class="text-[9px] font-bold text-amber-600 uppercase tracking-wider">Menunggu</p>
         <p class="text-2xl font-black text-amber-700 mt-1 tabular-nums">{{ bilMenunggu }}</p>
@@ -186,10 +186,27 @@
                   </div>
                 </div>
 
-                <!-- Sebab Berhenti -->
+                <!-- Sebab Berhenti + Tarikh Berhenti -->
                 <div class="space-y-2">
-                  <p class="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Sebab Permohonan Berhenti</p>
+                  <p class="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Butiran Permohonan Berhenti</p>
+                  <!-- Tarikh berhenti yang diisi ahli -->
+                  <div class="flex items-center gap-3 bg-rose-50 border border-rose-200 rounded-xl px-4 py-3">
+                    <svg class="w-4 h-4 text-rose-500 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                    <div class="flex-1">
+                      <p class="text-[9px] text-rose-500 font-bold uppercase tracking-wide">Tarikh Berhenti / Berkuatkuasa (diisi oleh ahli)</p>
+                      <p class="font-black text-rose-800 text-[13px] mt-0.5">
+                        {{ dipilih.tarikh_berhenti ? formatTarikh(dipilih.tarikh_berhenti) : 'Tidak diisi' }}
+                      </p>
+                    </div>
+                    <span v-if="isAngkasa(dipilih)"
+                      class="text-[9px] font-bold bg-blue-50 text-blue-600 border border-blue-100 px-2 py-0.5 rounded-md shrink-0">
+                      Angkasa
+                    </span>
+                  </div>
                   <div class="rounded-xl border border-rose-100 bg-rose-50/40 p-4">
+                    <p class="text-[9px] text-rose-500 font-bold uppercase tracking-wide mb-1.5">Sebab / Alasan</p>
                     <p class="text-[12px] text-gray-800 leading-relaxed whitespace-pre-wrap">
                       {{ dipilih.sebab_berhenti || 'Tiada sebab dinyatakan oleh pemohon.' }}
                     </p>
@@ -339,7 +356,7 @@
                       <div v-if="dipilih.jumlah_lebih_potong !== null && dipilih.jumlah_lebih_potong !== undefined"
                         class="bg-amber-50 border border-amber-200 rounded-xl p-4">
                         <p class="text-[9px] font-bold text-amber-700 uppercase tracking-wider mb-3">Lebih Potong Dikira</p>
-                        <div class="grid grid-cols-3 gap-4">
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
                           <div>
                             <p class="text-[9px] text-gray-400">Tarikh Berhenti</p>
                             <p class="font-bold text-gray-800 text-[12px]">{{ formatTarikh(dipilih.tarikh_berhenti) }}</p>
@@ -441,17 +458,25 @@
 
             <!-- Tarikh berhenti -->
             <div class="space-y-1.5 mb-4">
-              <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">
-                Tarikh Berhenti <span class="text-rose-500">*</span>
-              </label>
+              <div class="flex items-center justify-between">
+                <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">
+                  Tarikh Berhenti / Berkuatkuasa <span class="text-rose-500">*</span>
+                </label>
+                <span v-if="dipilih?.tarikh_berhenti"
+                  class="text-[9px] font-bold bg-blue-50 text-blue-600 border border-blue-100 px-2 py-0.5 rounded-md">
+                  Diisi oleh ahli
+                </span>
+              </div>
               <input type="date" v-model="tarikhBerhentiLulus"
-                :max="new Date().toISOString().split('T')[0]"
                 :class="['w-full text-[12px] bg-gray-50 border rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 transition-all',
                   tunjukRalatLulus && !tarikhBerhentiLulus
                     ? 'border-rose-400 focus:ring-rose-500/20 focus:border-rose-500'
                     : 'border-gray-300 focus:ring-[#0F4C3A]/20 focus:border-[#0F4C3A]']" />
               <p v-if="tunjukRalatLulus && !tarikhBerhentiLulus" class="text-[10px] text-rose-600 font-bold">
                 Tarikh berhenti wajib diisi.
+              </p>
+              <p v-if="dipilih?.tarikh_berhenti" class="text-[10px] text-blue-600">
+                Ahli menyatakan tarikh berhenti: <strong>{{ formatTarikh(dipilih.tarikh_berhenti) }}</strong>. Boleh diubah jika perlu.
               </p>
             </div>
 

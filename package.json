@@ -1,7 +1,7 @@
 {
   "name": "kelab-perhilitan-apps",
   "private": true,
-  "version": "1.0.60",
+  "version": "1.0.63",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -16,11 +16,15 @@
     "@capacitor/app": "^8.1.0",
     "@capacitor/camera": "^8.2.0",
     "@capacitor/core": "^8.3.4",
+    "@capacitor/filesystem": "^8.1.2",
+    "@capacitor/share": "^8.0.1",
     "@capacitor/splash-screen": "^8.0.1",
     "@capacitor/status-bar": "^8.0.2",
     "@tailwindcss/vite": "^4.3.0",
     "axios": "^1.16.1",
     "chart.js": "^4.5.1",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^4.2.1",
     "pinia": "^3.0.4",
     "tailwindcss": "^4.3.0",
     "vue": "^3.5.34",
@@ -35,5 +39,5 @@
     "vite-plugin-pwa": "^1.3.0"
   },
   "packageManager": "pnpm@10.22.0+sha512.bf049efe995b28f527fd2b41ae0474ce29186f7edcb3bf545087bd61fbbebb2bf75362d1307fda09c2d288e1e499787ac12d4fcb617a974718a6051f2eee741c",
-  "build_date": "26/07/2026"
+  "build_date": "01/08/2026"
 }

@@ -188,13 +188,13 @@
             <tr class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">
               <th class="px-5 py-3">Tarikh</th>
               <th class="px-4 py-3">Jenis</th>
-              <th class="px-4 py-3">Kategori</th>
-              <th class="px-4 py-3">Sempena</th>
-              <th class="px-4 py-3">Nota / Rujukan</th>
-              <th class="px-4 py-3">Pihak</th>
-              <th class="px-5 py-3 text-right text-rose-600">Kredit (–) RM</th>
-              <th class="px-5 py-3 text-right text-emerald-600">Debit (+) RM</th>
-              <th class="px-4 py-3">Direkod Oleh</th>
+              <th class="px-4 py-3 hidden sm:table-cell">Kategori</th>
+              <th class="px-4 py-3 hidden md:table-cell">Sempena</th>
+              <th class="px-4 py-3 hidden sm:table-cell">Nota / Rujukan</th>
+              <th class="px-4 py-3 hidden md:table-cell">Pihak</th>
+              <th class="px-5 py-3 text-right text-rose-600">Kredit RM</th>
+              <th class="px-5 py-3 text-right text-emerald-600">Debit RM</th>
+              <th class="px-4 py-3 hidden lg:table-cell">Direkod Oleh</th>
               <th class="px-4 py-3 text-center">Tindakan</th>
             </tr>
           </thead>
@@ -223,21 +223,21 @@
                   {{ tx.jenis_aliran === 'MASUK' ? '▲ DEBIT' : '▼ KREDIT' }}
                 </span>
               </td>
-              <td class="px-4 py-2.5">
+              <td class="px-4 py-2.5 hidden sm:table-cell">
                 <span class="text-[10px] bg-gray-100 text-gray-700 border border-gray-200 px-2 py-0.5 rounded font-semibold">{{ labelKat(tx.kategori) }}</span>
               </td>
-              <td class="px-4 py-2.5">
+              <td class="px-4 py-2.5 hidden md:table-cell">
                 <span v-if="tx.nama_acara_khas"
                   class="text-[9px] bg-violet-100 text-violet-700 border border-violet-200 px-1.5 py-0.5 rounded font-bold whitespace-nowrap">
                   {{ tx.nama_acara_khas }}
                 </span>
                 <span v-else class="text-[10px] text-gray-300">—</span>
               </td>
-              <td class="px-4 py-2.5 max-w-48">
+              <td class="px-4 py-2.5 max-w-48 hidden sm:table-cell">
                 <p class="font-semibold text-gray-800 truncate text-[11px]">{{ tx.nota || '—' }}</p>
                 <p class="text-[10px] text-gray-400 font-mono mt-0.5">{{ tx.rujukan || 'Tiada rujukan' }}</p>
               </td>
-              <td class="px-4 py-2.5 text-gray-600 text-[11px]">
+              <td class="px-4 py-2.5 text-gray-600 text-[11px] hidden md:table-cell">
                 {{ tx.nama_ahli || tx.penerima_bayaran || '—' }}
               </td>
               <td class="px-5 py-2.5 text-right">
@@ -248,7 +248,7 @@
                 <span v-if="tx.jenis_aliran === 'MASUK'" class="font-bold tabular-nums text-emerald-600 text-[12px]">{{ num(tx.amaun) }}</span>
                 <span v-else class="text-gray-300 text-[11px]">—</span>
               </td>
-              <td class="px-4 py-2.5">
+              <td class="px-4 py-2.5 hidden lg:table-cell">
                 <span v-if="tx.nama_direkod_oleh" class="text-[11px] text-gray-700">{{ tx.nama_direkod_oleh }}</span>
                 <span v-else class="text-[9px] text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded font-medium">AUTO</span>
               </td>
@@ -488,7 +488,7 @@
         <template v-else-if="dataLaporanKat">
           <div class="border-t border-gray-100 px-5 py-4 bg-white space-y-5">
             <!-- KPI -->
-            <div class="grid grid-cols-3 gap-3">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div class="bg-emerald-50 border border-emerald-100 rounded-xl p-3 text-center">
                 <p class="text-[9px] font-bold uppercase tracking-wider text-emerald-600">Jumlah Debit (Masuk)</p>
                 <p class="text-[15px] font-black text-emerald-700 tabular-nums mt-1">RM {{ fmtRM(dataLaporanKat.ringkasan.masuk) }}</p>

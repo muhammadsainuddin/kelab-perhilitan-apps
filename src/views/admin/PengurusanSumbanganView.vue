@@ -426,8 +426,8 @@
               <thead>
                 <tr class="bg-gray-50 border-b border-gray-100">
                   <th class="text-left px-6 py-3 text-[10px] font-black uppercase tracking-wide text-gray-400">Penyumbang</th>
-                  <th class="text-left px-4 py-3 text-[10px] font-black uppercase tracking-wide text-gray-400">Penempatan</th>
-                  <th class="text-left px-4 py-3 text-[10px] font-black uppercase tracking-wide text-gray-400">Tarikh</th>
+                  <th class="text-left px-4 py-3 text-[10px] font-black uppercase tracking-wide text-gray-400 hidden sm:table-cell">Penempatan</th>
+                  <th class="text-left px-4 py-3 text-[10px] font-black uppercase tracking-wide text-gray-400 hidden sm:table-cell">Tarikh</th>
                   <th class="text-left px-4 py-3 text-[10px] font-black uppercase tracking-wide text-gray-400">Kaedah</th>
                   <th class="text-right px-6 py-3 text-[10px] font-black uppercase tracking-wide text-gray-400">Amaun</th>
                 </tr>
@@ -448,10 +448,10 @@
                     </div>
                     <p v-if="r.catatan" class="text-xs text-gray-400 italic mt-0.5">{{ r.catatan }}</p>
                   </td>
-                  <td class="px-4 py-3.5">
+                  <td class="px-4 py-3.5 hidden sm:table-cell">
                     <p class="text-xs text-gray-600">{{ r.penempatan_penyumbang || '—' }}</p>
                   </td>
-                  <td class="px-4 py-3.5">
+                  <td class="px-4 py-3.5 hidden sm:table-cell">
                     <p class="text-xs text-gray-500 whitespace-nowrap">{{ fmtTarikhMasa(r.tarikh_rekod) }}</p>
                   </td>
                   <td class="px-4 py-3.5">

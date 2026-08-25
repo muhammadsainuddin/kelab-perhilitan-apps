@@ -246,7 +246,7 @@
           <!-- Breakdown Kategori -->
           <div>
             <p class="text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-2">Pecahan Pendapatan</p>
-            <div class="grid grid-cols-3 gap-2">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
               <div v-for="item in kategoriKewangan" :key="item.label"
                 class="bg-gray-50 rounded-xl p-3 border border-gray-100 text-center">
                 <div :class="['w-6 h-6 rounded-lg flex items-center justify-center mx-auto mb-1.5', item.iconBg]">
@@ -403,7 +403,7 @@
           Urus Pesanan →
         </router-link>
       </div>
-      <div class="grid grid-cols-2 sm:grid-cols-4 divide-x divide-gray-100">
+      <div class="grid grid-cols-2 sm:grid-cols-4 divide-y sm:divide-y-0 divide-x-0 sm:divide-x divide-gray-100">
         <div v-for="item in statMarketplace" :key="item.label" class="p-4 text-center">
           <p class="text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-1.5">{{ item.label }}</p>
           <p class="text-lg font-black tabular-nums" :class="item.color">

@@ -73,7 +73,7 @@
     </p>
 
     <!-- JADUAL -->
-    <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-x-auto">
       <div v-if="sedangMuat" class="py-16 flex flex-col items-center gap-3 text-gray-400">
         <svg class="w-6 h-6 animate-spin text-[#0F4C3A]" fill="none" viewBox="0 0 24 24">
           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>

@@ -1,50 +1,73 @@
 <template>
-  <!-- Panel jenama kiri untuk paparan desktop halaman auth -->
-  <div class="w-1/2 bg-gradient-to-br from-[#0F4C3A] to-[#08151D] flex flex-col justify-between p-12 relative overflow-hidden">
+  <aside class="hidden md:flex md:w-[44%] xl:w-[42%] shrink-0 flex-col justify-between
+                p-12 xl:p-16 relative overflow-hidden"
+    style="background: linear-gradient(148deg, #071812 0%, #0D3526 52%, #1A4130 100%);">
 
-    <div class="absolute inset-0 pointer-events-none opacity-[0.05]">
-      <div class="absolute top-[-80px] left-[-80px] w-[400px] h-[400px] rounded-full border-[60px] border-white"/>
-      <div class="absolute bottom-[-100px] right-[-60px] w-[350px] h-[350px] rounded-full border-[50px] border-white"/>
-      <div class="absolute top-1/2 left-1/3 w-[200px] h-[200px] rounded-full border-[30px] border-white"/>
-    </div>
+    <!-- Dot grid -->
+    <div class="absolute inset-0 pointer-events-none"
+      style="background-image: radial-gradient(rgba(135,188,181,0.08) 1px, transparent 1px); background-size: 26px 26px;"></div>
+    <!-- Glow top-right -->
+    <div class="absolute -top-28 -right-28 w-[400px] h-[400px] rounded-full pointer-events-none"
+      style="background: radial-gradient(circle, rgba(82,183,136,0.14) 0%, transparent 62%);"></div>
+    <!-- Glow bottom-left -->
+    <div class="absolute -bottom-16 -left-16 w-64 h-64 rounded-full pointer-events-none"
+      style="background: radial-gradient(circle, rgba(15,76,58,0.85) 0%, transparent 70%);"></div>
+    <!-- Glow center subtle -->
+    <div class="absolute top-1/2 right-8 w-48 h-48 -translate-y-1/2 rounded-full pointer-events-none"
+      style="background: radial-gradient(circle, rgba(82,183,136,0.05) 0%, transparent 70%);"></div>
+    <!-- Gold accent line top -->
+    <div class="absolute top-0 left-0 right-0 h-0.5"
+      style="background: linear-gradient(90deg, transparent 5%, #52B788 30%, #D4AF37 62%, transparent 95%);"></div>
 
-    <div class="relative z-10">
-      <div class="flex items-center gap-4 mb-12">
-        <div class="w-14 h-14 bg-white rounded-xl flex items-center justify-center p-1.5 shadow-lg">
-          <img src="/logo.png" alt="Logo Kelab PERHILITAN" class="w-full h-full object-contain" />
-        </div>
-        <span class="text-white font-hago text-2xl tracking-wide mt-1">Kelab<br>PERHILITAN</span>
+    <!-- Logo + brand name -->
+    <div class="relative z-10 flex items-center gap-4">
+      <img src="/logo.png" alt="Logo Kelab PERHILITAN"
+        class="w-[52px] h-[52px] rounded-2xl object-contain shrink-0"
+        style="box-shadow: 0 4px 24px rgba(0,0,0,0.45);" />
+      <div>
+        <p class="text-[8px] font-black uppercase tracking-[0.28em]" style="color: #95D5B2;">
+          Kelab Sukan &amp; Kebajikan
+        </p>
+        <span class="font-hago text-white text-[19px] tracking-wide leading-tight">Kelab PERHILITAN</span>
       </div>
     </div>
 
-    <div class="relative z-10 flex-1 flex flex-col justify-center">
-      <p class="text-[#FBBF24] text-xs font-bold uppercase tracking-[0.2em] mb-4">{{ eyebrow }}</p>
-      <h2 class="text-white text-4xl xl:text-5xl font-bold leading-tight mb-6">
+    <!-- Main copy -->
+    <div class="relative z-10">
+      <p class="text-[9px] font-black uppercase tracking-[0.3em] mb-5" style="color: #D4AF37;">
+        {{ eyebrow }}
+      </p>
+      <h2 class="font-bold leading-[1.1] mb-5"
+        style="color: white; font-size: clamp(36px, 3.5vw, 52px);">
         <slot name="heading">
           Sistem<br>
-          <span class="text-[#87BCB5]">Pengurusan</span><br>
-          Bersepadu Ahli
+          <span style="color: #95D5B2;">Pengurusan</span><br>
+          Bersepadu
         </slot>
       </h2>
-      <p class="text-[#D0D7D7] text-sm leading-relaxed max-w-sm">{{ description }}</p>
+      <p class="text-[13px] leading-[1.75]" style="color: rgba(210,225,218,0.82); max-width: 320px;">
+        {{ description }}
+      </p>
     </div>
 
+    <!-- Feature list -->
     <div class="relative z-10 space-y-3">
       <div v-for="ciri in ciriSistem" :key="ciri" class="flex items-center gap-3">
-        <div class="w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center shrink-0 border border-white/5">
-          <svg class="w-3.5 h-3.5 text-[#87BCB5]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <div class="w-7 h-7 rounded-xl flex items-center justify-center shrink-0"
+          style="background: rgba(82,183,136,0.14); border: 1px solid rgba(82,183,136,0.22);">
+          <svg class="w-3.5 h-3.5" style="color: #52B788;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
           </svg>
         </div>
-        <span class="text-white/80 text-xs font-medium">{{ ciri }}</span>
+        <span class="text-[13px] font-medium" style="color: rgba(255,255,255,0.72);">{{ ciri }}</span>
       </div>
     </div>
-  </div>
+  </aside>
 </template>
 
 <script setup>
 defineProps({
-  eyebrow:     { type: String, default: 'Portal Rasmi' },
+  eyebrow:     { type: String, default: 'Portal Rasmi Ahli' },
   description: { type: String, default: 'Akses penuh kepada yuran, bantuan kebajikan, aktiviti sukan, dan kedai kelab dalam satu platform berpusat yang moden.' },
   ciriSistem:  { type: Array,  default: () => [
     'Bayaran yuran pantas melalui FPX',

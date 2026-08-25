@@ -239,7 +239,7 @@
                 <span :class="['text-[10px] font-bold px-2.5 py-1 rounded-md uppercase tracking-wide whitespace-nowrap', badgeStatus(p.status_permohonan)]">
                   {{ labelStatus(p.status_permohonan) }}
                 </span>
-                <p v-if="p.status_permohonan === 'LULUS'" class="text-emerald-700 font-black text-[11px] mt-1 tabular-nums">
+                <p v-if="p.status_permohonan === 'LULUS' || p.status_permohonan === 'SELESAI'" class="text-emerald-700 font-black text-[11px] mt-1 tabular-nums">
                   RM {{ parseFloat(p.amaun_lulus || 0).toFixed(2) }}
                 </p>
                 <p v-if="p.status_permohonan === 'DITOLAK' && p.sebab_tolak"
@@ -326,6 +326,23 @@
                         <span v-if="dipilih.gred" class="text-gray-400"> · {{ dipilih.gred }}</span>
                       </p>
                     </div>
+                    <div v-if="dipilih.emel_ahli">
+                      <p class="text-[9px] text-gray-400 font-bold uppercase tracking-wide">Emel</p>
+                      <p class="text-gray-700 text-[11px] mt-0.5">{{ dipilih.emel_ahli }}</p>
+                    </div>
+                    <div v-if="dipilih.no_tel">
+                      <p class="text-[9px] text-gray-400 font-bold uppercase tracking-wide">No. Telefon</p>
+                      <p class="text-gray-700 text-[11px] mt-0.5">{{ dipilih.no_tel }}</p>
+                    </div>
+                  </div>
+                  <!-- No. Akaun Bank Ahli (untuk kes bukan bagi pihak waris) -->
+                  <div v-if="!dipilih.bagi_pihak" class="mt-3 pt-3 border-t border-gray-200">
+                    <p class="text-[9px] text-gray-400 font-bold uppercase tracking-wide mb-1.5">No. Akaun Bank (Untuk Pindahan Wang)</p>
+                    <div v-if="dipilih.no_akaun_bank" class="flex items-center gap-3">
+                      <p class="font-black text-[#0F4C3A] text-sm font-mono tracking-wider">{{ dipilih.no_akaun_bank }}</p>
+                      <span class="text-[10px] text-gray-500 bg-gray-100 px-2 py-0.5 rounded-md">{{ dipilih.nama_bank || '' }}</span>
+                    </div>
+                    <p v-else class="text-[11px] text-amber-600 italic">Tiada maklumat akaun bank direkodkan.</p>
                   </div>
                 </div>
 
@@ -469,11 +486,11 @@
                       <div class="flex items-start gap-3 px-4 py-3"
                         :class="!dipilih.tarikh_keputusan ? 'opacity-40' : ''">
                         <div :class="['w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 mt-0.5',
-                          dipilih.status_permohonan === 'LULUS' ? 'bg-emerald-100 border-emerald-300'
+                          (dipilih.status_permohonan === 'LULUS' || dipilih.status_permohonan === 'SELESAI') ? 'bg-emerald-100 border-emerald-300'
                           : dipilih.status_permohonan === 'DITOLAK' ? 'bg-rose-100 border-rose-300'
                           : 'bg-gray-50 border-gray-200']">
                           <div :class="['w-2 h-2 rounded-full',
-                            dipilih.status_permohonan === 'LULUS' ? 'bg-emerald-500'
+                            (dipilih.status_permohonan === 'LULUS' || dipilih.status_permohonan === 'SELESAI') ? 'bg-emerald-500'
                             : dipilih.status_permohonan === 'DITOLAK' ? 'bg-rose-500'
                             : 'bg-gray-300']"></div>
                         </div>
@@ -482,11 +499,12 @@
                           <p v-if="dipilih.tarikh_keputusan" class="text-[10px] text-gray-400 mt-0.5">
                             {{ formatTarikhmasa(dipilih.tarikh_keputusan) }}
                           </p>
-                          <div v-if="dipilih.status_permohonan === 'LULUS'" class="mt-1.5">
+                          <div v-if="dipilih.status_permohonan === 'LULUS' || dipilih.status_permohonan === 'SELESAI'" class="mt-1.5">
                             <p class="text-[11px] font-black text-emerald-700">
                               Diluluskan — RM {{ parseFloat(dipilih.amaun_lulus || 0).toLocaleString('ms-MY', { minimumFractionDigits: 2 }) }}
                             </p>
-                            <p class="text-[10px] text-emerald-600 mt-0.5">Direkod ke buku tunai secara automatik.</p>
+                            <p v-if="dipilih.status_permohonan === 'LULUS'" class="text-[10px] text-amber-600 mt-0.5">Menunggu muat naik resit pembayaran.</p>
+                            <p v-else class="text-[10px] text-teal-600 mt-0.5">Bayaran selesai — resit telah dimuat naik.</p>
                           </div>
                           <div v-else-if="dipilih.status_permohonan === 'DITOLAK'" class="mt-1.5">
                             <p class="text-[10px] font-bold text-rose-600 uppercase tracking-wide">Sebab Penolakan:</p>
@@ -496,8 +514,36 @@
                           </div>
                           <p v-else class="text-[10px] text-gray-400 mt-0.5">Menunggu keputusan</p>
                         </div>
-                        <span v-if="dipilih.status_permohonan === 'LULUS'" class="text-[9px] font-bold bg-emerald-50 text-emerald-600 border border-emerald-100 px-2 py-0.5 rounded-md shrink-0">Lulus</span>
+                        <span v-if="dipilih.status_permohonan === 'LULUS' || dipilih.status_permohonan === 'SELESAI'" class="text-[9px] font-bold bg-emerald-50 text-emerald-600 border border-emerald-100 px-2 py-0.5 rounded-md shrink-0">Lulus</span>
                         <span v-else-if="dipilih.status_permohonan === 'DITOLAK'" class="text-[9px] font-bold bg-rose-50 text-rose-600 border border-rose-100 px-2 py-0.5 rounded-md shrink-0">Tolak</span>
+                        <span v-else class="text-[9px] font-bold bg-gray-50 text-gray-400 border border-gray-100 px-2 py-0.5 rounded-md shrink-0">Belum</span>
+                      </div>
+
+                      <!-- Step 4: Bayaran Selesai -->
+                      <div class="flex items-start gap-3 px-4 py-3"
+                        :class="dipilih.status_permohonan !== 'SELESAI' ? 'opacity-40' : ''">
+                        <div :class="['w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 mt-0.5',
+                          dipilih.status_permohonan === 'SELESAI' ? 'bg-teal-100 border-teal-300' : 'bg-gray-50 border-gray-200']">
+                          <div :class="['w-2 h-2 rounded-full', dipilih.status_permohonan === 'SELESAI' ? 'bg-teal-500' : 'bg-gray-300']"></div>
+                        </div>
+                        <div class="flex-1">
+                          <p class="text-[11px] font-bold text-gray-700">Resit Pembayaran & Rekod Buku Tunai</p>
+                          <p v-if="dipilih.tarikh_bayaran" class="text-[10px] text-gray-400 mt-0.5">
+                            {{ formatTarikhmasa(dipilih.tarikh_bayaran) }}
+                          </p>
+                          <div v-if="dipilih.status_permohonan === 'SELESAI' && dipilih.resit_pembayaran" class="mt-1.5 flex items-center gap-2">
+                            <a :href="`${apiBase}/uploads/kewangan/${dipilih.resit_pembayaran}`" target="_blank" rel="noopener"
+                              class="inline-flex items-center gap-1.5 text-[11px] font-bold text-teal-700 bg-teal-50 border border-teal-200 px-2.5 py-1 rounded-lg hover:bg-teal-100 transition-colors">
+                              <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/>
+                              </svg>
+                              Lihat Resit
+                            </a>
+                            <span class="text-[10px] text-teal-600">Direkod ke buku tunai.</span>
+                          </div>
+                          <p v-else class="text-[10px] text-gray-400 mt-0.5">Menunggu muat naik resit</p>
+                        </div>
+                        <span v-if="dipilih.status_permohonan === 'SELESAI'" class="text-[9px] font-bold bg-teal-50 text-teal-600 border border-teal-100 px-2 py-0.5 rounded-md shrink-0">Selesai</span>
                         <span v-else class="text-[9px] font-bold bg-gray-50 text-gray-400 border border-gray-100 px-2 py-0.5 rounded-md shrink-0">Belum</span>
                       </div>
 
@@ -505,8 +551,27 @@
                   </div>
                 </div>
 
+                <!-- MUAT NAIK RESIT PEMBAYARAN (hanya apabila status LULUS) -->
+                <div v-if="dipilih.status_permohonan === 'LULUS'" class="bg-amber-50 border border-amber-200 rounded-xl p-4 space-y-3">
+                  <div class="flex items-center gap-2">
+                    <svg class="w-4 h-4 text-amber-600 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                    </svg>
+                    <p class="text-[11px] font-black text-amber-700 uppercase tracking-wide">Resit Pembayaran Belum Dimuat Naik</p>
+                  </div>
+                  <p class="text-[11px] text-amber-600 leading-relaxed">
+                    Muat naik resit pembayaran untuk merekod jumlah ke buku tunai dan hantar notifikasi kepada pemohon.
+                  </p>
+                  <input type="file" ref="inputResit" accept=".pdf,.jpg,.jpeg,.png"
+                    class="w-full text-[11px] text-gray-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-[11px] file:font-bold file:bg-amber-100 file:text-amber-700 hover:file:bg-amber-200 transition-all" />
+                  <button @click="uploadResit(dipilih.id)" :disabled="sedangUploadResit"
+                    class="w-full py-2.5 rounded-xl text-[11px] font-black text-white bg-[#0F4C3A] hover:bg-[#155d47] disabled:opacity-50 transition-colors shadow-sm">
+                    {{ sedangUploadResit ? 'Memuat naik...' : 'Muat Naik Resit & Rekod Pembayaran' }}
+                  </button>
+                </div>
+
                 <!-- CATATAN PENTADBIR (hanya untuk yang belum selesai) -->
-                <div v-if="!['LULUS', 'DITOLAK'].includes(dipilih.status_permohonan)" class="space-y-1.5">
+                <div v-if="!['LULUS', 'DITOLAK', 'SELESAI'].includes(dipilih.status_permohonan)" class="space-y-1.5">
                   <label class="text-[9px] font-bold text-gray-400 uppercase tracking-wider">
                     Catatan Pentadbir <span class="text-gray-300 font-normal">(disertakan semasa dikemukakan kepada JK)</span>
                   </label>
@@ -522,7 +587,7 @@
             <!-- Modal Footer -->
             <div class="px-6 py-4 border-t border-gray-100 bg-gray-50/60 shrink-0">
               <!-- Tindakan — belum selesai -->
-              <div v-if="!['LULUS', 'DITOLAK'].includes(dipilih.status_permohonan)"
+              <div v-if="!['LULUS', 'DITOLAK', 'SELESAI'].includes(dipilih.status_permohonan)"
                 class="space-y-3">
 
                 <!-- Notis jika bukan Yang Dipertua -->
@@ -541,6 +606,13 @@
                     <button @click="showModal = false"
                       class="px-4 py-2 text-gray-600 bg-white border border-gray-200 rounded-lg text-[11px] font-semibold hover:bg-gray-50 transition-colors">
                       Tutup
+                    </button>
+                    <button @click="cetakPermohonan"
+                      class="px-4 py-2 bg-gray-50 text-gray-700 border border-gray-200 rounded-lg text-[11px] font-bold hover:bg-gray-100 transition-colors inline-flex items-center gap-1.5">
+                      <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6v-8z"/>
+                      </svg>
+                      Cetak
                     </button>
                     <button @click="bukaModalEdit"
                       class="px-4 py-2 bg-amber-50 text-amber-700 border border-amber-200 rounded-lg text-[11px] font-bold hover:bg-amber-100 transition-colors inline-flex items-center gap-1.5">
@@ -572,7 +644,14 @@
                 </div>
               </div>
               <!-- Permohonan selesai -->
-              <div v-else class="flex justify-end">
+              <div v-else class="flex items-center justify-between gap-3">
+                <button @click="cetakPermohonan"
+                  class="px-4 py-2 bg-gray-50 text-gray-700 border border-gray-200 rounded-lg text-[11px] font-bold hover:bg-gray-100 transition-colors inline-flex items-center gap-1.5">
+                  <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6v-8z"/>
+                  </svg>
+                  Cetak
+                </button>
                 <button @click="showModal = false"
                   class="px-5 py-2 text-gray-600 bg-white border border-gray-200 rounded-lg text-[11px] font-semibold hover:bg-gray-50 transition-colors">
                   Tutup
@@ -627,7 +706,7 @@
                 <input v-model="amaunLulus" type="number" min="0.01" step="0.50" placeholder="0.00" required
                   class="w-full bg-white border border-gray-300 text-emerald-700 font-black text-base rounded-lg pl-10 pr-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"/>
               </div>
-              <p class="text-[10px] text-gray-400">Amaun ini akan direkod ke dalam Buku Tunai secara automatik.</p>
+              <p class="text-[10px] text-gray-400">Amaun ini akan direkod ke Buku Tunai setelah resit pembayaran dimuat naik.</p>
             </div>
             <div class="flex gap-2 pt-3 border-t border-gray-100">
               <button @click="showModalLulus = false"
@@ -1273,6 +1352,7 @@ const labelStatus = (s) => {
   if (s === 'DIKEMUKAKAN') return 'Dikemukakan JK';
   if (s === 'LULUS') return 'Diluluskan';
   if (s === 'DITOLAK') return 'Ditolak';
+  if (s === 'SELESAI') return 'Selesai';
   return s;
 };
 
@@ -1281,6 +1361,7 @@ const badgeStatus = (s) => {
   if (s === 'DIKEMUKAKAN')    return 'bg-indigo-100 text-indigo-800 border border-indigo-200';
   if (s === 'LULUS')          return 'bg-emerald-100 text-emerald-800 border border-emerald-200';
   if (s === 'DITOLAK')        return 'bg-rose-100 text-rose-800 border border-rose-200';
+  if (s === 'SELESAI')        return 'bg-teal-100 text-teal-800 border border-teal-200';
   return 'bg-gray-100 text-gray-700 border border-gray-200';
 };
 
@@ -1300,11 +1381,11 @@ const formatTarikhmasa = (t) => {
 // ── Computed ─────────────────────────────────────────────────────────
 const bilMenunggu    = computed(() => senarai.value.filter(p => !p.status_permohonan || p.status_permohonan === 'DIPROSES').length);
 const bilDikemukakan = computed(() => senarai.value.filter(p => p.status_permohonan === 'DIKEMUKAKAN').length);
-const bilLulus       = computed(() => senarai.value.filter(p => p.status_permohonan === 'LULUS').length);
+const bilLulus       = computed(() => senarai.value.filter(p => p.status_permohonan === 'LULUS' || p.status_permohonan === 'SELESAI').length);
 const bilDitolak     = computed(() => senarai.value.filter(p => p.status_permohonan === 'DITOLAK').length);
 const jumlahLulus    = computed(() =>
   senarai.value
-    .filter(p => p.status_permohonan === 'LULUS')
+    .filter(p => p.status_permohonan === 'LULUS' || p.status_permohonan === 'SELESAI')
     .reduce((t, p) => t + parseFloat(p.amaun_lulus || 0), 0)
 );
 
@@ -1319,6 +1400,7 @@ const tabs = computed(() => [
 const senaraiTapis = computed(() => {
   if (filterAktif.value === 'SEMUA')    return senarai.value;
   if (filterAktif.value === 'MENUNGGU') return senarai.value.filter(p => !p.status_permohonan || p.status_permohonan === 'DIPROSES');
+  if (filterAktif.value === 'LULUS')    return senarai.value.filter(p => p.status_permohonan === 'LULUS' || p.status_permohonan === 'SELESAI');
   return senarai.value.filter(p => p.status_permohonan === filterAktif.value);
 });
 
@@ -1607,6 +1689,234 @@ const hantarBagiPihak = async () => {
   } finally {
     memprosesBagiPihak.value = false;
   }
+};
+
+// ── Upload Resit Bayaran ───────────────────────────────────────────────
+const inputResit = ref(null);
+const sedangUploadResit = ref(false);
+
+const uploadResit = async (id) => {
+  const fail = inputResit.value?.files?.[0];
+  if (!fail) return toast.amaran('Sila pilih fail resit pembayaran.');
+  sedangUploadResit.value = true;
+  try {
+    const fd = new FormData();
+    fd.append('resit', fail);
+    await api.put(`/admin/kebajikan/${id}/resit`, fd);
+    toast.sukses('Resit dimuat naik. Ledger dikemaskini dan emel dihantar kepada pemohon.');
+    showModal.value = false;
+    await muatKebajikan();
+  } catch (e) {
+    toast.ralat(e.response?.data?.message || 'Gagal memuat naik resit.');
+  } finally {
+    sedangUploadResit.value = false;
+  }
+};
+
+// ── Cetak Permohonan ──────────────────────────────────────────────────
+const cetakPermohonan = () => {
+  if (!dipilih.value) return;
+  const p = dipilih.value;
+
+  const fTarikh = (t) => t ? new Date(t).toLocaleDateString('ms-MY', { day: 'numeric', month: 'long', year: 'numeric' }) : '—';
+  const fMasa = (t) => t ? new Date(t).toLocaleString('ms-MY', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—';
+
+  const statusLabel = { DIPROSES: 'Menunggu Semakan', DIKEMUKAKAN: 'Dikemukakan kepada JK', LULUS: 'Diluluskan', DITOLAK: 'Ditolak', SELESAI: 'Selesai (Bayaran Lengkap)' }[p.status_permohonan] || p.status_permohonan;
+  const noAkaun = p.bagi_pihak ? (p.no_akaun_waris || '—') : (p.no_akaun_bank || '—');
+  const namaBank = p.bagi_pihak ? (p.nama_bank_waris || '—') : (p.nama_bank || '—');
+  const namaPenerima = p.bagi_pihak ? (p.nama_waris || '—') : p.nama_pegawai;
+
+  const dokList = (() => {
+    try { return JSON.parse(p.dokumen_sokongan || '[]'); } catch { return p.dokumen_sokongan ? [p.dokumen_sokongan] : []; }
+  })();
+
+  const html = `<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<title>KB-${String(p.id).padStart(4,'0')}</title>
+<style>
+  @page { size: A4; margin: 12mm 14mm; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: Arial, sans-serif; font-size: 8pt; color: #111; background: #fff; }
+  /* HEADER */
+  .hdr { display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #0F4C3A; padding-bottom: 6px; margin-bottom: 8px; }
+  .hdr-title { font-size: 10pt; font-weight: 900; color: #0F4C3A; }
+  .hdr-sub { font-size: 7pt; color: #666; margin-top: 1px; }
+  .hdr-ref { text-align: right; font-size: 7.5pt; color: #444; }
+  .hdr-ref strong { font-size: 9pt; color: #0F4C3A; }
+  /* BADGE STATUS */
+  .status-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 7pt; font-weight: 900; text-transform: uppercase; }
+  .s-LULUS,.s-SELESAI { background:#d1fae5; color:#065f46; border:1px solid #6ee7b7; }
+  .s-DITOLAK { background:#fee2e2; color:#991b1b; border:1px solid #fca5a5; }
+  .s-DIKEMUKAKAN { background:#e0e7ff; color:#3730a3; border:1px solid #a5b4fc; }
+  .s-DIPROSES { background:#fef3c7; color:#92400e; border:1px solid #fcd34d; }
+  .amaun { font-size: 11pt; font-weight: 900; color: #0F4C3A; }
+  /* SECTIONS */
+  .s { margin-bottom: 7px; }
+  .s-head { font-size: 6.5pt; font-weight: 900; text-transform: uppercase; letter-spacing: 0.8px; color: #0F4C3A; background: #f0faf5; padding: 2px 6px; margin-bottom: 5px; border-left: 3px solid #0F4C3A; }
+  /* GRIDS */
+  .g4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px 12px; }
+  .g3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px 12px; }
+  .g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 12px; }
+  .gc2 { grid-column: 1 / span 2; }
+  .gc3 { grid-column: 1 / span 3; }
+  .gc4 { grid-column: 1 / -1; }
+  .f label { font-size: 6pt; color: #888; font-weight: 700; text-transform: uppercase; display: block; margin-bottom: 1px; }
+  .f p { font-size: 8pt; font-weight: 600; color: #111; }
+  .f p.mono { font-family: 'Courier New', monospace; }
+  /* BANK BOX */
+  .bank { background: #f0faf5; border: 1.5px solid #0F4C3A; border-radius: 4px; padding: 5px 10px; display: flex; align-items: center; gap: 16px; }
+  .bank-no { font-size: 13pt; font-family: 'Courier New', monospace; font-weight: 900; color: #0F4C3A; letter-spacing: 2px; }
+  .bank-info { font-size: 7pt; color: #444; }
+  .bank-info strong { display: block; font-size: 8pt; color: #111; }
+  /* KETERANGAN */
+  .ket { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 4px; padding: 5px 8px; font-size: 7.5pt; line-height: 1.5; white-space: pre-wrap; }
+  /* TIMELINE TABLE */
+  .tl { width: 100%; border-collapse: collapse; font-size: 7.5pt; }
+  .tl td { padding: 3px 6px; border-bottom: 1px solid #f0f0f0; vertical-align: top; }
+  .tl tr:last-child td { border-bottom: none; }
+  .tl .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-top: 2px; }
+  .dot-y { background: #059669; }
+  .dot-n { background: #d1d5db; }
+  .tl .step { font-weight: 700; color: #111; }
+  .tl .meta { color: #6b7280; font-size: 7pt; }
+  .tl .note { color: #065f46; font-weight: 700; }
+  .tl .tolak { color: #991b1b; }
+  /* WARIS */
+  .waris { background: #fff1f2; border: 1px solid #fca5a5; border-radius: 4px; padding: 5px 8px; }
+  /* SIGNATURE */
+  .sig { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 14px; padding-top: 8px; border-top: 1px solid #e5e7eb; }
+  .sig-box { text-align: center; }
+  .sig-line { border-top: 1px solid #111; margin-top: 24px; margin-bottom: 4px; }
+  .sig-box p { font-size: 7.5pt; font-weight: 700; }
+  .sig-box small { font-size: 7pt; color: #777; }
+  .print-ts { text-align: right; font-size: 6.5pt; color: #bbb; margin-top: 6px; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="hdr">
+  <div>
+    <div class="hdr-title">KELAB SUKAN &amp; REKREASI PERHILITAN MALAYSIA</div>
+    <div class="hdr-sub">Borang Semakan Permohonan Bantuan Kebajikan</div>
+  </div>
+  <div class="hdr-ref">
+    <strong>#KB-${String(p.id).padStart(4,'0')}</strong><br>
+    Tarikh Mohon: ${fTarikh(p.tarikh_mohon)}
+  </div>
+</div>
+
+<!-- STATUS + AMAUN -->
+<div class="status-row">
+  <span class="badge s-${p.status_permohonan || 'DIPROSES'}">${statusLabel}</span>
+  ${(p.status_permohonan === 'LULUS' || p.status_permohonan === 'SELESAI') ? `<span class="amaun">RM ${parseFloat(p.amaun_lulus || 0).toFixed(2)}</span>` : ''}
+  <span style="font-size:7pt;color:#888;margin-left:auto;">Kategori: <strong style="color:#0F4C3A;">${p.jenis_bantuan}</strong></span>
+</div>
+
+<!-- MAKLUMAT PEMOHON -->
+<div class="s">
+  <div class="s-head">Maklumat Pemohon</div>
+  <div class="g4">
+    <div class="f"><label>Nama Penuh</label><p>${p.nama_pegawai}</p></div>
+    <div class="f"><label>No. K/P</label><p class="mono">${p.no_kp}</p></div>
+    <div class="f"><label>No. Ahli</label><p class="mono">${p.no_ahli || '—'}</p></div>
+    <div class="f"><label>Gred</label><p>${p.gred || '—'}</p></div>
+    <div class="f"><label>Penempatan</label><p>${p.penempatan || '—'}</p></div>
+    ${p.emel_ahli ? `<div class="f gc2"><label>Emel</label><p>${p.emel_ahli}</p></div>` : '<div></div>'}
+    ${p.no_tel ? `<div class="f"><label>No. Telefon</label><p>${p.no_tel}</p></div>` : ''}
+  </div>
+</div>
+
+<!-- AKAUN BANK -->
+<div class="s">
+  <div class="s-head">${p.bagi_pihak ? 'Akaun Bank Waris — Penerima Bayaran' : 'Akaun Bank Ahli — Untuk Pindahan Wang'}</div>
+  <div class="bank">
+    <div class="bank-no">${noAkaun}</div>
+    <div class="bank-info">
+      <strong>${namaBank}</strong>
+      Nama Penerima: ${namaPenerima}
+      ${p.bagi_pihak && p.hubungan_waris ? `&nbsp;(${p.hubungan_waris})` : ''}
+    </div>
+  </div>
+</div>
+
+${p.bagi_pihak ? `
+<!-- MAKLUMAT WARIS -->
+<div class="s">
+  <div class="s-head">Maklumat Waris / Bagi Pihak Arwah</div>
+  <div class="waris">
+    <div class="g4">
+      <div class="f"><label>Nama Waris</label><p>${p.nama_waris || '—'}</p></div>
+      <div class="f"><label>Hubungan</label><p>${p.hubungan_waris || '—'}</p></div>
+      ${p.no_kp_waris ? `<div class="f"><label>No. K/P Waris</label><p class="mono">${p.no_kp_waris}</p></div>` : '<div></div>'}
+      <div class="f"><label>Dikemukakan Oleh</label><p>${p.nama_pemohon_admin || p.pemohon_admin_no_kp || '—'}</p></div>
+    </div>
+  </div>
+</div>` : ''}
+
+<!-- KETERANGAN -->
+<div class="s">
+  <div class="s-head">Keterangan / Kronologi Kejadian ${dokList.length > 0 ? `&nbsp;·&nbsp; Dokumen: ${dokList.length} fail` : ''}</div>
+  <div class="ket">${(p.keterangan || 'Tiada keterangan.').replace(/\n/g, '<br>')}</div>
+</div>
+
+<!-- REKOD PROSES -->
+<div class="s">
+  <div class="s-head">Rekod Proses</div>
+  <table class="tl">
+    <tr>
+      <td style="width:14px;"><span class="dot dot-y"></span></td>
+      <td class="step">Permohonan Diterima</td>
+      <td class="meta">${fMasa(p.tarikh_mohon)}</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td><span class="dot ${p.tarikh_dikemukakan ? 'dot-y' : 'dot-n'}"></span></td>
+      <td class="step">Dikemukakan kepada JK</td>
+      <td class="meta">${p.tarikh_dikemukakan ? fMasa(p.tarikh_dikemukakan) + (p.diproses_oleh ? ' · ' + p.diproses_oleh : '') : '—'}</td>
+      <td class="meta" style="font-style:italic;">${p.catatan_admin && p.tarikh_dikemukakan ? '"' + p.catatan_admin + '"' : ''}</td>
+    </tr>
+    <tr>
+      <td><span class="dot ${p.tarikh_keputusan ? 'dot-y' : 'dot-n'}"></span></td>
+      <td class="step">Keputusan Jawatankuasa</td>
+      <td class="meta">${p.tarikh_keputusan ? fMasa(p.tarikh_keputusan) : '—'}</td>
+      <td>${(p.status_permohonan === 'LULUS' || p.status_permohonan === 'SELESAI') ? `<span class="note">Lulus — RM ${parseFloat(p.amaun_lulus || 0).toFixed(2)}</span>` : p.status_permohonan === 'DITOLAK' ? `<span class="tolak">${p.sebab_tolak || ''}</span>` : ''}</td>
+    </tr>
+    <tr>
+      <td><span class="dot ${p.status_permohonan === 'SELESAI' ? 'dot-y' : 'dot-n'}"></span></td>
+      <td class="step">Resit &amp; Rekod Buku Tunai</td>
+      <td class="meta">${p.tarikh_bayaran ? fMasa(p.tarikh_bayaran) : '—'}</td>
+      <td></td>
+    </tr>
+  </table>
+</div>
+
+<!-- TANDATANGAN -->
+<div class="sig">
+  <div class="sig-box">
+    <div class="sig-line"></div>
+    <p>Disediakan Oleh</p>
+    <small>Tarikh: ___________________</small>
+  </div>
+  <div class="sig-box">
+    <div class="sig-line"></div>
+    <p>Disemak / Diluluskan (Yang Dipertua)</p>
+    <small>Tarikh: ___________________</small>
+  </div>
+</div>
+
+<div class="print-ts">Dicetak: ${new Date().toLocaleString('ms-MY', { day:'numeric', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit' })}</div>
+
+<script>window.onload = () => window.print();<\/script>
+</body></html>`;
+
+  const win = window.open('', '_blank', 'width=850,height=950');
+  if (!win) { toast.amaran('Sila benarkan pop-up untuk mencetak.'); return; }
+  win.document.write(html);
+  win.document.close();
 };
 
 onMounted(async () => {

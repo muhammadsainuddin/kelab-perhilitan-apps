@@ -60,12 +60,12 @@
           <thead>
             <tr class="border-b border-gray-100">
               <th class="text-left px-4 py-3 text-[10px] font-black uppercase tracking-wider text-gray-400">No. Tiket</th>
-              <th class="text-left px-4 py-3 text-[10px] font-black uppercase tracking-wider text-gray-400">Pengirim</th>
+              <th class="text-left px-4 py-3 text-[10px] font-black uppercase tracking-wider text-gray-400 hidden sm:table-cell">Pengirim</th>
               <th class="text-left px-4 py-3 text-[10px] font-black uppercase tracking-wider text-gray-400">Subjek</th>
-              <th class="text-left px-4 py-3 text-[10px] font-black uppercase tracking-wider text-gray-400">Kategori</th>
-              <th class="text-center px-4 py-3 text-[10px] font-black uppercase tracking-wider text-gray-400">Balasan</th>
+              <th class="text-left px-4 py-3 text-[10px] font-black uppercase tracking-wider text-gray-400 hidden md:table-cell">Kategori</th>
+              <th class="text-center px-4 py-3 text-[10px] font-black uppercase tracking-wider text-gray-400 hidden md:table-cell">Balasan</th>
               <th class="text-left px-4 py-3 text-[10px] font-black uppercase tracking-wider text-gray-400">Status</th>
-              <th class="text-left px-4 py-3 text-[10px] font-black uppercase tracking-wider text-gray-400">Tarikh</th>
+              <th class="text-left px-4 py-3 text-[10px] font-black uppercase tracking-wider text-gray-400 hidden sm:table-cell">Tarikh</th>
               <th class="text-center px-4 py-3 text-[10px] font-black uppercase tracking-wider text-gray-400">Tindakan</th>
             </tr>
           </thead>
@@ -78,7 +78,7 @@
                   <span class="text-xs font-black font-mono text-gray-700">{{ t.no_tiket }}</span>
                 </div>
               </td>
-              <td class="px-4 py-3.5">
+              <td class="px-4 py-3.5 hidden sm:table-cell">
                 <p class="text-xs font-bold text-gray-900 leading-tight">{{ t.nama_pengirim }}</p>
                 <p class="text-[9px] font-mono text-gray-400 mt-0.5">{{ t.no_kp }}</p>
               </td>
@@ -86,10 +86,10 @@
                 <p class="text-xs font-bold text-gray-900 truncate">{{ t.subjek }}</p>
                 <p v-if="t.jenis_balasan_terkini === 'AHLI'" class="text-[9px] text-amber-600 font-bold mt-0.5">↩ Ahli membalas</p>
               </td>
-              <td class="px-4 py-3.5">
+              <td class="px-4 py-3.5 hidden md:table-cell">
                 <span class="text-[9px] font-bold text-gray-500 bg-gray-100 px-2 py-1 rounded-lg">{{ t.kategori }}</span>
               </td>
-              <td class="px-4 py-3.5 text-center">
+              <td class="px-4 py-3.5 text-center hidden md:table-cell">
                 <span class="text-xs font-black" :class="t.bil_balasan > 0 ? 'text-gray-700' : 'text-gray-300'">
                   {{ t.bil_balasan }}
                 </span>
@@ -103,7 +103,7 @@
                   {{ t.status === 'DALAM_PROSES' ? 'Dalam Proses' : t.status === 'BARU' ? 'Baru' : t.status === 'SELESAI' ? 'Selesai' : 'Ditolak' }}
                 </span>
               </td>
-              <td class="px-4 py-3.5">
+              <td class="px-4 py-3.5 hidden sm:table-cell">
                 <p class="text-[10px] text-gray-500">{{ formatTarikh(t.tarikh_hantar) }}</p>
               </td>
               <td class="px-4 py-3.5 text-center">

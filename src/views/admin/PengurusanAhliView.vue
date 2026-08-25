@@ -43,7 +43,7 @@
     </div>
 
     <!-- TAB SWITCHER -->
-    <div class="flex gap-1 bg-gray-100 p-1 rounded-xl w-fit">
+    <div class="flex gap-1 bg-gray-100 p-1 rounded-xl max-w-full overflow-x-auto">
       <button @click="tabAktif = 'semua'"
         :class="['px-4 py-1.5 rounded-lg text-xs font-bold transition-all', tabAktif === 'semua' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700']">
         Semua Ahli
@@ -180,11 +180,11 @@
                 </td>
                 <td class="px-3 py-2.5 text-center">
                   <div class="flex justify-center gap-1">
-                    <button @click="bukaDetails(ahli)" class="text-[#0F4C3A] bg-[#0F4C3A]/10 hover:bg-[#0F4C3A]/20 border border-[#0F4C3A]/20 p-1.5 rounded-lg transition-colors">
-                      <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                    <button @click="bukaDetails(ahli)" class="text-[#0F4C3A] bg-[#0F4C3A]/10 hover:bg-[#0F4C3A]/20 border border-[#0F4C3A]/20 p-2 rounded-lg transition-colors">
+                      <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                     </button>
-                    <button @click="bukaEdit(ahli)" class="text-[10px] font-bold text-gray-600 bg-gray-100 hover:bg-gray-200 border border-gray-200 px-2 py-1 rounded-lg transition-colors">
-                      <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                    <button @click="bukaEdit(ahli)" class="text-gray-600 bg-gray-100 hover:bg-gray-200 border border-gray-200 p-2 rounded-lg transition-colors">
+                      <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
                     </button>
                   </div>
                 </td>

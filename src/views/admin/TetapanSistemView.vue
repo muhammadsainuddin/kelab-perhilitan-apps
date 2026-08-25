@@ -20,6 +20,86 @@
       </div>
     </div>
 
+    <!-- TETAPAN AKAUN SUPER ADMIN -->
+    <div v-if="authStore.user?.role === 'Super Admin'" class="space-y-3">
+      <p class="text-xs font-black uppercase tracking-widest text-gray-400 px-1">Akaun Super Admin</p>
+
+      <div class="bg-white rounded-2xl border border-indigo-200 shadow-sm overflow-hidden">
+        <div class="flex items-start gap-4 p-5 border-b border-indigo-100 bg-indigo-50/30">
+          <div class="w-11 h-11 rounded-xl flex items-center justify-center shrink-0"
+            style="background: rgba(99,102,241,0.1);">
+            <svg class="w-6 h-6" style="color: #6366f1;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
+          <div>
+            <h2 class="text-sm font-black text-gray-900">Tetapan Akaun Saya</h2>
+            <p class="text-xs text-gray-500 mt-0.5 leading-relaxed">
+              Tetapkan jawatan dalam kelab dan status pembayaran yuran untuk akaun Super Admin ini.
+            </p>
+          </div>
+        </div>
+
+        <div class="p-5 space-y-5">
+          <!-- Jawatan Kelab -->
+          <div>
+            <label class="text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-2 block">Jawatan dalam Kelab</label>
+            <div class="grid grid-cols-2 gap-2 sm:grid-cols-3">
+              <button v-for="j in senaraJawatan" :key="j.nilai"
+                @click="tetapanAkun.jawatan_kelab = j.nilai"
+                class="flex flex-col items-center justify-center gap-1 py-3 px-2 rounded-xl border text-center transition-all"
+                :class="tetapanAkun.jawatan_kelab === j.nilai
+                  ? 'border-indigo-400 bg-indigo-50 text-indigo-800'
+                  : 'border-gray-200 text-gray-500 hover:border-indigo-200 hover:bg-indigo-50/30'">
+                <span class="text-[13px]">{{ j.ikon }}</span>
+                <span class="text-[10px] font-bold leading-tight">{{ j.label }}</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Override Status Berbayar -->
+          <div>
+            <label class="text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-2 block">Override Status Yuran</label>
+            <p class="text-[11px] text-gray-400 mb-3 leading-relaxed">
+              Tetapkan status berbayar/tidak berbayar secara manual. Biarkan "Auto" untuk mengikut sistem semula jadi.
+            </p>
+            <div class="flex gap-2">
+              <button @click="tetapanAkun.is_paid_override = null"
+                class="flex-1 py-2.5 px-3 rounded-xl border text-[11px] font-bold transition-all"
+                :class="tetapanAkun.is_paid_override === null
+                  ? 'border-gray-400 bg-gray-100 text-gray-700'
+                  : 'border-gray-200 text-gray-400 hover:bg-gray-50'">
+                Auto (Ikut Sistem)
+              </button>
+              <button @click="tetapanAkun.is_paid_override = true"
+                class="flex-1 py-2.5 px-3 rounded-xl border text-[11px] font-bold transition-all"
+                :class="tetapanAkun.is_paid_override === true
+                  ? 'border-emerald-400 bg-emerald-50 text-emerald-700'
+                  : 'border-gray-200 text-gray-400 hover:bg-emerald-50/30'">
+                Berbayar
+              </button>
+              <button @click="tetapanAkun.is_paid_override = false"
+                class="flex-1 py-2.5 px-3 rounded-xl border text-[11px] font-bold transition-all"
+                :class="tetapanAkun.is_paid_override === false
+                  ? 'border-rose-400 bg-rose-50 text-rose-700'
+                  : 'border-gray-200 text-gray-400 hover:bg-rose-50/30'">
+                Tidak Berbayar
+              </button>
+            </div>
+          </div>
+
+          <!-- Simpan -->
+          <button @click="simpanTetapanAkun" :disabled="menyimpanAkun"
+            class="w-full py-3 rounded-xl text-sm font-black text-white transition-all"
+            style="background: #6366f1;"
+            :class="menyimpanAkun ? 'opacity-60' : 'hover:opacity-90'">
+            {{ menyimpanAkun ? 'Menyimpan...' : 'Simpan Tetapan Akaun' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- SENARAI MODUL -->
     <div class="space-y-3">
       <p class="text-xs font-black uppercase tracking-widest text-gray-400 px-1">Modul Aplikasi</p>
@@ -501,9 +581,11 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useSettingsStore } from '../../stores/settings';
+import { useAuthStore } from '../../stores/auth';
 import api from '../../services/api';
 
 const settingsStore = useSettingsStore();
+const authStore = useAuthStore();
 
 const loading  = ref(false);
 const toggling = ref(null);
@@ -756,6 +838,44 @@ const togolAktifKategori = async (kat) => {
   }
 };
 
+// ── Tetapan Akaun Super Admin ─────────────────────────────────────
+const senaraJawatan = [
+  { nilai: 'Yang Dipertua',       label: 'Yang Dipertua',       ikon: '👑' },
+  { nilai: 'Naib Yang Dipertua',  label: 'Naib Yang Dipertua',  ikon: '🎖️' },
+  { nilai: 'Setiausaha',          label: 'Setiausaha',          ikon: '📋' },
+  { nilai: 'Bendahari',           label: 'Bendahari',           ikon: '💰' },
+  { nilai: 'AJK',                 label: 'AJK',                 ikon: '🤝' },
+  { nilai: '',                    label: 'Tiada Jawatan',       ikon: '—' },
+];
+
+const tetapanAkun    = ref({ jawatan_kelab: '', is_paid_override: null });
+const menyimpanAkun  = ref(false);
+
+const muatTetapanAkun = async () => {
+  try {
+    const { data } = await api.get('/admin/profil-saya');
+    const p = data.data;
+    tetapanAkun.value.jawatan_kelab   = p.jawatan_kelab ?? '';
+    const ov = p.is_paid_override;
+    tetapanAkun.value.is_paid_override = ov === 1 ? true : ov === 0 ? false : null;
+  } catch { /* */ }
+};
+
+const simpanTetapanAkun = async () => {
+  menyimpanAkun.value = true;
+  try {
+    await api.put('/admin/tetapan-akaun-sendiri', {
+      jawatan_kelab:   tetapanAkun.value.jawatan_kelab || null,
+      is_paid_override: tetapanAkun.value.is_paid_override,
+    });
+    tunjukMesej('Tetapan akaun berjaya disimpan.', true);
+  } catch (e) {
+    tunjukMesej(e.response?.data?.message || 'Gagal menyimpan.', false);
+  } finally {
+    menyimpanAkun.value = false;
+  }
+};
+
 onMounted(async () => {
   if (!settingsStore.dimuat) {
     loading.value = true;
@@ -765,6 +885,7 @@ onMounted(async () => {
   muatCategoryCode();
   muatAcara();
   muatKategoriTetapan();
+  if (authStore.user?.role === 'Super Admin') muatTetapanAkun();
 });
 </script>
 

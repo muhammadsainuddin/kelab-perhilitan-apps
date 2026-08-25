@@ -253,6 +253,16 @@
                     class="w-full border border-gray-200 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500">
                 </div>
               </div>
+              <div>
+                <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wide mb-1.5">
+                  Link Google Form
+                  <span class="ml-1.5 text-[10px] font-semibold text-gray-400 normal-case tracking-normal">(Pilihan)</span>
+                </label>
+                <input type="url" v-model="form.link_google_form"
+                  placeholder="https://forms.gle/..."
+                  class="w-full border border-gray-200 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500">
+                <p class="text-[10px] text-gray-400 mt-1">Jika diisi, ahli akan diarahkan isi borang ini selepas mendaftar acara.</p>
+              </div>
             </div>
 
             <!-- Keterangan -->
@@ -297,12 +307,16 @@
                 <div v-if="modEdit && gambarSedia.length > 0 && failGambar.length === 0"
                   class="mb-4 p-3 bg-sky-50 border border-sky-100 rounded-xl">
                   <p class="text-[11px] font-black text-sky-700 mb-1">{{ gambarSedia.length }} gambar sedia ada</p>
-                  <p class="text-[11px] text-sky-600 mb-2">Muat naik gambar baru untuk menggantikan.</p>
-                  <div class="grid grid-cols-5 gap-1.5">
-                    <div v-for="(fn, i) in gambarSedia" :key="i"
-                      class="aspect-square rounded-lg overflow-hidden bg-sky-100 border border-sky-200">
+                  <p class="text-[11px] text-sky-600 mb-2">Tekan ✕ untuk buang gambar, atau muat naik baru untuk gantikan semua.</p>
+                  <div class="grid grid-cols-4 gap-1.5">
+                    <div v-for="(fn, i) in gambarSedia" :key="fn"
+                      class="relative aspect-square rounded-lg overflow-hidden bg-sky-100 border border-sky-200">
                       <img :src="`${apiBase}/uploads/images/${fn}`" alt="Gambar acara" class="w-full h-full object-cover"
                         @error="e => { e.target.style.display='none'; }">
+                      <button @click.prevent="padamGambarSedia(i)"
+                        class="absolute top-1 right-1 w-5 h-5 bg-rose-500 hover:bg-rose-600 text-white rounded-full flex items-center justify-center text-[10px] font-black shadow">
+                        ✕
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -329,12 +343,11 @@
                 <!-- Preview Grid -->
                 <div v-if="failGambar.length > 0" class="mt-3 grid grid-cols-3 gap-2">
                   <div v-for="(item, idx) in failGambar" :key="idx"
-                    class="relative group rounded-xl overflow-hidden aspect-square border-2 transition-all"
-                    :class="idx === 0 ? 'border-emerald-400' : 'border-gray-200 hover:border-gray-300'">
+                    class="relative rounded-xl overflow-hidden aspect-square border-2 transition-all"
+                    :class="idx === 0 ? 'border-emerald-400' : 'border-gray-200'">
                     <img :src="item.preview" :alt="`Gambar ${idx + 1}`" class="w-full h-full object-cover">
-                    <div class="absolute inset-0 bg-black/0 group-hover:bg-black/25 transition-colors"></div>
                     <button @click.prevent="buangGambar(idx)"
-                      class="absolute top-1.5 right-1.5 w-6 h-6 bg-rose-500 hover:bg-rose-600 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-xs font-black shadow-md">
+                      class="absolute top-1.5 right-1.5 w-7 h-7 bg-rose-500 hover:bg-rose-600 text-white rounded-full flex items-center justify-center text-xs font-black shadow-md">
                       ✕
                     </button>
                     <div v-if="idx === 0"
@@ -422,7 +435,8 @@ const formKosong = () => ({
   status: 'AKTIF',
   senarai_sukan: [],
   benarkan_pelbagai_sukan: false,
-  kategori_jantina: 'Semua'
+  kategori_jantina: 'Semua',
+  link_google_form: ''
 });
 
 const form = ref(formKosong());
@@ -434,7 +448,7 @@ watch(() => props.show, (val) => {
   failGambar.value = [];
 
   if (props.modEdit && props.formAsal) {
-    form.value = { ...props.formAsal, senarai_sukan: [...(props.formAsal.senarai_sukan || [])], had_peserta: props.formAsal.had_peserta ?? null, kategori_jantina: props.formAsal.kategori_jantina || 'Semua', tarikh_tamat: props.formAsal.tarikh_tamat || '' };
+    form.value = { ...props.formAsal, senarai_sukan: [...(props.formAsal.senarai_sukan || [])], had_peserta: props.formAsal.had_peserta ?? null, kategori_jantina: props.formAsal.kategori_jantina || 'Semua', tarikh_tamat: props.formAsal.tarikh_tamat || '', link_google_form: props.formAsal.link_google_form || '' };
     try {
       const p = props.formAsal.poster;
       const parsed = p ? (typeof p === 'string' ? JSON.parse(p) : p) : [];
@@ -482,6 +496,10 @@ const buangGambar = (idx) => {
   failGambar.value.splice(idx, 1);
 };
 
+const padamGambarSedia = (idx) => {
+  gambarSedia.value.splice(idx, 1);
+};
+
 const simpan = async () => {
   errorMsg.value = '';
   if (!form.value.nama_acara.trim()) {
@@ -507,11 +525,16 @@ const simpan = async () => {
   fd.append('benarkan_pelbagai_sukan', form.value.benarkan_pelbagai_sukan ? 'true' : 'false');
   fd.append('had_peserta', form.value.had_peserta || '');
   fd.append('kategori_jantina', form.value.kategori_jantina || 'Semua');
+  fd.append('link_google_form', form.value.link_google_form || '');
   fd.append('senarai_sukan',
     form.value.jenis_acara === 'SUKAN' && form.value.senarai_sukan.length > 0
       ? JSON.stringify(form.value.senarai_sukan) : ''
   );
   failGambar.value.forEach(item => fd.append('poster', item.file));
+  // Jika edit dan tiada gambar baru, hantar senarai gambar sedia ada yang masih kekal
+  if (props.modEdit && failGambar.value.length === 0) {
+    fd.append('gambar_kekal', JSON.stringify(gambarSedia.value));
+  }
 
   menyimpan.value = true;
   try {

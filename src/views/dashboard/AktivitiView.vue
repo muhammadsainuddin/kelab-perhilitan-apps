@@ -365,18 +365,33 @@
 
               <!-- Registration status -->
               <div v-if="acaraTerpilih.sudah_daftar"
-                class="rounded-[18px] p-4 flex items-center gap-3"
+                class="rounded-[18px] p-4"
                 style="background: rgba(82,183,136,0.07); border: 1px solid rgba(82,183,136,0.16);">
-                <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
-                  style="background: rgba(82,183,136,0.12);">
-                  <svg class="w-5 h-5" style="color: #2D6A4F;" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                <div class="flex items-center gap-3">
+                  <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
+                    style="background: rgba(82,183,136,0.12);">
+                    <svg class="w-5 h-5" style="color: #2D6A4F;" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <p class="text-[12px] font-black" style="color: #1B4332;">Anda Telah Mendaftar</p>
+                    <p class="text-[10px] font-medium" style="color: rgba(27,67,50,0.6);">Pendaftaran anda untuk acara ini berjaya direkodkan</p>
+                  </div>
+                </div>
+                <!-- Link Google Form jika ada -->
+                <a v-if="acaraTerpilih.link_google_form"
+                  :href="acaraTerpilih.link_google_form" target="_blank" rel="noopener noreferrer"
+                  class="mt-3 flex items-center gap-2 w-full py-2.5 px-3 rounded-xl text-[11px] font-black transition-all active:scale-[0.98]"
+                  style="background: rgba(82,183,136,0.12); color: #1B4332; border: 1px solid rgba(82,183,136,0.2);">
+                  <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                   </svg>
-                </div>
-                <div>
-                  <p class="text-[12px] font-black" style="color: #1B4332;">Anda Telah Mendaftar</p>
-                  <p class="text-[10px] font-medium" style="color: rgba(27,67,50,0.6);">Pendaftaran anda untuk acara ini berjaya direkodkan</p>
-                </div>
+                  Isi Borang Maklumat Tambahan
+                  <svg class="w-3.5 h-3.5 ml-auto" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                  </svg>
+                </a>
               </div>
 
             </div>
@@ -418,11 +433,57 @@
     </Teleport>
 
     <!-- ═══════════════════════════
+         MODAL GOOGLE FORM
+         ═══════════════════════════ -->
+    <Teleport to="body">
+      <Transition name="modal">
+        <div v-if="modalGoogleForm.show"
+          class="fixed inset-0 z-99999 flex items-end justify-center"
+          style="background: rgba(8,28,21,0.72); backdrop-filter: blur(8px);">
+          <div class="bg-white w-full max-w-md pb-8"
+            style="border-radius: 28px 28px 0 0; box-shadow: 0 -12px 48px rgba(0,0,0,0.15);">
+            <div class="flex justify-center pt-3 mb-2">
+              <div class="w-10 h-1 rounded-full" style="background: #E2E8F0;"></div>
+            </div>
+            <div class="px-6 pt-2 pb-1 text-center">
+              <!-- Ikon berjaya -->
+              <div class="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-3"
+                style="background: rgba(82,183,136,0.1);">
+                <svg class="w-7 h-7" style="color: #2D6A4F;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+              </div>
+              <p class="text-[9px] font-black uppercase tracking-[0.2em] mb-1" style="color: #52B788;">Pendaftaran Berjaya</p>
+              <h3 class="text-[16px] font-black mb-1.5" style="color: #0F172A;">Borang Wajib Diisi</h3>
+              <p class="text-[11px] font-medium leading-relaxed mb-1" style="color: #64748B;">
+                Sila lengkapkan borang maklumat tambahan bagi acara:
+              </p>
+              <p class="text-[12px] font-black mb-2" style="color: #0F172A;">{{ modalGoogleForm.namaAcara }}</p>
+              <p class="text-[10px] font-bold mb-5 px-2 py-2 rounded-xl"
+                style="color: #92660C; background: #FFFBEB; border: 1px solid rgba(251,191,36,0.25);">
+                ⚠ Borang ini wajib diisi untuk melengkapkan pendaftaran anda.
+              </p>
+
+              <button @click="() => { window.open(modalGoogleForm.link, '_blank'); modalGoogleForm.show = false; }"
+                class="w-full py-3.5 rounded-2xl text-[11px] font-black uppercase tracking-wider flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
+                style="background: #081C15; color: #95D5B2;">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                </svg>
+                Isi Borang Sekarang
+              </button>
+            </div>
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
+
+    <!-- ═══════════════════════════
          GALERI GAMBAR
          ═══════════════════════════ -->
     <Teleport to="body">
       <Transition name="fade">
-        <div v-if="modalGaleri.show" class="fixed inset-0 z-[99999] flex flex-col items-center justify-center" style="background: rgba(0,0,0,0.96);">
+        <div v-if="modalGaleri.show" class="fixed inset-0 z-99999 flex flex-col items-center justify-center" style="background: rgba(0,0,0,0.96);">
           <button @click="modalGaleri.show = false"
             class="absolute top-5 right-5 w-10 h-10 flex items-center justify-center rounded-full z-50 transition-all active:scale-90"
             style="background: rgba(255,255,255,0.1); color: white;">
@@ -469,7 +530,7 @@
     <Teleport to="body">
       <Transition name="modal">
         <div v-if="modal.show"
-          class="fixed inset-0 z-[99999] flex items-end justify-center"
+          class="fixed inset-0 z-99999 flex items-end justify-center"
           style="background: rgba(8,28,21,0.7); backdrop-filter: blur(8px);"
           @click.self="modal.show = false">
           <div class="bg-white w-full max-w-md pb-8"
@@ -533,7 +594,7 @@
                   Batal
                 </button>
                 <button @click="hantarPendaftaran" :disabled="aksiLoading || !bolehHantar"
-                  class="flex-[2] py-3.5 rounded-2xl text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2 transition-all active:scale-[0.98] disabled:opacity-50"
+                  class="flex-2 py-3.5 rounded-2xl text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2 transition-all active:scale-[0.98] disabled:opacity-50"
                   style="background: #081C15; color: #95D5B2;">
                   <span v-if="aksiLoading" class="w-3.5 h-3.5 rounded-full border-2 border-[#52B788] border-t-transparent animate-spin"></span>
                   {{ aksiLoading ? 'Memproses...' : 'Sahkan Pendaftaran' }}
@@ -584,6 +645,7 @@ const gotoDetailSlide = (idx) => {
 
 const modal = ref({ show: false, acara: null, kategori: '', catatan: '', sukanDipilih: [], benarkanPelbagai: false });
 const modalGaleri = ref({ show: false, images: [], currentIndex: 0 });
+const modalGoogleForm = ref({ show: false, link: '', namaAcara: '' });
 
 const isPaid = computed(() => !!profil.value.is_paid);
 
@@ -711,10 +773,19 @@ const hantarPendaftaran = async () => {
       sukan_dipilih: sukanDipilih.length > 0 ? sukanDipilih : null
     });
     toast.sukses(res.data.message || 'Pendaftaran berjaya!');
+    const acaraYangDaftar = modal.value.acara;
     modal.value.show = false;
     await fetchAcara();
     if (acaraTerpilih.value) {
       acaraTerpilih.value = senaraiAcara.value.find(a => a.id === acaraTerpilih.value.id) || null;
+    }
+    // Tunjuk modal Google Form jika ada link
+    if (acaraYangDaftar?.link_google_form) {
+      modalGoogleForm.value = {
+        show: true,
+        link: acaraYangDaftar.link_google_form,
+        namaAcara: acaraYangDaftar.nama_acara
+      };
     }
   } catch (error) {
     toast.ralat(error.response?.data?.message || 'Gagal mendaftar acara.');

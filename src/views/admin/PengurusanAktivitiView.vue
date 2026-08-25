@@ -4,7 +4,7 @@
 
     <!-- TOOLBAR: Stat Cards + Butang Tambah -->
     <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-      <div class="grid grid-cols-3 gap-3 w-full lg:max-w-xl">
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full lg:max-w-xl">
         <div class="bg-white rounded-2xl border border-gray-100 px-4 py-3.5 shadow-sm flex items-center gap-3">
           <div class="w-9 h-9 rounded-xl bg-gray-100 flex items-center justify-center shrink-0">
             <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -247,186 +247,224 @@
       </div>
     </div>
 
-    <!-- PANEL SLIDE-OVER BUTIRAN ACARA -->
+    <!-- MODAL BUTIRAN ACARA -->
     <Teleport to="body">
-      <Transition
-        enter-active-class="transition-opacity duration-300 ease-out"
-        enter-from-class="opacity-0"
-        enter-to-class="opacity-100"
-        leave-active-class="transition-opacity duration-200 ease-in"
-        leave-from-class="opacity-100"
-        leave-to-class="opacity-0">
-        <div v-if="acaraDipilihDetail" class="fixed inset-0 z-[60] flex justify-end"
-          @keydown.esc="acaraDipilihDetail = null">
-          <!-- Backdrop -->
-          <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="acaraDipilihDetail = null"/>
-          <!-- Panel -->
-          <div class="relative w-full max-w-sm bg-white shadow-2xl flex flex-col overflow-hidden
-            translate-x-0 transition-transform duration-300">
+      <Transition name="modal-backdrop">
+        <div v-if="acaraDipilihDetail"
+          class="fixed inset-0 z-[60] flex items-end sm:items-center justify-center"
+          style="background: rgba(0,0,0,0.65); backdrop-filter: blur(7px);"
+          @click.self="acaraDipilihDetail = null">
 
-            <!-- Panel Header -->
-            <div class="px-5 py-4 border-b border-gray-100 flex items-start justify-between shrink-0">
-              <div class="min-w-0 pr-3">
-                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Butiran Acara</p>
-                <h2 class="font-black text-gray-900 text-base leading-tight mt-0.5 truncate">{{ acaraDipilihDetail.nama_acara }}</h2>
-              </div>
-              <button @click="acaraDipilihDetail = null"
-                class="shrink-0 w-8 h-8 flex items-center justify-center rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-500 transition-colors">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
-                </svg>
-              </button>
-            </div>
+          <Transition name="modal-card" appear>
+            <div class="bg-white w-full sm:max-w-lg sm:mx-4 sm:rounded-3xl rounded-t-3xl shadow-2xl flex flex-col overflow-hidden max-h-[93vh] sm:max-h-[88vh]">
 
-            <!-- Panel Body -->
-            <div class="flex-1 overflow-y-auto">
-              <!-- Poster -->
-              <div v-if="getPosterUrl(acaraDipilihDetail.poster)" class="w-full h-40 overflow-hidden shrink-0">
-                <img :src="getPosterUrl(acaraDipilihDetail.poster)" :alt="acaraDipilihDetail.nama_acara" class="w-full h-full object-cover">
-              </div>
+              <!-- ═══ HERO ═══ -->
+              <div class="relative h-56 shrink-0 overflow-hidden">
+                <!-- Gradient fallback background -->
+                <div class="absolute inset-0 bg-gradient-to-br from-[#0F4C3A] via-[#1a7a5e] to-[#0c3d2e]"/>
+                <!-- Poster image -->
+                <img v-if="getPosterUrl(acaraDipilihDetail.poster)"
+                  :src="getPosterUrl(acaraDipilihDetail.poster)"
+                  :alt="acaraDipilihDetail.nama_acara"
+                  class="absolute inset-0 w-full h-full object-cover">
+                <!-- Gradient overlay for text legibility -->
+                <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-black/10"/>
+                <!-- Pattern overlay (subtle texture when no image) -->
+                <div v-if="!getPosterUrl(acaraDipilihDetail.poster)"
+                  class="absolute inset-0 opacity-10"
+                  style="background-image: radial-gradient(circle at 20% 50%, white 1px, transparent 1px), radial-gradient(circle at 80% 20%, white 1px, transparent 1px); background-size: 40px 40px;"/>
 
-              <div class="p-5 space-y-5">
-                <!-- Badges -->
-                <div class="flex items-center gap-2 flex-wrap">
-                  <span class="text-[11px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wide border"
-                    :class="{
-                      'bg-emerald-50 text-emerald-700 border-emerald-100': acaraDipilihDetail.jenis_acara === 'SUKAN',
-                      'bg-blue-50 text-blue-700 border-blue-100': acaraDipilihDetail.jenis_acara === 'KEBAJIKAN',
-                      'bg-violet-50 text-violet-700 border-violet-100': acaraDipilihDetail.jenis_acara === 'SOSIAL',
-                      'bg-amber-50 text-amber-700 border-amber-100': acaraDipilihDetail.jenis_acara === 'MESYUARAT'
-                    }">{{ acaraDipilihDetail.jenis_acara }}</span>
-                  <span v-if="acaraDipilihDetail.status === 'AKTIF'" class="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-100 rounded-full">
-                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>Aktif
-                  </span>
-                  <span v-else-if="acaraDipilihDetail.status === 'TUTUP'" class="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-bold text-amber-700 bg-amber-50 border border-amber-100 rounded-full">
-                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>Tutup
-                  </span>
-                  <span v-else class="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-bold text-blue-700 bg-blue-50 border border-blue-100 rounded-full">
-                    <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>Selesai
-                  </span>
-                  <span v-if="acaraDipilihDetail.kategori_jantina && acaraDipilihDetail.kategori_jantina !== 'Semua'"
-                    class="text-[11px] font-bold px-2.5 py-1 rounded-full border"
-                    :class="acaraDipilihDetail.kategori_jantina === 'Lelaki' ? 'bg-blue-50 text-blue-700 border-blue-100' : 'bg-pink-50 text-pink-700 border-pink-100'">
-                    {{ acaraDipilihDetail.kategori_jantina === 'Lelaki' ? '♂ Lelaki' : '♀ Perempuan' }}
-                  </span>
-                </div>
+                <!-- Close button -->
+                <button @click="acaraDipilihDetail = null"
+                  class="absolute top-4 right-4 z-10 w-9 h-9 rounded-xl flex items-center justify-center text-white transition-colors"
+                  style="background: rgba(0,0,0,0.32); backdrop-filter: blur(8px);">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                  </svg>
+                </button>
 
-                <!-- Info Cards -->
-                <div class="grid grid-cols-1 gap-2.5">
-                  <!-- Tarikh -->
-                  <div class="flex items-start gap-3 p-3 bg-gray-50 rounded-xl">
-                    <div class="w-7 h-7 rounded-lg bg-white border border-gray-200 flex items-center justify-center shrink-0">
-                      <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                      </svg>
-                    </div>
-                    <div>
-                      <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wide">Tarikh Acara</p>
-                      <p class="text-sm font-bold text-gray-800 mt-0.5">
-                        {{ formatTarikh(acaraDipilihDetail.tarikh_acara) }}
-                        <span v-if="acaraDipilihDetail.tarikh_tamat" class="text-gray-400 font-normal"> – {{ formatTarikh(acaraDipilihDetail.tarikh_tamat) }}</span>
-                      </p>
-                      <p v-if="acaraDipilihDetail.tarikh_tutup" class="text-[11px] text-gray-400 mt-0.5">
-                        Tutup daftar: {{ formatTarikh(acaraDipilihDetail.tarikh_tutup) }}
-                      </p>
-                    </div>
+                <!-- Overlaid info -->
+                <div class="absolute bottom-0 left-0 right-0 px-5 pb-5 pt-12">
+                  <!-- Badges -->
+                  <div class="flex items-center gap-1.5 flex-wrap mb-2.5">
+                    <span class="text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider border"
+                      :class="{
+                        'bg-emerald-400/20 text-emerald-200 border-emerald-400/30': acaraDipilihDetail.jenis_acara === 'SUKAN',
+                        'bg-blue-400/20 text-blue-200 border-blue-400/30': acaraDipilihDetail.jenis_acara === 'KEBAJIKAN',
+                        'bg-violet-400/20 text-violet-200 border-violet-400/30': acaraDipilihDetail.jenis_acara === 'SOSIAL',
+                        'bg-amber-400/20 text-amber-200 border-amber-400/30': acaraDipilihDetail.jenis_acara === 'MESYUARAT'
+                      }">{{ acaraDipilihDetail.jenis_acara }}</span>
+                    <span v-if="acaraDipilihDetail.status === 'AKTIF'"
+                      class="inline-flex items-center gap-1.5 text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider bg-emerald-500/25 text-emerald-200 border border-emerald-500/35">
+                      <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"/>Aktif
+                    </span>
+                    <span v-else-if="acaraDipilihDetail.status === 'TUTUP'"
+                      class="inline-flex items-center gap-1.5 text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider bg-amber-500/25 text-amber-200 border border-amber-500/35">
+                      <span class="w-1.5 h-1.5 rounded-full bg-amber-400"/>Tutup
+                    </span>
+                    <span v-else
+                      class="inline-flex items-center gap-1.5 text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider bg-blue-500/25 text-blue-200 border border-blue-500/35">
+                      <span class="w-1.5 h-1.5 rounded-full bg-blue-400"/>Selesai
+                    </span>
+                    <span v-if="acaraDipilihDetail.kategori_jantina && acaraDipilihDetail.kategori_jantina !== 'Semua'"
+                      class="text-[10px] font-black px-2.5 py-1 rounded-full border"
+                      :class="acaraDipilihDetail.kategori_jantina === 'Lelaki'
+                        ? 'bg-blue-400/20 text-blue-200 border-blue-400/30'
+                        : 'bg-pink-400/20 text-pink-200 border-pink-400/30'">
+                      {{ acaraDipilihDetail.kategori_jantina === 'Lelaki' ? '♂ Lelaki' : '♀ Perempuan' }}
+                    </span>
                   </div>
+                  <!-- Nama acara -->
+                  <h2 class="text-white font-black text-xl leading-tight drop-shadow">{{ acaraDipilihDetail.nama_acara }}</h2>
                   <!-- Lokasi -->
-                  <div class="flex items-start gap-3 p-3 bg-gray-50 rounded-xl">
-                    <div class="w-7 h-7 rounded-lg bg-white border border-gray-200 flex items-center justify-center shrink-0">
-                      <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-                      </svg>
-                    </div>
-                    <div>
-                      <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wide">Lokasi</p>
-                      <p class="text-sm font-bold text-gray-800 mt-0.5">{{ acaraDipilihDetail.lokasi || '—' }}</p>
-                    </div>
-                  </div>
-                  <!-- Peserta -->
-                  <div class="flex items-start gap-3 p-3 bg-gray-50 rounded-xl">
-                    <div class="w-7 h-7 rounded-lg bg-white border border-gray-200 flex items-center justify-center shrink-0">
-                      <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
-                      </svg>
-                    </div>
-                    <div class="flex-1">
-                      <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wide">Peserta</p>
-                      <div class="flex items-center gap-2 mt-0.5">
-                        <p class="text-sm font-black"
-                          :class="acaraDipilihDetail.had_peserta && Number(acaraDipilihDetail.jumlah_peserta) >= Number(acaraDipilihDetail.had_peserta) ? 'text-rose-600' : 'text-gray-800'">
-                          {{ acaraDipilihDetail.jumlah_peserta || 0 }}
-                          <span v-if="acaraDipilihDetail.had_peserta" class="text-gray-400 font-medium text-xs"> / {{ acaraDipilihDetail.had_peserta }}</span>
-                        </p>
-                        <span v-if="acaraDipilihDetail.had_peserta && Number(acaraDipilihDetail.jumlah_peserta) >= Number(acaraDipilihDetail.had_peserta)"
-                          class="text-[9px] font-black text-rose-600 bg-rose-50 border border-rose-100 px-1.5 py-0.5 rounded-full uppercase tracking-wide">PENUH</span>
+                  <p v-if="acaraDipilihDetail.lokasi" class="text-white/60 text-xs font-medium mt-1.5 flex items-center gap-1.5">
+                    <svg class="w-3 h-3 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                    {{ acaraDipilihDetail.lokasi }}
+                  </p>
+                </div>
+              </div>
+
+              <!-- ═══ CONTENT (scrollable) ═══ -->
+              <div class="flex-1 overflow-y-auto custom-scrollbar">
+                <div class="p-5 space-y-5">
+
+                  <!-- STAT CARDS: Tarikh | Peserta | Tutup Daftar -->
+                  <div class="grid grid-cols-3 gap-3">
+                    <!-- Tarikh -->
+                    <div class="bg-gray-50 border border-gray-100 rounded-2xl p-3 text-center">
+                      <div class="w-7 h-7 rounded-xl bg-white border border-gray-200 flex items-center justify-center mx-auto mb-2">
+                        <svg class="w-3.5 h-3.5 text-[#0F4C3A]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
                       </div>
-                      <div v-if="acaraDipilihDetail.had_peserta" class="mt-1.5 w-full h-1.5 bg-gray-200 rounded-full overflow-hidden">
-                        <div class="h-full rounded-full"
+                      <p class="text-[9px] font-black text-gray-400 uppercase tracking-wider leading-none mb-1.5">Tarikh</p>
+                      <p class="text-[11px] font-black text-gray-800 leading-snug">{{ formatTarikh(acaraDipilihDetail.tarikh_acara) }}</p>
+                      <p v-if="acaraDipilihDetail.tarikh_tamat" class="text-[9px] text-gray-400 mt-0.5">hingga {{ formatTarikh(acaraDipilihDetail.tarikh_tamat) }}</p>
+                    </div>
+                    <!-- Peserta -->
+                    <div class="bg-gray-50 border border-gray-100 rounded-2xl p-3 text-center">
+                      <div class="w-7 h-7 rounded-xl bg-white border border-gray-200 flex items-center justify-center mx-auto mb-2">
+                        <svg class="w-3.5 h-3.5 text-[#0F4C3A]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        </svg>
+                      </div>
+                      <p class="text-[9px] font-black text-gray-400 uppercase tracking-wider leading-none mb-1.5">Peserta</p>
+                      <p class="text-sm font-black leading-none"
+                        :class="acaraDipilihDetail.had_peserta && Number(acaraDipilihDetail.jumlah_peserta) >= Number(acaraDipilihDetail.had_peserta) ? 'text-rose-600' : 'text-gray-800'">
+                        {{ acaraDipilihDetail.jumlah_peserta || 0 }}
+                        <span v-if="acaraDipilihDetail.had_peserta" class="text-[10px] text-gray-400 font-medium"> / {{ acaraDipilihDetail.had_peserta }}</span>
+                      </p>
+                      <div v-if="acaraDipilihDetail.had_peserta" class="mt-2 w-full h-1 bg-gray-200 rounded-full overflow-hidden">
+                        <div class="h-full rounded-full transition-all"
                           :class="Number(acaraDipilihDetail.jumlah_peserta) >= Number(acaraDipilihDetail.had_peserta) ? 'bg-rose-500' : 'bg-emerald-500'"
                           :style="`width:${Math.min(100, Math.round(((acaraDipilihDetail.jumlah_peserta || 0) / acaraDipilihDetail.had_peserta) * 100))}%`"/>
                       </div>
+                      <p v-if="acaraDipilihDetail.had_peserta && Number(acaraDipilihDetail.jumlah_peserta) >= Number(acaraDipilihDetail.had_peserta)"
+                        class="text-[8px] font-black text-rose-500 uppercase tracking-wider mt-1">PENUH</p>
+                    </div>
+                    <!-- Tutup Daftar -->
+                    <div class="bg-gray-50 border border-gray-100 rounded-2xl p-3 text-center">
+                      <div class="w-7 h-7 rounded-xl bg-white border border-gray-200 flex items-center justify-center mx-auto mb-2">
+                        <svg class="w-3.5 h-3.5 text-[#0F4C3A]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                      </div>
+                      <p class="text-[9px] font-black text-gray-400 uppercase tracking-wider leading-none mb-1.5">Tutup</p>
+                      <p class="text-[11px] font-black text-gray-800 leading-snug">
+                        {{ acaraDipilihDetail.tarikh_tutup ? formatTarikh(acaraDipilihDetail.tarikh_tutup) : '—' }}
+                      </p>
                     </div>
                   </div>
-                </div>
 
-                <!-- Sukan -->
-                <div v-if="acaraDipilihDetail.jenis_acara === 'SUKAN' && safeArr(acaraDipilihDetail.senarai_sukan).length > 0">
-                  <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Sukan Disertai</p>
-                  <div class="flex flex-wrap gap-1.5">
-                    <span v-for="sukan in safeArr(acaraDipilihDetail.senarai_sukan)" :key="sukan"
-                      class="text-[11px] px-2.5 py-1 bg-emerald-50 text-emerald-700 border border-emerald-100 rounded-lg font-bold">
-                      {{ sukan }}
-                    </span>
+                  <!-- SUKAN LIST -->
+                  <div v-if="acaraDipilihDetail.jenis_acara === 'SUKAN' && safeArr(acaraDipilihDetail.senarai_sukan).length > 0"
+                    class="bg-gray-50 border border-gray-100 rounded-2xl overflow-hidden">
+                    <!-- Header -->
+                    <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+                      <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Sukan Disertai</p>
+                      <span class="text-[9px] font-black px-2 py-0.5 rounded-full"
+                        style="background: rgba(15,76,58,0.1); color: #0F4C3A;">
+                        {{ safeArr(acaraDipilihDetail.senarai_sukan).length }} sukan
+                      </span>
+                    </div>
+                    <!-- Numbered list -->
+                    <ol class="divide-y divide-gray-100">
+                      <li v-for="(sukan, i) in safeArr(acaraDipilihDetail.senarai_sukan)" :key="sukan"
+                        class="flex items-center gap-3 px-4 py-2.5">
+                        <span class="w-5 h-5 rounded-full flex items-center justify-center shrink-0 text-[9px] font-black text-white"
+                          style="background: #0F4C3A;">{{ i + 1 }}</span>
+                        <span class="text-sm font-bold text-gray-800">{{ sukan }}</span>
+                      </li>
+                    </ol>
+                    <!-- Nota pelbagai sukan -->
+                    <div v-if="acaraDipilihDetail.benarkan_pelbagai_sukan"
+                      class="flex items-center gap-2 px-4 py-2.5 border-t border-gray-100 bg-indigo-50/60">
+                      <svg class="w-3.5 h-3.5 text-indigo-500 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                      </svg>
+                      <p class="text-[11px] text-indigo-600 font-bold">Boleh daftar lebih daripada satu sukan</p>
+                    </div>
                   </div>
-                  <p v-if="acaraDipilihDetail.benarkan_pelbagai_sukan" class="text-[11px] text-indigo-500 font-bold mt-2">
-                    ✓ Boleh daftar lebih daripada satu sukan
-                  </p>
-                </div>
 
-                <!-- Keterangan -->
-                <div v-if="acaraDipilihDetail.keterangan">
-                  <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Keterangan</p>
-                  <p class="text-sm text-gray-600 leading-relaxed">{{ acaraDipilihDetail.keterangan }}</p>
+                  <!-- KETERANGAN -->
+                  <div v-if="acaraDipilihDetail.keterangan"
+                    class="bg-gray-50 border border-gray-100 rounded-2xl p-4">
+                    <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Keterangan</p>
+                    <p class="text-sm text-gray-600 leading-relaxed">{{ acaraDipilihDetail.keterangan }}</p>
+                  </div>
+
                 </div>
               </div>
-            </div>
 
-            <!-- Panel Footer Actions -->
-            <div class="p-4 border-t border-gray-100 space-y-2 shrink-0 bg-gray-50/50">
-              <button @click="paparkanPeserta(acaraDipilihDetail); acaraDipilihDetail = null"
-                class="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold text-white bg-[#0F4C3A] hover:bg-[#0c3d2e] transition-colors shadow-sm">
-                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
-                </svg>
-                Senarai Peserta
-              </button>
-              <div class="grid grid-cols-2 gap-2">
-                <button @click="bukaKontinjen(acaraDipilihDetail); acaraDipilihDetail = null"
-                  class="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-bold text-amber-700 bg-white hover:bg-amber-50 border border-gray-200 hover:border-amber-200 transition-colors">
-                  <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-                  </svg>
-                  Laporan Kontinjen
-                </button>
-                <button @click="bukaBorangEdit(acaraDipilihDetail); acaraDipilihDetail = null"
-                  class="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-bold text-indigo-700 bg-white hover:bg-indigo-50 border border-gray-200 hover:border-indigo-200 transition-colors">
-                  <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                  </svg>
-                  Kemaskini Acara
-                </button>
+              <!-- ═══ FOOTER ACTIONS ═══ -->
+              <div class="p-4 border-t border-gray-100 shrink-0">
+                <div class="grid grid-cols-2 gap-2.5">
+
+                  <!-- Senarai Peserta -->
+                  <button @click="paparkanPeserta(acaraDipilihDetail); acaraDipilihDetail = null"
+                    class="flex flex-col items-center justify-center gap-1.5 py-3.5 rounded-2xl text-white font-black transition-all active:scale-[0.97] shadow-sm"
+                    style="background: linear-gradient(135deg, #0F4C3A 0%, #1a7a5e 100%);">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                    <span class="text-xs">Senarai Peserta</span>
+                  </button>
+
+                  <!-- Kemaskini -->
+                  <button @click="bukaBorangEdit(acaraDipilihDetail); acaraDipilihDetail = null"
+                    class="flex flex-col items-center justify-center gap-1.5 py-3.5 rounded-2xl text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200/70 font-black transition-all active:scale-[0.97]">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                    </svg>
+                    <span class="text-xs">Kemaskini</span>
+                  </button>
+
+                  <!-- Laporan Kontinjen -->
+                  <button @click="bukaKontinjen(acaraDipilihDetail); acaraDipilihDetail = null"
+                    class="flex flex-col items-center justify-center gap-1.5 py-3.5 rounded-2xl text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200/70 font-black transition-all active:scale-[0.97]">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                    </svg>
+                    <span class="text-xs">Lap. Kontinjen</span>
+                  </button>
+
+                  <!-- Padam -->
+                  <button @click="padamAcaraId(acaraDipilihDetail.id); acaraDipilihDetail = null"
+                    class="flex flex-col items-center justify-center gap-1.5 py-3.5 rounded-2xl text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-200/70 font-black transition-all active:scale-[0.97]">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                    </svg>
+                    <span class="text-xs">Padam Acara</span>
+                  </button>
+
+                </div>
               </div>
-              <button @click="padamAcaraId(acaraDipilihDetail.id); acaraDipilihDetail = null"
-                class="w-full flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-bold text-rose-500 bg-white hover:bg-rose-50 border border-gray-200 hover:border-rose-200 transition-colors">
-                <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                </svg>
-                Padam Acara
-              </button>
+
             </div>
-          </div>
+          </Transition>
         </div>
       </Transition>
     </Teleport>
@@ -574,7 +612,8 @@ const bukaBorangEdit = (acara) => {
     senarai_sukan: safeArr(acara.senarai_sukan),
     benarkan_pelbagai_sukan: acara.benarkan_pelbagai_sukan === 1,
     had_peserta: acara.had_peserta ?? null,
-    poster: acara.poster || null
+    poster: acara.poster || null,
+    link_google_form: acara.link_google_form || ''
   };
   paparanModalBorang.value = true;
 };
@@ -642,4 +681,20 @@ onMounted(() => {
 </script>
 
 <style scoped>
+/* Backdrop fade */
+.modal-backdrop-enter-active { transition: opacity 0.25s ease; }
+.modal-backdrop-leave-active { transition: opacity 0.2s ease; }
+.modal-backdrop-enter-from,
+.modal-backdrop-leave-to   { opacity: 0; }
+
+/* Card slide up (mobile) / scale in (desktop) */
+.modal-card-enter-active { transition: all 0.32s cubic-bezier(0.16, 1, 0.3, 1); }
+.modal-card-leave-active { transition: all 0.2s ease-in; }
+.modal-card-enter-from   { transform: translateY(24px); opacity: 0; }
+.modal-card-leave-to     { transform: translateY(12px); opacity: 0; }
+
+.custom-scrollbar { scrollbar-width: thin; scrollbar-color: #e2e8f0 transparent; }
+.custom-scrollbar::-webkit-scrollbar { width: 4px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 9999px; }
 </style>

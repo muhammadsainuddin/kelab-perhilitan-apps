@@ -42,7 +42,7 @@
     </div>
 
     <!-- ══════════════════════ TABS ══════════════════════ -->
-    <div class="flex bg-gray-100 rounded-xl p-1 w-fit border border-gray-200 mb-5">
+    <div class="flex bg-gray-100 rounded-xl p-1 max-w-full overflow-x-auto border border-gray-200 mb-5">
       <button v-for="tab in tabs" :key="tab.id" @click="tukarTab(tab.id)"
         :class="['px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5',
           tabAktif===tab.id ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700']">

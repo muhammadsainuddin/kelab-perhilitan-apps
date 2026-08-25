@@ -296,6 +296,39 @@
         <!-- divider -->
         <div class="mx-4" style="height: 1px; background: #F1F5F9;"></div>
 
+        <!-- Sijil Keahlian -->
+        <button @click="muatTurunSijil"
+          class="w-full flex items-center gap-3.5 px-4 py-4 transition-colors group"
+          :class="profil.is_paid && profil.no_ahli ? 'active:bg-emerald-50/50' : 'opacity-60'">
+          <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
+            :style="profil.is_paid && profil.no_ahli ? 'background: rgba(15,76,58,0.1);' : 'background: #F1F5F9;'">
+            <svg class="w-4.5 h-4.5" :style="profil.is_paid && profil.no_ahli ? 'color:#0F4C3A;' : 'color:#94a3b8;'"
+              fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>
+            </svg>
+          </div>
+          <div class="flex-1 text-left">
+            <p class="text-[12px] font-black tracking-wide" :style="profil.is_paid && profil.no_ahli ? 'color:#0F172A;' : 'color:#94a3b8;'">
+              Sijil Keahlian
+            </p>
+            <p class="text-[10px] font-medium mt-0.5" style="color: #94a3b8;">
+              {{ profil.is_paid && profil.no_ahli ? 'Muat turun sijil keahlian PDF' : 'Hanya ahli berbayar sahaja' }}
+            </p>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <svg v-if="!(profil.is_paid && profil.no_ahli)" class="w-3.5 h-3.5" style="color:#CBD5E1;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+            </svg>
+            <svg v-else class="w-4 h-4 transition-transform group-active:translate-x-0.5" style="color:#CBD5E1;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
+            </svg>
+          </div>
+        </button>
+
+        <!-- divider -->
+        <div class="mx-4" style="height: 1px; background: #F1F5F9;"></div>
+
         <!-- Cap Jari (hanya native + biometri tersedia) -->
         <div v-if="biometriTersedia" class="w-full flex items-center gap-3.5 px-4 py-4">
           <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style="background: rgba(15,76,58,0.08);">
@@ -337,8 +370,28 @@
           </svg>
         </button>
 
+        <!-- Panel Admin (hanya Admin / Super Admin) -->
+        <template v-if="['Admin', 'Super Admin'].includes(authStore.user?.role)">
+          <div class="mx-4" style="height: 1px; background: #F1F5F9;"></div>
+          <button @click="router.push('/admin/dashboard')"
+            class="w-full flex items-center gap-3.5 px-4 py-4 transition-colors active:bg-amber-50/60 group">
+            <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style="background: rgba(251,191,36,0.12);">
+              <svg class="w-4.5 h-4.5" style="color:#D97706;" fill="none" stroke="currentColor" stroke-width="2.3" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+              </svg>
+            </div>
+            <div class="flex-1 text-left">
+              <p class="text-[12px] font-black tracking-wide" style="color:#D97706;">Panel Pentadbir</p>
+              <p class="text-[10px] font-medium mt-0.5" style="color:#94a3b8;">Pengurusan ahli, kewangan &amp; sistem</p>
+            </div>
+            <svg class="w-4 h-4 transition-transform group-active:translate-x-0.5" style="color:#CBD5E1;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
+            </svg>
+          </button>
+        </template>
+
         <!-- divider sebelum log keluar -->
-        <div v-if="biometriTersedia" class="mx-4" style="height: 1px; background: #F1F5F9;"></div>
+        <div class="mx-4" style="height: 1px; background: #F1F5F9;"></div>
 
         <!-- Log Keluar -->
         <button @click="logKeluar"
@@ -621,9 +674,18 @@
                 </select>
               </div>
               <div class="space-y-1">
+                <label class="text-[10px] font-bold uppercase tracking-wider ml-0.5" style="color: #64748B;">
+                  Tarikh Berhenti / Berkuatkuasa <span style="color:#dc2626;">*</span>
+                </label>
+                <input type="date" v-model="formBerhenti.tarikh_berhenti" required
+                  class="w-full text-xs font-bold rounded-2xl px-4 py-3 outline-none"
+                  style="background: #F8FAFC; border: 1.5px solid #E2E8F0; color: #0F172A;" />
+                <p class="text-[10px] ml-0.5" style="color:#94a3b8;">Tarikh akhir anda berkhidmat / tarikh berhenti berkuatkuasa.</p>
+              </div>
+              <div class="space-y-1">
                 <label class="text-[10px] font-bold uppercase tracking-wider ml-0.5" style="color: #64748B;">Ulasan / Catatan Tambahan</label>
                 <textarea v-model="formBerhenti.ulasan" rows="3" required
-                  placeholder="Nyatakan tarikh berkuatkuasa dan butiran lanjut..."
+                  placeholder="Nyatakan butiran lanjut berkaitan permohonan anda..."
                   class="w-full text-xs font-bold rounded-2xl px-4 py-3 outline-none resize-none"
                   style="background: #F8FAFC; border: 1.5px solid #E2E8F0; color: #0F172A;"></textarea>
               </div>
@@ -1260,7 +1322,7 @@ const uploadingGambar = ref(false);
 
 const form = ref({ penempatan_id: '', saiz_baju: '', no_tel: '', email: '', nama_waris: '', no_tel_waris: '', no_acc_waris: '', bank_waris: '', no_acc_bank: '', bank_ahli: '' });
 const pwdForm = ref({ oldPassword: '', newPassword: '', confirmPassword: '' });
-const formBerhenti = ref({ sebab_utama: '', ulasan: '' });
+const formBerhenti = ref({ sebab_utama: '', tarikh_berhenti: '', ulasan: '' });
 
 const modalTransaksi = ref(false);
 const sejarahSemua = ref([]);
@@ -1678,7 +1740,7 @@ const muatStatusBerhenti = async () => {
 
 const bukaModalBerhenti = () => {
   if (statusBerhenti.value?.status_permohonan === 'MENUNGGU') return;
-  formBerhenti.value = { sebab_utama: '', ulasan: '' };
+  formBerhenti.value = { sebab_utama: '', tarikh_berhenti: '', ulasan: '' };
   modalBerhenti.value = true;
 };
 
@@ -1688,7 +1750,8 @@ const hantarBerhenti = async () => {
   loading.value = true;
   try {
     await api.post('/user/mohon-berhenti', {
-      sebab_berhenti: `${formBerhenti.value.sebab_utama}: ${formBerhenti.value.ulasan}`
+      sebab_berhenti: `${formBerhenti.value.sebab_utama}: ${formBerhenti.value.ulasan}`,
+      tarikh_berhenti: formBerhenti.value.tarikh_berhenti,
     });
     toast.sukses('Permohonan berhenti anda telah dihantar kepada urusetia untuk semakan.');
     modalBerhenti.value = false;
@@ -1696,6 +1759,445 @@ const hantarBerhenti = async () => {
   } catch (error) {
     toast.ralat(error.response?.data?.message || 'Gagal memproses permohonan penamatan.');
   } finally { loading.value = false; }
+};
+
+// ── Sijil Keahlian ───────────────────────────────────────────────────
+const muatTurunSijil = async () => {
+  if (!profil.value.is_paid || !profil.value.no_ahli) {
+    toast.amaran('Sijil keahlian hanya tersedia untuk ahli berbayar.');
+    return;
+  }
+
+  toast.info('Menyediakan sijil...');
+
+  const blobKeBase64 = (blob) => new Promise(resolve => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.readAsDataURL(blob);
+  });
+
+  // Logo dan QR ditukar ke base64 — elak CORS & popup issues
+  let logoBase64 = '';
+  try {
+    const res = await fetch('/logo.png');
+    logoBase64 = await blobKeBase64(await res.blob());
+  } catch { }
+
+  const p = profil.value;
+  const tahun = new Date().getFullYear();
+  const tarikhDaftar = p.tarikh_daftar
+    ? new Date(p.tarikh_daftar).toLocaleDateString('ms-MY', { day: 'numeric', month: 'long', year: 'numeric' })
+    : '—';
+  const qrData = encodeURIComponent(`KELAB PERHILITAN | AHLI: ${p.no_ahli} | ${p.nama_penuh} | TAHUN ${tahun}`);
+  const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?data=${qrData}&size=160x160&margin=4&color=ffffff&bgcolor=0F4C3A`;
+
+  let qrBase64 = qrApiUrl;
+  try {
+    const res = await fetch(qrApiUrl);
+    qrBase64 = await blobKeBase64(await res.blob());
+  } catch { }
+  const tarikhCetak = new Date().toLocaleDateString('ms-MY', { day: 'numeric', month: 'long', year: 'numeric' });
+  const nameFail = `Sijil_Keahlian_${p.nama_penuh.replace(/\s+/g, '_')}.pdf`;
+
+  const html = `<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<title>Sijil Keahlian — ${p.nama_penuh}</title>
+<style>
+  @page { size: A4 portrait; margin: 0; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #ffffff !important;
+    width: 794px; height: 1123px;
+    overflow: hidden;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .page {
+    width: 794px; height: 1123px;
+    display: flex; flex-direction: column;
+    position: relative;
+    background: #ffffff;
+  }
+
+  /* ── HEADER ───────────────────────────────── */
+  .header {
+    flex-shrink: 0;
+    height: 96mm;
+    background: linear-gradient(150deg, #04100d 0%, #071a14 35%, #0c3828 70%, #0F4C3A 100%);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 8mm 22mm 7mm;
+    position: relative;
+    overflow: hidden;
+  }
+  .halo {
+    position: absolute; border-radius: 50%;
+    border: 0.4mm solid rgba(201,168,76,0.1);
+    pointer-events: none;
+  }
+  .halo-1 { width: 120mm; height: 120mm; top: -35mm; right: -35mm; }
+  .halo-2 { width: 75mm;  height: 75mm;  bottom: -22mm; left: -22mm; border-color: rgba(201,168,76,0.06); }
+  .halo-3 { width: 45mm;  height: 45mm;  top: 8mm; right: 12mm; border-color: rgba(255,255,255,0.04); }
+
+  .logo-wrap {
+    width: 22mm; height: 22mm;
+    margin-bottom: 4mm;
+    position: relative; z-index: 2;
+    flex-shrink: 0;
+  }
+  .logo-wrap img {
+    width: 100%; height: 100%;
+    object-fit: contain; display: block;
+    /* mix-blend-mode tidak disokong html2canvas pada Android WebView —
+       header cukup gelap (≈hitam) jadi latar logo blend secara semula jadi */
+    filter: brightness(1.1) contrast(1.1) drop-shadow(0 0 3px rgba(201,168,76,0.3));
+  }
+
+  .kelab-name {
+    color: rgba(255,255,255,0.88);
+    font-size: 7pt; font-weight: 700;
+    letter-spacing: 1.5px; text-transform: uppercase;
+    text-align: center; line-height: 1.7;
+    position: relative; z-index: 2;
+    margin-bottom: 4mm;
+  }
+  .kelab-name span {
+    display: block; color: rgba(201,168,76,0.85);
+    font-size: 6.5pt; letter-spacing: 1px; font-weight: 600;
+  }
+
+  .gold-rule {
+    display: flex; align-items: center; gap: 3mm;
+    width: 70%; margin: 0 auto 4mm;
+    position: relative; z-index: 2;
+  }
+  .gold-rule-line { flex: 1; height: 0.4mm; background: linear-gradient(90deg, transparent, #C9A84C, transparent); }
+  .gold-rule-dot  { width: 1.5mm; height: 1.5mm; background: #C9A84C; border-radius: 50%; flex-shrink: 0; }
+
+  .sijil-sub {
+    color: rgba(201,168,76,0.65);
+    font-size: 6pt; letter-spacing: 4.5px;
+    text-transform: uppercase; text-align: center;
+    position: relative; z-index: 2; margin-bottom: 1.5mm;
+  }
+  .sijil-title {
+    color: #fff; font-size: 22pt; font-weight: 900;
+    letter-spacing: 6px; text-transform: uppercase;
+    text-align: center; position: relative; z-index: 2;
+  }
+
+  .gold-bar {
+    flex-shrink: 0; height: 1mm;
+    background: linear-gradient(90deg, #04100d 0%, #C9A84C 20%, #e8c96d 50%, #C9A84C 80%, #0F4C3A 100%);
+  }
+
+  /* ── BODY ─────────────────────────────────── */
+  .body {
+    flex: 1; background: #fff;
+    display: flex; flex-direction: column; align-items: center;
+    padding: 8mm 20mm 6mm;
+    position: relative; overflow: hidden;
+  }
+  .watermark {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%) rotate(-22deg);
+    font-size: 70pt; font-weight: 900; letter-spacing: 6px;
+    color: rgba(15,76,58,0.03); white-space: nowrap; pointer-events: none;
+    font-family: Arial, sans-serif;
+  }
+  .body::before {
+    content: ''; position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(15,76,58,0.022) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(15,76,58,0.022) 1px, transparent 1px);
+    background-size: 10mm 10mm; pointer-events: none;
+  }
+
+  /* Teks pengesahan */
+  .certify-text {
+    font-size: 9pt; color: #888; font-style: italic;
+    text-align: center; line-height: 1.7; margin-bottom: 5mm;
+    position: relative; z-index: 1;
+  }
+
+  /* Nama gaya sijil — tiada kotak */
+  .name-section {
+    text-align: center; width: 100%; margin-bottom: 5mm;
+    position: relative; z-index: 1;
+  }
+  .name-orn {
+    display: flex; align-items: center; gap: 4mm;
+    justify-content: center; margin: 2mm 0;
+  }
+  .orn-line {
+    flex: 1; max-width: 52mm; height: 0.65px;
+  }
+  .orn-line.l { background: linear-gradient(90deg, transparent, #0F4C3A); }
+  .orn-line.r { background: linear-gradient(90deg, #0F4C3A, transparent); }
+  .orn-gem { color: #C9A84C; font-size: 9pt; flex-shrink: 0; line-height: 1; }
+  .name {
+    font-size: 21pt; font-weight: 900; color: #0a2e22;
+    letter-spacing: 2.5px; text-transform: uppercase;
+    line-height: 1.15; padding: 0 4mm;
+  }
+
+  .member-text {
+    font-size: 8.5pt; color: #777;
+    text-align: center; line-height: 1.7; margin-bottom: 6mm;
+    position: relative; z-index: 1;
+  }
+
+  /* Maklumat — layout jadual bersih, bukan kotak */
+  .info-table {
+    width: 90%; margin: 0 auto 6mm;
+    border-collapse: collapse;
+    position: relative; z-index: 1;
+  }
+  .info-table tr { border-bottom: 0.5px solid #eff5f2; }
+  .info-table tr:first-child { border-top: 0.5px solid #eff5f2; }
+  .info-table td { padding: 2.5mm 3mm; vertical-align: middle; }
+  .info-lbl {
+    font-size: 6.5pt; color: #aaa; text-transform: uppercase;
+    letter-spacing: 1px; font-weight: 600; white-space: nowrap;
+    width: 38%; text-align: right; padding-right: 5mm;
+  }
+  .info-sep { width: 3mm; color: #ccc; text-align: center; font-size: 8pt; }
+  .info-val { font-size: 9pt; font-weight: 700; color: #222; }
+  .info-val.mono { font-family: 'Courier New', monospace; letter-spacing: 0.5px; }
+  .info-val.green { color: #0F4C3A; }
+
+  /* Sah tahun */
+  .validity-row {
+    display: flex; align-items: center; gap: 4mm;
+    width: 100%; margin-bottom: 7mm;
+    position: relative; z-index: 1;
+  }
+  .v-line { flex: 1; height: 0.5px; background: #e2eeea; }
+  .validity {
+    background: #0F4C3A; color: #fff;
+    font-size: 7pt; font-weight: 900; letter-spacing: 3px;
+    text-transform: uppercase; padding: 2mm 8mm; border-radius: 20px;
+    white-space: nowrap; flex-shrink: 0;
+  }
+
+  /* QR sahaja — tiada tandatangan */
+  .qr-section {
+    display: flex; flex-direction: column; align-items: center;
+    gap: 2.5mm; margin-top: auto;
+    position: relative; z-index: 1;
+  }
+  .qr-wrap {
+    width: 28mm; height: 28mm;
+    border: 0.75px solid #d0e8df; border-radius: 8px;
+    padding: 2mm; background: #fff;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 1px 6px rgba(15,76,58,0.07);
+  }
+  .qr-wrap img { display: block; width: 100%; height: 100%; border-radius: 4px; }
+  .qr-label {
+    font-size: 5.5pt; color: #bbb; text-align: center;
+    letter-spacing: 0.8px; line-height: 1.6; text-transform: uppercase;
+  }
+
+  .footer {
+    width: 100%; border-top: 0.5px solid #f0f0f0;
+    padding: 2.5mm 0 0; text-align: center;
+    font-size: 5.5pt; color: #ccc; letter-spacing: 0.5px;
+    position: relative; z-index: 1; margin-top: 5mm; flex-shrink: 0;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ── HEADER ── -->
+  <div class="header">
+    <div class="halo halo-1"></div>
+    <div class="halo halo-2"></div>
+    <div class="halo halo-3"></div>
+    ${logoBase64 ? `<div class="logo-wrap"><img src="${logoBase64}" alt="Logo Kelab" /></div>` : ''}
+    <div class="kelab-name">
+      Kelab Sukan dan Kebajikan<br>
+      Jabatan Perlindungan Hidupan Liar dan Taman Negara<br>
+      <span>(Kelab PERHILITAN)</span>
+    </div>
+    <div class="gold-rule">
+      <div class="gold-rule-line"></div>
+      <div class="gold-rule-dot"></div>
+      <div class="gold-rule-line"></div>
+    </div>
+    <div class="sijil-sub">Certificate of Membership</div>
+    <div class="sijil-title">Sijil Keahlian</div>
+  </div>
+  <div class="gold-bar"></div>
+
+  <!-- ── BODY ── -->
+  <div class="body">
+    <div class="watermark">PERHILITAN</div>
+
+    <p class="certify-text">
+      Ini adalah untuk mengesahkan bahawa<br>
+      <em>This is to certify that</em>
+    </p>
+
+    <!-- Nama gaya sijil -->
+    <div class="name-section">
+      <div class="name-orn">
+        <div class="orn-line l"></div>
+        <span class="orn-gem">◆</span>
+        <div class="orn-line r"></div>
+      </div>
+      <div class="name">${p.nama_penuh}</div>
+      <div class="name-orn">
+        <div class="orn-line l"></div>
+        <span class="orn-gem">◆</span>
+        <div class="orn-line r"></div>
+      </div>
+    </div>
+
+    <p class="member-text">
+      adalah ahli berdaftar Kelab Sukan dan Kebajikan<br>
+      Jabatan Perlindungan Hidupan Liar dan Taman Negara (Kelab PERHILITAN)<br>
+      <em>is a registered member of Kelab PERHILITAN</em>
+    </p>
+
+    <!-- Maklumat -->
+    <table class="info-table">
+      <tr>
+        <td class="info-lbl">No. Keahlian</td>
+        <td class="info-sep">:</td>
+        <td class="info-val mono">${p.no_ahli || '—'}</td>
+      </tr>
+      <tr>
+        <td class="info-lbl">Gred Jawatan</td>
+        <td class="info-sep">:</td>
+        <td class="info-val">${p.gred_sspa || '—'}</td>
+      </tr>
+      ${p.jawatan_kelab ? `<tr>
+        <td class="info-lbl">Jawatan Kelab</td>
+        <td class="info-sep">:</td>
+        <td class="info-val">${p.jawatan_kelab}</td>
+      </tr>` : ''}
+      <tr>
+        <td class="info-lbl">Tarikh Keahlian</td>
+        <td class="info-sep">:</td>
+        <td class="info-val">${tarikhDaftar}</td>
+      </tr>
+      <tr>
+        <td class="info-lbl">Status</td>
+        <td class="info-sep">:</td>
+        <td class="info-val green">Ahli Berbayar ✓</td>
+      </tr>
+    </table>
+
+    <div class="validity-row">
+      <div class="v-line"></div>
+      <div class="validity">Sah Tahun ${tahun}</div>
+      <div class="v-line"></div>
+    </div>
+
+    <div class="qr-section">
+      <div class="qr-wrap">
+        <img src="${qrBase64}" alt="QR" />
+      </div>
+      <div class="qr-label">Imbas untuk sahkan keahlian<br>Scan to verify membership</div>
+    </div>
+
+    <div class="footer">
+      No. Pendaftaran: PPM-006-14-27071985 &nbsp;|&nbsp; Diterbitkan: ${tarikhCetak}
+    </div>
+  </div>
+
+</div>
+<script>
+  window.onload = function() {
+    const imgs = document.querySelectorAll('img');
+    if (!imgs.length) { setTimeout(() => window.print(), 500); return; }
+    let pending = imgs.length;
+    const tryPrint = () => { if (--pending <= 0) setTimeout(() => window.print(), 400); };
+    imgs.forEach(img => {
+      if (img.complete) tryPrint();
+      else { img.onload = tryPrint; img.onerror = tryPrint; }
+    });
+  };
+<\/script>
+</body></html>`;
+
+  // ── Jana PDF guna html2canvas + jsPDF ─────────────────────────
+  let pdfBase64 = '';
+  try {
+    const [{ default: html2canvas }, jspdfMod] = await Promise.all([
+      import('html2canvas'),
+      import('jspdf'),
+    ]);
+    const { jsPDF } = jspdfMod;
+
+    // Render HTML dalam iframe di luar skrin — JANGAN pakai opacity:0 atau
+    // visibility:hidden kerana html2canvas tidak render latar pada elemen tersembunyi
+    const iframe = document.createElement('iframe');
+    iframe.style.cssText = 'position:fixed;top:0;left:-820px;width:794px;height:1123px;pointer-events:none;border:none;background:#fff;';
+    document.body.appendChild(iframe);
+
+    await new Promise(resolve => {
+      iframe.addEventListener('load', resolve, { once: true });
+      iframe.srcdoc = html;
+    });
+    // Tunggu lebih lama pada mobile supaya CSS gradients dan gambar base64 render
+    await new Promise(r => setTimeout(r, 1200));
+
+    const renderTarget = iframe.contentDocument?.body ?? iframe.contentDocument?.documentElement;
+    const canvas = await html2canvas(renderTarget, {
+      scale: 2,
+      useCORS: true,
+      allowTaint: false,
+      foreignObjectRendering: false,
+      logging: false,
+      width: 794, height: 1123,
+      windowWidth: 794, windowHeight: 1123,
+      backgroundColor: '#ffffff',
+      onclone: (clonedDoc) => {
+        // Pastikan semua elemen dalam clone visible untuk capture
+        clonedDoc.documentElement.style.overflow = 'hidden';
+      },
+    });
+    document.body.removeChild(iframe);
+
+    const imgData = canvas.toDataURL('image/jpeg', 0.95);
+    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+    doc.addImage(imgData, 'JPEG', 0, 0, 210, 297);
+
+    // ── Pilih kaedah simpan berdasarkan platform ───────────────────
+    const { Capacitor } = await import('@capacitor/core');
+
+    if (Capacitor.isNativePlatform()) {
+      // Native (Android / iOS): simpan ke Documents, kemudian share
+      const { Filesystem, Directory } = await import('@capacitor/filesystem');
+      const { Share } = await import('@capacitor/share');
+
+      pdfBase64 = doc.output('datauristring').split(',')[1];
+      const filePath = await Filesystem.writeFile({
+        path: nameFail,
+        data: pdfBase64,
+        directory: Directory.Cache,
+      });
+
+      await Share.share({
+        title: 'Sijil Keahlian',
+        text: `Sijil Keahlian — ${p.nama_penuh}`,
+        url: filePath.uri,
+        dialogTitle: 'Simpan atau Kongsi Sijil PDF',
+      });
+    } else {
+      // Browser / PWA: download terus
+      doc.save(nameFail);
+    }
+  } catch (e) {
+    console.error('[Sijil PDF]', e);
+    toast.ralat('Gagal jana sijil PDF. Cuba semula.');
+  }
 };
 
 const logKeluar = () => {

@@ -65,7 +65,7 @@
     </p>
 
     <!-- JADUAL -->
-    <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-x-auto">
       <div v-if="sedangMuat" class="py-16 flex flex-col items-center gap-3 text-gray-400">
         <svg class="w-6 h-6 animate-spin text-[#0F4C3A]" fill="none" viewBox="0 0 24 24">
           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
@@ -120,7 +120,7 @@
             <td class="px-4 py-3">
               <div class="flex items-center justify-center gap-1">
                 <button @click="bukaModalEdit(ptj)" title="Kemaskini"
-                  class="w-7 h-7 flex items-center justify-center rounded-lg text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 transition-colors">
+                  class="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 transition-colors">
                   <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                   </svg>
@@ -128,7 +128,7 @@
                 <button @click="confirmPadam(ptj)" title="Padam"
                   :disabled="ptj.jumlah_ahli > 0 || hitungAnak(ptj.id) > 0"
                   :class="[
-                    'w-7 h-7 flex items-center justify-center rounded-lg transition-colors',
+                    'w-8 h-8 flex items-center justify-center rounded-lg transition-colors',
                     ptj.jumlah_ahli > 0 || hitungAnak(ptj.id) > 0
                       ? 'text-gray-200 cursor-not-allowed'
                       : 'text-gray-400 hover:text-rose-600 hover:bg-rose-50'
