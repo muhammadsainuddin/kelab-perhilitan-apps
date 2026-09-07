@@ -189,14 +189,25 @@
                 <!-- Sebab Berhenti + Tarikh Berhenti -->
                 <div class="space-y-2">
                   <p class="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Butiran Permohonan Berhenti</p>
-                  <!-- Tarikh berhenti yang diisi ahli -->
+                  <!-- Tarikh berhenti yang boleh disemak dan dikemaskini oleh admin -->
                   <div class="flex items-center gap-3 bg-rose-50 border border-rose-200 rounded-xl px-4 py-3">
                     <svg class="w-4 h-4 text-rose-500 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                     </svg>
-                    <div class="flex-1">
-                      <p class="text-[9px] text-rose-500 font-bold uppercase tracking-wide">Tarikh Berhenti / Berkuatkuasa (diisi oleh ahli)</p>
-                      <p class="font-black text-rose-800 text-[13px] mt-0.5">
+                    <div class="flex-1 min-w-0">
+                      <p class="text-[9px] text-rose-500 font-bold uppercase tracking-wide">Tarikh Berhenti / Berkuatkuasa</p>
+                      <template v-if="isMenunggu(dipilih.status_permohonan)">
+                        <div class="flex flex-col sm:flex-row gap-2 mt-1.5">
+                          <input type="date" v-model="tarikhBerhentiSemakan"
+                            class="min-w-0 flex-1 text-[12px] bg-white border border-rose-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-400" />
+                          <button type="button" @click="simpanTarikhBerhenti" :disabled="memprosesTarikh || !tarikhBerhentiSemakan"
+                            class="text-[10px] font-bold rounded-lg px-3 py-1.5 bg-rose-600 text-white hover:bg-rose-700 disabled:opacity-50 disabled:cursor-not-allowed">
+                            {{ memprosesTarikh ? 'Menyimpan...' : 'Simpan Tarikh' }}
+                          </button>
+                        </div>
+                        <p class="text-[9px] text-rose-600 mt-1">Admin boleh membetulkan tarikh sebelum membuat keputusan.</p>
+                      </template>
+                      <p v-else class="font-black text-rose-800 text-[13px] mt-0.5">
                         {{ dipilih.tarikh_berhenti ? formatTarikh(dipilih.tarikh_berhenti) : 'Tidak diisi' }}
                       </p>
                     </div>
@@ -649,9 +660,11 @@ const sebabTolak         = ref('');
 const tunjukRalat        = ref(false);
 const tunjukRalatLulus   = ref(false);
 const memproses          = ref(false);
+const memprosesTarikh    = ref(false);
 const memprosesAngkasa   = ref(false);
 
 const tarikhBerhentiLulus = ref('');
+const tarikhBerhentiSemakan = ref('');
 const tarikhHentiAngkasa  = ref('');
 const tarikhBayarSemula   = ref(new Date().toISOString().split('T')[0]);
 const notaBayarSemula     = ref('');
@@ -711,10 +724,30 @@ const muatData = async () => {
 const bukaModal = (p) => {
   dipilih.value         = { ...p };
   catatanAdmin.value    = p.catatan_admin || '';
+  tarikhBerhentiSemakan.value = p.tarikh_berhenti ? String(p.tarikh_berhenti).slice(0, 10) : '';
   tarikhHentiAngkasa.value = p.tarikh_henti_angkasa
     ? new Date(p.tarikh_henti_angkasa).toISOString().split('T')[0]
     : '';
   showModal.value = true;
+};
+
+const simpanTarikhBerhenti = async () => {
+  if (!tarikhBerhentiSemakan.value) return;
+  memprosesTarikh.value = true;
+  try {
+    await api.put(`/admin/berhenti/${dipilih.value.id}`, {
+      no_kp: dipilih.value.no_kp,
+      status_permohonan: dipilih.value.status_permohonan || 'MENUNGGU',
+      catatan_admin: catatanAdmin.value || null,
+      tarikh_berhenti: tarikhBerhentiSemakan.value,
+    });
+    dipilih.value.tarikh_berhenti = tarikhBerhentiSemakan.value;
+    const indeks = senarai.value.findIndex(p => p.id === dipilih.value.id);
+    if (indeks !== -1) senarai.value[indeks].tarikh_berhenti = tarikhBerhentiSemakan.value;
+    toast.sukses('Tarikh berhenti telah dikemaskini.');
+  } catch (e) {
+    toast.ralat(e.response?.data?.message || 'Ralat mengemaskini tarikh berhenti.');
+  } finally { memprosesTarikh.value = false; }
 };
 
 const bukaModalLulus = () => {
