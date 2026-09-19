@@ -615,7 +615,7 @@ import api from '../../services/api';
 import { useToast } from '../../composables/useToast';
 
 const toast      = useToast();
-const uploadBase = import.meta.env.VITE_UPLOAD_URL || 'http://localhost:5001';
+const uploadBase = import.meta.env.VITE_UPLOAD_URL || 'http://localhost:5002';
 
 const senaraiAcara = ref([]);
 const profil = ref({});

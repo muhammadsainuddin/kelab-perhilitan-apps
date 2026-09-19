@@ -835,7 +835,7 @@ import { headerResitHTML, footerResitHTML } from '../../config/kelab';
 import { useToast } from '../../composables/useToast';
 
 const toast   = useToast();
-const apiBase = (import.meta.env.VITE_API_URL || 'http://localhost:5001/api').replace('/api', '');
+const apiBase = (import.meta.env.VITE_API_URL || 'http://localhost:5002/api').replace('/api', '');
 
 // ── State ──
 const tabAktif  = ref('produk');

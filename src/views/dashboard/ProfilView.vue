@@ -1301,7 +1301,7 @@ import { useAuthStore } from '../../stores/auth';
 import { cetakResitTransaksi, buatHtmlResit, headerResitHTML, footerResitHTML } from '../../config/kelab';
 import { useToast } from '../../composables/useToast';
 
-const uploadBase = import.meta.env.VITE_UPLOAD_URL || 'http://localhost:5001';
+const uploadBase = import.meta.env.VITE_UPLOAD_URL || 'http://localhost:5002';
 const appVersion = __APP_VERSION__;
 const toast  = useToast();
 const router = useRouter();

@@ -494,7 +494,7 @@
 import { ref, computed, onMounted } from 'vue';
 import api from '../../services/api';
 
-const uploadBase = import.meta.env.VITE_UPLOAD_URL || 'http://localhost:5001';
+const uploadBase = import.meta.env.VITE_UPLOAD_URL || 'http://localhost:5002';
 
 const kempen   = ref([]);
 const muatan   = ref(false);

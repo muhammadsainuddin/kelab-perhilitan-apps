@@ -410,7 +410,7 @@ const props = defineProps({
 
 const emit = defineEmits(['tutup', 'disimpan']);
 
-const apiBase = (import.meta.env.VITE_API_URL || 'http://localhost:5001/api').replace('/api', '');
+const apiBase = (import.meta.env.VITE_API_URL || 'http://localhost:5002/api').replace('/api', '');
 const MAX_GAMBAR = 5;
 const sukanPreset = ['Bola Sepak', 'Futsal', 'Badminton', 'Bola Jaring', 'Dart', 'Sumpit', 'Bola Tampar', 'Tenis Meja'];
 

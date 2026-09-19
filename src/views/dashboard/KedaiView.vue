@@ -743,7 +743,7 @@ import { useToast } from '../../composables/useToast';
 
 const toast   = useToast();
 const router  = useRouter();
-const apiBase = (import.meta.env.VITE_API_URL || 'http://localhost:5001/api').replace('/api', '');
+const apiBase = (import.meta.env.VITE_API_URL || 'http://localhost:5002/api').replace('/api', '');
 
 const tabUtama = ref('produk');
 const statusPesananAktif = ref('');

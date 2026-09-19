@@ -100,6 +100,57 @@
       </router-link>
     </div>
 
+    <!-- RANKING KEAHLIAN MENGIKUT STRUKTUR PENEMPATAN -->
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div>
+        <h3 class="text-sm font-black text-gray-900">Ranking Status Bayaran</h3>
+        <p class="text-[10px] text-gray-400 mt-0.5">Markah = peratus ahli berbayar. Jika seri, kumpulan dengan ahli berbayar lebih ramai didahulukan.</p>
+      </div>
+      <div class="flex bg-gray-100 p-1 rounded-lg w-fit">
+        <button v-for="item in kategoriRankingPilihan" :key="item.kunci" @click="kategoriRanking = item.kunci"
+          :class="['px-3 py-1.5 rounded-md text-[10px] font-bold transition-all', kategoriRanking === item.kunci ? 'bg-white text-[#0F4C3A] shadow-sm' : 'text-gray-500 hover:text-gray-700']">{{ item.label }}</button>
+      </div>
+    </div>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div class="bg-white rounded-xl border border-emerald-100 shadow-sm overflow-hidden">
+        <div class="flex items-center justify-between px-5 py-3.5 border-b border-emerald-100 bg-emerald-50/60">
+          <div><h3 class="text-sm font-black text-emerald-900">{{ labelKategoriRanking }} Paling Aktif</h3><p class="text-[10px] text-emerald-700 mt-0.5">Kadar bayaran tertinggi</p></div>
+          <span class="text-lg">🏆</span>
+        </div>
+        <div v-if="loading" class="p-5 space-y-3"><div v-for="i in 3" :key="i" class="h-9 rounded-lg bg-gray-100 animate-pulse"></div></div>
+        <div v-else-if="rankingAktifDipapar.length" class="divide-y divide-gray-50">
+          <div v-for="(item, index) in rankingAktifDipapar" :key="item.label" class="flex items-center gap-3 px-5 py-3">
+            <span :class="['w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black', index === 0 ? 'bg-amber-100 text-amber-700' : 'bg-emerald-50 text-emerald-700']">{{ index + 1 }}</span>
+            <p class="flex-1 min-w-0 text-xs font-bold text-gray-800 truncate">{{ item.label }}</p>
+            <div class="text-right"><p class="text-sm font-black text-emerald-700 tabular-nums">{{ item.kadarBayaran }}%</p><p class="text-[9px] text-gray-400">{{ item.berbayar }}/{{ item.jumlah }}</p></div>
+          </div>
+        </div>
+        <p v-else class="px-5 py-8 text-center text-xs text-gray-400">Tiada data kategori ini.</p>
+        <button v-if="rankingAktif.length > 5" @click="tunjukSemuaAktif = !tunjukSemuaAktif" class="w-full border-t border-gray-100 px-5 py-2.5 text-[10px] font-bold text-emerald-700 hover:bg-emerald-50 transition-colors">
+          {{ tunjukSemuaAktif ? 'Tutup senarai penuh' : `Lihat semua ${rankingAktif.length} ${labelKategoriRanking.toLowerCase()}` }}
+        </button>
+      </div>
+      <div class="bg-white rounded-xl border border-rose-100 shadow-sm overflow-hidden">
+        <div class="flex items-center justify-between px-5 py-3.5 border-b border-rose-100 bg-rose-50/60">
+          <div><h3 class="text-sm font-black text-rose-900">{{ labelKategoriRanking }} Perlu Perhatian</h3><p class="text-[10px] text-rose-700 mt-0.5">Kadar bayaran paling rendah</p></div>
+          <span class="text-lg">⚠️</span>
+        </div>
+        <div v-if="loading" class="p-5 space-y-3"><div v-for="i in 3" :key="i" class="h-9 rounded-lg bg-gray-100 animate-pulse"></div></div>
+        <div v-else-if="rankingCorotDipapar.length" class="divide-y divide-gray-50">
+          <div v-for="(item, index) in rankingCorotDipapar" :key="item.label" class="flex items-center gap-3 px-5 py-3">
+            <span class="w-6 h-6 rounded-full bg-rose-50 text-rose-700 flex items-center justify-center text-[10px] font-black">{{ index + 1 }}</span>
+            <div class="flex-1 min-w-0"><p class="text-xs font-bold text-gray-800 truncate">{{ item.label }}</p><p class="text-[9px] text-rose-600">{{ item.belumBayar }} daripada {{ item.jumlah }} belum bayar</p></div>
+            <div class="text-right"><p class="text-sm font-black text-rose-700 tabular-nums">{{ item.kadarBayaran }}%</p><p class="text-[9px] text-gray-400">berbayar</p></div>
+          </div>
+        </div>
+        <p v-else class="px-5 py-8 text-center text-xs text-gray-400">Tiada data kategori ini.</p>
+        <button v-if="rankingCorot.length > 5" @click="tunjukSemuaCorot = !tunjukSemuaCorot" class="w-full border-t border-gray-100 px-5 py-2.5 text-[10px] font-bold text-rose-700 hover:bg-rose-50 transition-colors">
+          {{ tunjukSemuaCorot ? 'Tutup senarai penuh' : `Lihat semua ${rankingCorot.length} ${labelKategoriRanking.toLowerCase()}` }}
+        </button>
+      </div>
+    </div>
+    <div class="flex justify-end -mt-2"><router-link to="/admin/ahli" class="text-[10px] font-bold text-[#0F4C3A] hover:underline">Lihat analisis penuh ahli →</router-link></div>
+
     <!-- ── ROW 2: KPI CARDS BAWAH (Kewangan & Kebajikan) ── -->
     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
 
@@ -479,7 +530,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { useAuthStore } from '../../stores/auth';
 import api from '../../services/api';
 
@@ -508,6 +559,15 @@ const kewangan = ref({ jumlah_masuk: 0, jumlah_keluar: 0, baki: 0, by_kategori: 
 const resitTerkini = ref([]);
 const berhentiMenunggu = ref([]);
 const tiketBaru        = ref([]);
+const rankingKeahlian  = ref({ negeri: [], bahagian: [], ptj: [] });
+const kategoriRanking  = ref('negeri');
+const tunjukSemuaAktif = ref(false);
+const tunjukSemuaCorot = ref(false);
+const kategoriRankingPilihan = [
+  { kunci: 'negeri', label: 'Negeri' },
+  { kunci: 'bahagian', label: 'Bahagian' },
+  { kunci: 'ptj', label: 'PTJ / Daerah' },
+];
 
 const statMarketplace = ref([
   { label: 'Jumlah Pesanan', nilai: 0, color: 'text-gray-900' },
@@ -533,6 +593,64 @@ const nisbahKeluar = computed(() => 100 - nisbahMasuk.value);
 const maxBulanan = computed(() =>
   Math.max(...(kewangan.value.bulanan || []).map(b => Math.max(b.masuk, b.keluar)), 1)
 );
+
+const labelKategoriRanking = computed(() =>
+  kategoriRankingPilihan.find(item => item.kunci === kategoriRanking.value)?.label || 'Lokasi'
+);
+const rankingSemasa = computed(() => rankingKeahlian.value[kategoriRanking.value] || []);
+const rankingAktif = computed(() => [...rankingSemasa.value]
+  .sort((a, b) => b.kadarBayaran - a.kadarBayaran || b.berbayar - a.berbayar || b.jumlah - a.jumlah)
+);
+const rankingCorot = computed(() => [...rankingSemasa.value]
+  .filter(item => item.jumlah > 0)
+  .sort((a, b) => a.kadarBayaran - b.kadarBayaran || b.belumBayar - a.belumBayar)
+);
+const rankingAktifDipapar = computed(() => tunjukSemuaAktif.value ? rankingAktif.value : rankingAktif.value.slice(0, 5));
+const rankingCorotDipapar = computed(() => tunjukSemuaCorot.value ? rankingCorot.value : rankingCorot.value.slice(0, 5));
+
+watch(kategoriRanking, () => {
+  tunjukSemuaAktif.value = false;
+  tunjukSemuaCorot.value = false;
+});
+
+const binaRankingKeahlian = (ahli, penempatan) => {
+  const peta = Object.fromEntries((penempatan || []).map(p => [Number(p.id), p]));
+  const kumpulan = { negeri: new Map(), bahagian: new Map(), ptj: new Map() };
+  const regexNegeri = /^Pejabat\s+PERHILITAN\s+Negeri\s+/i;
+
+  ahli.forEach(a => {
+    const sudahDilihat = new Set();
+    let semasa = peta[Number(a.penempatan_id)];
+    const rantaian = [];
+    let negeri = null;
+    while (semasa && !sudahDilihat.has(semasa.id)) {
+      rantaian.push(semasa);
+      if (regexNegeri.test(semasa.nama_penempatan || '')) { negeri = semasa; break; }
+      sudahDilihat.add(semasa.id);
+      semasa = semasa.induk_id ? peta[Number(semasa.induk_id)] : null;
+    }
+    const bahagian = rantaian.find(p => /^Bahagian\b/i.test(p.nama_penempatan || ''));
+    const labels = {
+      negeri: negeri ? negeri.nama_penempatan.replace(regexNegeri, '').toUpperCase() : 'LAIN-LAIN / TIADA NEGERI',
+      bahagian: bahagian?.nama_penempatan || 'LAIN-LAIN / BUKAN BAHAGIAN',
+      ptj: rantaian[0]?.nama_penempatan || 'TIADA REKOD PENEMPATAN',
+    };
+    Object.entries(labels).forEach(([kategori, label]) => {
+      if (!kumpulan[kategori].has(label)) kumpulan[kategori].set(label, { label, jumlah: 0, berbayar: 0, belumBayar: 0 });
+      const item = kumpulan[kategori].get(label);
+      item.jumlah += 1;
+      if (Number(a.is_paid)) item.berbayar += 1;
+      else item.belumBayar += 1;
+    });
+  });
+
+  return Object.fromEntries(Object.entries(kumpulan).map(([kategori, data]) => [kategori,
+    [...data.values()].map(item => ({
+      ...item,
+      kadarBayaran: item.jumlah ? Math.round((item.berbayar / item.jumlah) * 100) : 0,
+    }))
+  ]));
+};
 
 const kategoriKewangan = computed(() => {
   const getVal = (key) => {
@@ -569,11 +687,13 @@ const aksesLaju = computed(() => [
 const muatStatistik = async () => {
   loading.value = true;
   try {
-    const [resTunggakan, resKebajikan, resBerhenti, resTiket] = await Promise.all([
+    const [resTunggakan, resKebajikan, resBerhenti, resTiket, resAhli, resPenempatan] = await Promise.all([
       api.get('/admin/statistik-tunggakan'),
       api.get('/admin/kebajikan'),
       api.get('/admin/berhenti'),
       api.get('/sokongan/admin/senarai'),
+      api.get('/admin/semua-ahli'),
+      api.get('/user/senarai-ptj'),
     ]);
 
     if (resTunggakan.data.success) {
@@ -608,6 +728,10 @@ const muatStatistik = async () => {
       stat.value.tiket_baru         = baru.length;
       stat.value.tiket_dalam_proses = dalamProses.length;
       tiketBaru.value = [...baru, ...dalamProses];
+    }
+
+    if (resAhli.data.success && resPenempatan.data.success) {
+      rankingKeahlian.value = binaRankingKeahlian(resAhli.data.data || [], resPenempatan.data.data || []);
     }
 
   } catch (e) { console.error('[DASHBOARD] stat:', e.message); }

@@ -931,6 +931,7 @@
               <th class="px-4 py-2 text-right">Yuran Proses MAKSA</th>
               <th class="px-5 py-2 text-right">MAKSWIP</th>
               <th class="px-4 py-2">Direkod Oleh</th>
+              <th v-if="bolehUrusTuntutan" class="px-4 py-2 text-center">Tindakan</th>
               <th class="px-4 py-2 text-center">Dokumen</th>
             </tr>
           </thead>
@@ -943,6 +944,16 @@
               <td class="px-4 py-2.5 text-right text-[11px] text-amber-700 font-semibold tabular-nums">{{ num(t.jumlah_kasar) }}</td>
               <td class="px-5 py-2.5 text-right text-[12px] font-black text-emerald-700 tabular-nums">{{ num(t.jumlah_bersih) }}</td>
               <td class="px-4 py-2.5 text-[11px] text-gray-700">{{ t.nama_direkod_oleh || t.direkod_oleh || '—' }}</td>
+              <td v-if="bolehUrusTuntutan" class="px-4 py-2.5">
+                <div class="flex justify-center gap-1">
+                  <button @click="bukaEditTuntutan(t)" class="rounded-lg bg-blue-50 p-1.5 text-blue-600 hover:bg-blue-100" title="Edit tuntutan">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16.862 4.487l2.651 2.651M4 20l4.25-1.063L19.513 7.675a1.875 1.875 0 00-2.651-2.651L5.6 16.287 4 20z" /></svg>
+                  </button>
+                  <button @click="padamTuntutan(t)" class="rounded-lg bg-red-50 p-1.5 text-red-600 hover:bg-red-100" title="Padam tuntutan">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 7h12m-9 0V5h6v2m-7 0l.75 12h6.5L16 7" /></svg>
+                  </button>
+                </div>
+              </td>
               <td class="px-4 py-2.5 text-center">
                 <a v-if="t.fail_dokumen" :href="apiBase + t.fail_dokumen" target="_blank"
                   class="inline-flex items-center gap-1 text-[9px] font-bold text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-2 py-0.5 rounded transition-colors">
@@ -974,7 +985,7 @@
                 <svg class="w-4.5 h-4.5 text-emerald-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                 </svg>
-                <p class="font-bold text-white text-sm">Rekod Tuntutan MAKSWIP</p>
+                <p class="font-bold text-white text-sm">{{ tuntutanDieditId ? 'Kemaskini Tuntutan MAKSWIP' : 'Rekod Tuntutan MAKSWIP' }}</p>
               </div>
               <button @click="showModalTuntutan = false" class="text-white/60 hover:text-white p-1 rounded transition-colors">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
@@ -1035,6 +1046,7 @@
                     </svg>
                     <p class="text-[10px] text-gray-400">Klik untuk muat naik atau seret fail ke sini</p>
                     <p class="text-[9px] text-gray-300 mt-0.5">PDF, JPG, PNG (maks 20MB)</p>
+                    <p v-if="failTuntutanSediaAda" class="mt-1 text-[9px] font-semibold text-blue-600">Dokumen sedia ada akan dikekalkan.</p>
                   </div>
                   <div v-else class="flex items-center justify-center gap-2">
                     <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -1069,7 +1081,7 @@
               </button>
               <button @click="sahkanTuntutan" :disabled="savingTuntutan || !formTuntutan.acara_khas_id || !formTuntutan.tarikh_tuntutan || !formTuntutan.jumlah_bersih"
                 class="flex-[2] py-2.5 bg-[#0F4C3A] hover:bg-[#155d47] text-white rounded-xl text-xs font-bold transition-colors disabled:opacity-60 shadow-sm">
-                {{ savingTuntutan ? 'Menyimpan...' : 'Sahkan & Rekod ke Ledger' }}
+                {{ savingTuntutan ? 'Menyimpan...' : (tuntutanDieditId ? 'Simpan Perubahan' : 'Sahkan & Rekod ke Ledger') }}
               </button>
             </div>
 
@@ -2051,11 +2063,14 @@ import { headerResitHTML, footerResitHTML } from '../../config/kelab';
 import ModalBorangKewangan from '../../components/kewangan/ModalBorangKewangan.vue';
 import VuePdfEmbed from 'vue-pdf-embed';
 import { useToast } from '../../composables/useToast';
+import { useAuthStore } from '../../stores/auth';
 
 Chart.register(...registerables);
 
 const toast = useToast();
-const apiBase = (import.meta.env.VITE_API_URL || 'http://localhost:5001/api').replace('/api', '');
+const authStore = useAuthStore();
+const apiBase = (import.meta.env.VITE_API_URL || 'http://localhost:5002/api').replace('/api', '');
+const bolehUrusTuntutan = computed(() => ['Admin', 'Super Admin'].includes(authStore.user?.role));
 
 // Kategori kewangan dari API
 const senaraiKategoriKewangan = ref([]);
@@ -2242,6 +2257,8 @@ const showModalTuntutan  = ref(false);
 const savingTuntutan     = ref(false);
 const formTuntutan       = ref({ acara_khas_id: '', jumlah_bersih: '', tarikh_tuntutan: '', nota: '' });
 const failTuntutan       = ref(null);
+const tuntutanDieditId   = ref(null);
+const failTuntutanSediaAda = ref('');
 
 const ringkasanAcaraTuntutan = computed(() => {
   const id = parseInt(formTuntutan.value.acara_khas_id);
@@ -2831,9 +2848,37 @@ const onPilihFailTuntutan = (e) => {
 };
 
 const bukaModalTuntutan = () => {
+  tuntutanDieditId.value = null;
+  failTuntutanSediaAda.value = '';
   failTuntutan.value  = null;
   formTuntutan.value  = { acara_khas_id: '', jumlah_bersih: '', tarikh_tuntutan: new Date().toISOString().split('T')[0], nota: '' };
   showModalTuntutan.value = true;
+};
+
+const bukaEditTuntutan = (t) => {
+  tuntutanDieditId.value = t.id;
+  failTuntutanSediaAda.value = t.fail_dokumen || '';
+  failTuntutan.value = null;
+  formTuntutan.value = {
+    acara_khas_id: t.acara_khas_id ? String(t.acara_khas_id) : '',
+    jumlah_bersih: t.jumlah_bersih || '',
+    tarikh_tuntutan: t.tarikh_tuntutan_raw || '',
+    nota: t.nota || '',
+  };
+  showModalTuntutan.value = true;
+};
+
+const padamTuntutan = async (t) => {
+  if (!confirm(`Padam tuntutan MAKSWIP bagi “${t.nama_acara}”? Rekod ini dan entri ledger berkaitan akan dipadam.`)) return;
+  try {
+    const { data } = await api.delete(`/admin/kewangan/tuntutan-makswip/${t.id}`);
+    if (data.success) {
+      toast.sukses(data.message || 'Tuntutan berjaya dipadam.');
+      await muatSumbangan();
+      await muatData();
+      await muatTransaksi();
+    }
+  } catch (e) { toast.ralat(e.response?.data?.message || 'Ralat memadam tuntutan.'); }
 };
 
 const sahkanTuntutan = async () => {
@@ -2852,11 +2897,14 @@ const sahkanTuntutan = async () => {
     fd.append('nota',            formTuntutan.value.nota || '');
     if (failTuntutan.value) fd.append('fail_dokumen', failTuntutan.value);
 
-    const { data } = await api.post('/admin/kewangan/tuntutan-makswip', fd, {
-      headers: { 'Content-Type': 'multipart/form-data' }
-    });
+    const endpoint = tuntutanDieditId.value
+      ? `/admin/kewangan/tuntutan-makswip/${tuntutanDieditId.value}`
+      : '/admin/kewangan/tuntutan-makswip';
+    const { data } = tuntutanDieditId.value
+      ? await api.put(endpoint, fd, { headers: { 'Content-Type': 'multipart/form-data' } })
+      : await api.post(endpoint, fd, { headers: { 'Content-Type': 'multipart/form-data' } });
     if (data.success) {
-      toast.sukses(data.message || 'Tuntutan berjaya direkod.');
+      toast.sukses(data.message || (tuntutanDieditId.value ? 'Tuntutan berjaya dikemaskini.' : 'Tuntutan berjaya direkod.'));
       showModalTuntutan.value = false;
       await muatSumbangan();
       await muatData();

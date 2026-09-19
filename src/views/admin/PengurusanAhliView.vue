@@ -54,6 +54,11 @@
         Jawatankuasa
         <span class="bg-[#0F4C3A] text-white text-[9px] font-black px-1.5 py-px rounded-full leading-none">{{ ahliJawatankuasa.length }}</span>
       </button>
+      <button @click="tabAktif = 'analisis'"
+        :class="['px-4 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5', tabAktif === 'analisis' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700']">
+        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3v18h18M7 16v-5m5 5V8m5 8v-3"/></svg>
+        Analisis Ahli
+      </button>
       <button @click="tabAktif = 'permohonan'; muatPermohonan()"
         :class="['px-4 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5', tabAktif === 'permohonan' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700']">
         <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
@@ -202,6 +207,73 @@
         </div>
       </div>
 
+    </template>
+
+    <!-- ======================================== -->
+    <!-- TAB: ANALISIS AHLI                       -->
+    <!-- ======================================== -->
+    <template v-else-if="tabAktif === 'analisis'">
+      <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <h3 class="text-sm font-black text-gray-900">Analisis Status Bayaran Ahli</h3>
+            <p class="text-[11px] text-gray-400 mt-0.5">“Belum Bayar” dikira daripada yuran tahun semasa, bukan status akaun ahli.</p>
+          </div>
+          <select v-model="jenisAnalisis" class="bg-gray-50 border border-gray-200 text-gray-700 text-xs font-bold rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0F4C3A]/20">
+            <option value="negeri">Mengikut Negeri</option>
+            <option value="bahagian">Mengikut Bahagian</option>
+            <option value="daerah">Mengikut Daerah / Unit Negeri</option>
+            <option value="ptj">Mengikut PTJ Khas</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div class="bg-slate-900 rounded-xl p-4 text-white">
+          <p class="text-[10px] font-bold uppercase tracking-wider text-slate-300">Jumlah Ahli</p>
+          <p class="text-2xl font-black mt-1 tabular-nums">{{ ringkasanAnalisis.jumlah }}</p>
+        </div>
+        <div class="bg-emerald-50 border border-emerald-100 rounded-xl p-4">
+          <p class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Berbayar</p>
+          <p class="text-2xl font-black mt-1 text-emerald-700 tabular-nums">{{ ringkasanAnalisis.berbayar }}</p>
+        </div>
+        <div class="bg-rose-50 border border-rose-100 rounded-xl p-4">
+          <p class="text-[10px] font-bold uppercase tracking-wider text-rose-700">Belum Bayar</p>
+          <p class="text-2xl font-black mt-1 text-rose-700 tabular-nums">{{ ringkasanAnalisis.belumBayar }}</p>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left">
+            <thead class="bg-gray-50 text-gray-400 text-[10px] uppercase tracking-wider border-b border-gray-200">
+              <tr>
+                <th class="px-4 py-3 font-bold">{{ labelAnalisis }}</th>
+                <th class="px-3 py-3 text-center font-bold">Jumlah Ahli</th>
+                <th class="px-3 py-3 text-center font-bold">Berbayar</th>
+                <th class="px-4 py-3 text-center font-bold text-rose-600">Belum Bayar</th>
+                <th class="px-4 py-3 min-w-36 font-bold">Kadar Bayaran</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+              <tr v-if="loading"><td colspan="5" class="px-4 py-10 text-center text-gray-400">Memuatkan analisis...</td></tr>
+              <tr v-else-if="analisisMengikutLokasi.length === 0"><td colspan="5" class="px-4 py-10 text-center text-gray-400">Tiada rekod penempatan untuk dianalisis.</td></tr>
+              <tr v-for="item in analisisMengikutLokasi" :key="item.label" @click="bukaSenaraiAnalisis(item)" class="cursor-pointer hover:bg-emerald-50/60 transition-colors" title="Klik untuk melihat senarai ahli">
+                <td class="px-4 py-3 text-xs font-bold text-gray-800">{{ item.label }}</td>
+                <td class="px-3 py-3 text-center text-xs font-bold text-gray-700 tabular-nums">{{ item.jumlah }}</td>
+                <td class="px-3 py-3 text-center text-xs font-bold text-emerald-700 tabular-nums">{{ item.berbayar }}</td>
+                <td class="px-4 py-3 text-center"><span :class="['inline-flex min-w-7 justify-center rounded-full px-2 py-0.5 text-[10px] font-black tabular-nums', item.belumBayar ? 'bg-rose-100 text-rose-700' : 'bg-gray-100 text-gray-500']">{{ item.belumBayar }}</span></td>
+                <td class="px-4 py-3">
+                  <div class="flex items-center gap-2">
+                    <div class="h-1.5 flex-1 overflow-hidden rounded-full bg-gray-100"><div class="h-full rounded-full bg-emerald-500" :style="{ width: `${item.kadarBayaran}%` }"></div></div>
+                    <span class="w-9 text-right text-[10px] font-bold text-gray-500">{{ item.kadarBayaran }}%</span>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </template>
 
     <!-- ======================================== -->
@@ -442,6 +514,38 @@
       </Transition>
     </Teleport>
 
+    <!-- MODAL SENARAI AHLI BAGI KUMPULAN ANALISIS -->
+    <Teleport to="body">
+      <Transition name="modal">
+        <div v-if="showSenaraiAnalisis" class="fixed inset-0 z-[60] flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/60 backdrop-blur-sm" @click.self="showSenaraiAnalisis = false">
+          <div class="bg-white rounded-t-2xl sm:rounded-2xl w-full sm:max-w-2xl shadow-2xl flex flex-col max-h-[85vh]">
+            <div class="flex items-start justify-between gap-4 px-5 py-4 border-b border-gray-100 shrink-0">
+              <div>
+                <p class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">{{ labelAnalisis }}</p>
+                <h3 class="text-sm font-black text-gray-900">{{ kumpulanAnalisisDipilih?.label }}</h3>
+                <p class="text-[11px] text-gray-400 mt-0.5">{{ ahliDalamKumpulanAnalisis.length }} ahli dalam kumpulan ini</p>
+              </div>
+              <button @click="showSenaraiAnalisis = false" class="p-2 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg" aria-label="Tutup">✕</button>
+            </div>
+            <div class="overflow-y-auto divide-y divide-gray-100">
+              <div v-for="ahli in ahliDalamKumpulanAnalisis" :key="ahli.no_kp" class="flex items-center gap-3 px-5 py-3">
+                <div class="w-8 h-8 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center shrink-0 overflow-hidden">
+                  <img v-if="ahli.gambar" :src="`${apiBase}/uploads/images/${ahli.gambar}`" :alt="ahli.nama_pegawai" class="w-full h-full object-cover"/>
+                  <span v-else class="text-xs font-black text-emerald-700">{{ (ahli.nama_pegawai || '?').charAt(0) }}</span>
+                </div>
+                <div class="min-w-0 flex-1">
+                  <p class="text-xs font-bold text-gray-800 truncate">{{ ahli.nama_pegawai || '—' }}</p>
+                  <p class="text-[10px] text-gray-400 truncate">{{ ahli.penempatan || 'Tiada penempatan' }}</p>
+                </div>
+                <span :class="['shrink-0 text-[9px] font-black px-2 py-1 rounded-full', ahli.is_paid ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700']">{{ ahli.is_paid ? 'BERBAYAR' : 'BELUM BAYAR' }}</span>
+              </div>
+              <div v-if="!ahliDalamKumpulanAnalisis.length" class="py-10 text-center text-xs text-gray-400">Tiada ahli dalam kumpulan ini.</div>
+            </div>
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
+
     <!-- MODAL PROFIL 360 -->
     <ProfilAhli360 :show="showDetails" :ahliBase="ahliDipilih" @close="showDetails = false" @edit="bukaEditDariProfil" />
 
@@ -666,7 +770,7 @@ const semuaAhli = ref([]);
 const senaraiPenempatanLengkap = ref([]);
 const loading = ref(true);
 const saving = ref(false);
-const apiBase = (import.meta.env.VITE_API_URL || 'http://localhost:5001/api').replace('/api', '');
+const apiBase = (import.meta.env.VITE_API_URL || 'http://localhost:5002/api').replace('/api', '');
 
 const senaraiJawatan = [
   'Penaung',
@@ -756,6 +860,103 @@ const ptjAnak = computed(() => {
   });
   return map;
 });
+
+// ── Analisis bayaran mengikut hierarki penempatan ──
+const jenisAnalisis = ref('negeri');
+const petaPenempatan = computed(() => Object.fromEntries(
+  senaraiPenempatanLengkap.value.map(p => [Number(p.id), p])
+));
+
+const rantaianPenempatan = (penempatanId) => {
+  const rantaian = [];
+  const sudahDilihat = new Set();
+  let semasa = petaPenempatan.value[Number(penempatanId)];
+  while (semasa && !sudahDilihat.has(semasa.id)) {
+    rantaian.push(semasa);
+    sudahDilihat.add(semasa.id);
+    semasa = semasa.induk_id ? petaPenempatan.value[Number(semasa.induk_id)] : null;
+  }
+  return rantaian;
+};
+
+const labelLokasiAnalisis = (ahli) => {
+  const rantaian = rantaianPenempatan(ahli.penempatan_id);
+  if (!rantaian.length) return 'TIADA REKOD PENEMPATAN';
+  const induk = rantaian.at(-1);
+  const namaInduk = induk?.nama_penempatan || '';
+  const pejabatNegeri = /^Pejabat\s+PERHILITAN\s+Negeri\s+/i;
+
+  if (jenisAnalisis.value === 'bahagian') {
+    const bahagian = rantaian.find(p => /^Bahagian\b/i.test(p.nama_penempatan || ''));
+    return bahagian?.nama_penempatan || 'LAIN-LAIN / BUKAN BAHAGIAN';
+  }
+
+  if (jenisAnalisis.value === 'daerah') {
+    const negeri = rantaian.find(p => pejabatNegeri.test(p.nama_penempatan || ''));
+    if (!negeri) return 'LAIN-LAIN / BUKAN UNIT NEGERI';
+    // Jika ahli ditempatkan terus di pejabat negeri, kekalkan sebagai unit
+    // sendiri; jika tidak, paparkan daerah/PTJ bawah negeri itu.
+    return rantaian[0].nama_penempatan || negeri.nama_penempatan;
+  }
+
+  if (jenisAnalisis.value === 'ptj') {
+    // PTJ khas (Taman Negara, rezab, pusat konservasi dan seumpamanya)
+    // digabungkan dengan semua unit anak di bawah induk yang sama.
+    if (pejabatNegeri.test(namaInduk) || /^Pejabat Ketua Pengarah$/i.test(namaInduk)) {
+      return 'LAIN-LAIN / BUKAN PTJ KHAS';
+    }
+    return namaInduk || rantaian[0].nama_penempatan || 'TIADA REKOD';
+  }
+
+  // Negeri ialah induk "Pejabat PERHILITAN Negeri <nama>"; semua PTJ
+  // daerah di bawahnya akan dikumpulkan ke negeri yang sama.
+  const negeri = rantaian.find(p => pejabatNegeri.test(p.nama_penempatan || ''));
+  return negeri
+    ? negeri.nama_penempatan.replace(/^Pejabat\s+PERHILITAN\s+Negeri\s+/i, '').toUpperCase()
+    : 'LAIN-LAIN / TIADA NEGERI';
+};
+
+const analisisMengikutLokasi = computed(() => {
+  const kumpulan = new Map();
+  semuaAhli.value.forEach(ahli => {
+    const label = labelLokasiAnalisis(ahli);
+    if (!kumpulan.has(label)) kumpulan.set(label, { label, jumlah: 0, berbayar: 0, belumBayar: 0 });
+    const item = kumpulan.get(label);
+    item.jumlah += 1;
+    if (Number(ahli.is_paid)) item.berbayar += 1;
+    else item.belumBayar += 1;
+  });
+  return [...kumpulan.values()]
+    .map(item => ({ ...item, kadarBayaran: item.jumlah ? Math.round((item.berbayar / item.jumlah) * 100) : 0 }))
+    .sort((a, b) => b.belumBayar - a.belumBayar || a.label.localeCompare(b.label, 'ms'));
+});
+
+const ringkasanAnalisis = computed(() => semuaAhli.value.reduce((jumlah, ahli) => {
+  jumlah.jumlah += 1;
+  if (Number(ahli.is_paid)) jumlah.berbayar += 1;
+  else jumlah.belumBayar += 1;
+  return jumlah;
+}, { jumlah: 0, berbayar: 0, belumBayar: 0 }));
+
+const labelAnalisis = computed(() => ({
+  negeri: 'Negeri',
+  bahagian: 'Bahagian',
+  daerah: 'Daerah / Unit Negeri',
+  ptj: 'PTJ Khas',
+})[jenisAnalisis.value]);
+
+const showSenaraiAnalisis = ref(false);
+const kumpulanAnalisisDipilih = ref(null);
+const ahliDalamKumpulanAnalisis = computed(() => {
+  const label = kumpulanAnalisisDipilih.value?.label;
+  return label
+    ? semuaAhli.value.filter(ahli => labelLokasiAnalisis(ahli) === label)
+    : [];
+});
+const bukaSenaraiAnalisis = (kumpulan) => {
+  kumpulanAnalisisDipilih.value = kumpulan;
+  showSenaraiAnalisis.value = true;
+};
 
 // Dapatkan Set ID yang dibenarkan: PTJ yang dipilih + semua anaknya
 const idPenempatanDibenarkan = computed(() => {

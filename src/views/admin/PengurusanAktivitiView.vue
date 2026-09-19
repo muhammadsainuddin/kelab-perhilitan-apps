@@ -509,7 +509,7 @@ import PanelKontinjenSukan from '../../components/aktiviti/PanelKontinjenSukan.v
 import { useToast } from '../../composables/useToast';
 
 const toast   = useToast();
-const apiBase = (import.meta.env.VITE_API_URL || 'http://localhost:5001/api').replace('/api', '');
+const apiBase = (import.meta.env.VITE_API_URL || 'http://localhost:5002/api').replace('/api', '');
 
 // STATE UTAMA
 const senaraiAcara = ref([]);

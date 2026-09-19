@@ -83,7 +83,7 @@ const maintenanceAktif = ref(false);
 
 const semakMaintenance = async () => {
   try {
-    const base = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
+    const base = import.meta.env.VITE_API_URL || 'http://localhost:5002/api';
     const { data } = await axios.get(`${base}/public/status`);
     maintenanceAktif.value = !!data.maintenance;
   } catch {

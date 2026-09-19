@@ -149,7 +149,7 @@ import api from '../../services/api';
 import { useToast } from '../../composables/useToast';
 
 const toast   = useToast();
-const apiBase = (import.meta.env.VITE_API_URL || 'http://localhost:5001/api').replace('/api', '');
+const apiBase = (import.meta.env.VITE_API_URL || 'http://localhost:5002/api').replace('/api', '');
 
 const loading = ref(true);
 const profil  = ref({});

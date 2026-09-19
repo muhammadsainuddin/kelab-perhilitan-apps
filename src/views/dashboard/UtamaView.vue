@@ -901,7 +901,7 @@ import { useSettingsStore } from '../../stores/settings';
 import { useNotifikasiStore } from '../../stores/notifikasi';
 
 const settingsStore = useSettingsStore();
-const uploadBase = import.meta.env.VITE_UPLOAD_URL || 'http://localhost:5001';
+const uploadBase = import.meta.env.VITE_UPLOAD_URL || 'http://localhost:5002';
 const router = useRouter();
 
 // ── Profil ──

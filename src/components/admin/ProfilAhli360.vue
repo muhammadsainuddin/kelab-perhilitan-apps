@@ -390,7 +390,7 @@ import { headerResitHTML, footerResitHTML } from '../../config/kelab';
 
 const props = defineProps({ show: Boolean, ahliBase: Object });
 const emit = defineEmits(['close', 'edit']);
-const apiBase = (import.meta.env.VITE_API_URL || 'http://localhost:5001/api').replace('/api', '');
+const apiBase = (import.meta.env.VITE_API_URL || 'http://localhost:5002/api').replace('/api', '');
 
 const loading = ref(false);
 const ahliLengkap = ref(null);

@@ -364,7 +364,7 @@ const router    = useRouter();
 const route     = useRoute();
 const authStore = useAuthStore();
 
-const apiBase = (import.meta.env.VITE_API_URL || 'http://localhost:5001/api').replace('/api', '');
+const apiBase = (import.meta.env.VITE_API_URL || 'http://localhost:5002/api').replace('/api', '');
 
 // Semak peranti (Desktop/Mobile) untuk status awal sidebar
 const appVersion   = __APP_VERSION__;
