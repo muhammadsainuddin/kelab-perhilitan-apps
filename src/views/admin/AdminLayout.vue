@@ -49,6 +49,9 @@
                   <svg v-if="item.icon==='home'" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
                   <svg v-else-if="item.icon==='users'" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
                   <svg v-else-if="item.icon==='chart'" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                  <svg v-else-if="item.icon==='income'" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M5 12H3m18 0h-2M5.636 5.636 4.222 4.222m15.556 15.556-1.414-1.414M18.364 5.636l1.414-1.414M4.222 19.778l1.414-1.414"/></svg>
+                  <svg v-else-if="item.icon==='expense'" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 13l-5 5m0 0l-5-5m5 5V6M5 4h14M5 21h14"/></svg>
+                  <svg v-else-if="item.icon==='ledger'" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5.5A2.5 2.5 0 016.5 3H20v16H6.5A2.5 2.5 0 014 16.5v-11zM4 16.5A2.5 2.5 0 016.5 14H20M8 7h8m-8 3h5"/></svg>
                   <svg v-else-if="item.icon==='shop'" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
                   <svg v-else-if="item.icon==='heart'" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
                   <svg v-else-if="item.icon==='calendar'" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
@@ -266,7 +269,7 @@
               <span class="text-[#567778] text-xs">Backend & Infrastruktur</span>
               <span class="inline-flex items-center gap-1 text-[#87BCB5] text-xs font-black">
                 <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21s-7-4.35-7-10a7 7 0 1114 0c0 5.65-7 10-7 10z"/><circle cx="12" cy="11" r="2.2"/></svg>
-                AiGeo
+                Kelab PERHILITAN
               </span>
             </div>
             <div class="h-px bg-white/10"></div>
@@ -430,7 +433,10 @@ const pageTitles = {
   '/admin':            { title: 'Dashboard Induk',      sub: 'Ringkasan menyeluruh status sistem' },
   '/admin/dashboard':  { title: 'Dashboard Induk',      sub: 'Ringkasan menyeluruh status sistem' },
   '/admin/ahli':       { title: 'Pengurusan Ahli',      sub: 'Urus pendaftaran dan rekod keahlian' },
-  '/admin/kewangan':   { title: 'Laporan Perbelanjaan',  sub: 'Pemantauan aliran tunai dan buku kewangan' },
+  '/admin/pendapatan': { title: 'Rekod Pendapatan',     sub: 'Kunci masuk semua penerimaan dan pendapatan kelab' },
+  '/admin/perbelanjaan': { title: 'Rekod Perbelanjaan', sub: 'Kunci masuk semua bayaran dan perbelanjaan kelab' },
+  '/admin/kewangan':   { title: 'Pengurusan Akaun',     sub: 'Lejar tunai, penyata dan laporan kewangan kelab' },
+  '/admin/dashboard-kewangan': { title: 'Dashboard Kewangan', sub: 'Pecahan sumber kewangan dan perbelanjaan kelab' },
   '/admin/kedai':      { title: 'Kedai Kelab (Merch)',  sub: 'Urus inventori dan tempahan ahli' },
   '/admin/kebajikan':  { title: 'Bantuan Kebajikan',    sub: 'Semakan dan kelulusan sumbangan ahli' },
   '/admin/aktiviti':   { title: 'Acara & Sukan',        sub: 'Urus hebahan dan peserta program' },
@@ -457,9 +463,17 @@ const menuGroups = [
     title: 'Pentadbiran',
     items: [
       { name: 'ahli',     to: '/admin/ahli',     label: 'Rekod Ahli',    icon: 'users' },
+    ]
+  },
+  {
+    title: 'Pengurusan Kewangan',
+    items: [
+      { name: 'dashboard-kewangan', to: '/admin/dashboard-kewangan', label: 'Dashboard Kewangan', icon: 'chart' },
+      { name: 'pendapatan', to: '/admin/pendapatan', label: 'Pendapatan', icon: 'income' },
+      { name: 'perbelanjaan', to: '/admin/perbelanjaan', label: 'Perbelanjaan', icon: 'expense' },
+      { name: 'kewangan', to: '/admin/kewangan', label: 'Akaun', icon: 'ledger' },
       { name: 'bayaran',  to: '/admin/bayaran',  label: 'Resit Bayaran', icon: 'payment' },
       { name: 'resit-biro-angkasa', to: '/admin/resit-biro-angkasa', label: 'Resit Biro Angkasa', icon: 'receipt' },
-      { name: 'kewangan', to: '/admin/kewangan', label: 'Perbelanjaan', icon: 'chart' },
     ]
   },
   {

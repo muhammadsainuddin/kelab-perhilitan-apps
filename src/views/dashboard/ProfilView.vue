@@ -436,7 +436,7 @@
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 21s-7-4.35-7-10a7 7 0 1114 0c0 5.65-7 10-7 10z"/>
               <circle cx="12" cy="11" r="2.2"/>
             </svg>
-            AiGeo
+            Kelab PERHILITAN
           </span>
         </div>
       </footer>

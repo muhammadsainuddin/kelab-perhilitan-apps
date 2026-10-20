@@ -79,7 +79,12 @@
                 </div>
               </td>
               <td class="px-4 py-3.5 hidden sm:table-cell">
-                <p class="text-xs font-bold text-gray-900 leading-tight">{{ t.nama_pengirim }}</p>
+                <button v-if="t.no_kp" @click="bukaProfilAhli(t)"
+                  class="text-left text-xs font-bold leading-tight text-gray-900 hover:text-emerald-700 hover:underline"
+                  title="Lihat profil ahli">
+                  {{ t.nama_pengirim }}
+                </button>
+                <p v-else class="text-xs font-bold text-gray-900 leading-tight">{{ t.nama_pengirim }}</p>
                 <p class="text-[9px] font-mono text-gray-400 mt-0.5">{{ t.no_kp }}</p>
               </td>
               <td class="px-4 py-3.5 max-w-[220px]">
@@ -148,7 +153,11 @@
               </div>
               <h3 class="text-base font-black text-gray-900 leading-tight">{{ tiketAktif?.subjek }}</h3>
               <p class="text-xs text-gray-400 mt-0.5">
-                Daripada: <strong class="text-gray-600">{{ tiketAktif?.nama_pengirim }}</strong>
+                Daripada:
+                <button v-if="tiketAktif?.no_kp" @click="bukaProfilAhli(tiketAktif)" class="font-bold text-gray-600 hover:text-emerald-700 hover:underline">
+                  {{ tiketAktif?.nama_pengirim }}
+                </button>
+                <strong v-else class="text-gray-600">{{ tiketAktif?.nama_pengirim }}</strong>
                 · {{ formatTarikh(tiketAktif?.tarikh_hantar) }}
               </p>
             </div>
@@ -340,6 +349,8 @@
     </Transition>
   </Teleport>
 
+  <ProfilAhli360 :show="showProfilAhli" :ahliBase="ahliDipilih" @close="showProfilAhli = false" />
+
 </div>
 </template>
 
@@ -347,6 +358,7 @@
 import { ref, computed, onMounted, nextTick } from 'vue';
 import api from '../../services/api';
 import { useToast } from '../../composables/useToast';
+import ProfilAhli360 from '../../components/admin/ProfilAhli360.vue';
 
 const toast        = useToast();
 const loading      = ref(false);
@@ -367,6 +379,8 @@ const savingStatus   = ref(false);
 const modalCatatan   = ref(false);
 const pendingStatus  = ref('');
 const catatanPenutup = ref('');
+const showProfilAhli = ref(false);
+const ahliDipilih = ref(null);
 
 const statusPilihan = [
   { nilai: '',             label: 'Semua' },
@@ -417,6 +431,15 @@ const bukaTiket = async (id) => {
   } finally {
     loadingDetail.value = false;
   }
+};
+
+const bukaProfilAhli = (tiket) => {
+  if (!tiket?.no_kp) {
+    toast.amaran('No. kad pengenalan ahli tidak ditemui untuk tiket ini.');
+    return;
+  }
+  ahliDipilih.value = { no_kp: tiket.no_kp, nama_pegawai: tiket.nama_pengirim };
+  showProfilAhli.value = true;
 };
 
 const hantarBalasanAdmin = async () => {

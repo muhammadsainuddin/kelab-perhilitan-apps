@@ -4,7 +4,7 @@
     <!-- ── PAGE HEADER ── -->
     <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-3 mb-5">
       <div>
-        <h2 class="text-base font-bold text-gray-900 tracking-tight">Pengurusan Kewangan Kelab</h2>
+        <h2 class="text-base font-bold text-gray-900 tracking-tight">Pengurusan Akaun Kelab</h2>
         <p class="text-[11px] text-gray-500 mt-0.5">Lejar Tunai &bull; Perakaunan &bull; Laporan Berkala &bull; Analitik Jualan</p>
       </div>
       <div class="flex flex-wrap items-center gap-2">
@@ -12,20 +12,20 @@
           class="bg-white border border-gray-300 text-gray-700 font-semibold text-xs rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#0F4C3A]/20 focus:border-[#0F4C3A]">
           <option v-for="y in senaraITahun" :key="y" :value="y">Tahun {{ y }}</option>
         </select>
-        <button @click="bukaTambahBorang('masuk')"
+        <router-link to="/admin/pendapatan"
           class="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] px-3 py-2 rounded-lg transition-colors shadow-sm">
           <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M7 11l5-5m0 0l5 5m-5-5v12"/>
           </svg>
           Rekod Masuk
-        </button>
-        <button @click="bukaTambahBorang('keluar')"
+        </router-link>
+        <router-link to="/admin/perbelanjaan"
           class="flex items-center gap-1.5 bg-rose-600 hover:bg-rose-700 text-white font-bold text-[11px] px-3 py-2 rounded-lg transition-colors shadow-sm">
           <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M17 13l-5 5m0 0l-5-5m5 5V6"/>
           </svg>
           Rekod Keluar
-        </button>
+        </router-link>
         <button @click="eksportCSV"
           class="flex items-center gap-1.5 bg-white border border-gray-300 text-gray-700 font-semibold text-[11px] px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors">
           <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -1514,6 +1514,34 @@
         </router-link>
       </div>
 
+      <!-- Penapis senarai acara khas -->
+      <div class="border-b border-gray-100 bg-white px-5 py-3">
+        <div class="flex flex-col gap-2 lg:flex-row lg:items-end">
+          <div class="min-w-[220px] flex-1">
+            <label class="mb-1 block text-[9px] font-bold uppercase tracking-wider text-gray-500">Cari Acara</label>
+            <div class="relative">
+              <svg class="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35m1.35-5.65a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+              <input v-model="filtSenaraiAcara.carian" type="search" placeholder="Nama atau deskripsi acara..."
+                class="w-full rounded-lg border border-gray-200 bg-gray-50 py-2 pl-8 pr-3 text-xs text-gray-800 outline-none transition-colors focus:border-violet-400 focus:bg-white" />
+            </div>
+          </div>
+          <div class="min-w-[150px]">
+            <label class="mb-1 block text-[9px] font-bold uppercase tracking-wider text-gray-500">Status</label>
+            <select v-model="filtSenaraiAcara.status" class="w-full rounded-lg border border-gray-200 bg-gray-50 px-2.5 py-2 text-xs text-gray-800 outline-none transition-colors focus:border-violet-400 focus:bg-white">
+              <option value="">Semua Status</option><option value="AKTIF">Aktif</option><option value="TUTUP">Tutup</option>
+            </select>
+          </div>
+          <div class="min-w-[140px]">
+            <label class="mb-1 block text-[9px] font-bold uppercase tracking-wider text-gray-500">Tahun</label>
+            <select v-model="filtSenaraiAcara.tahun" class="w-full rounded-lg border border-gray-200 bg-gray-50 px-2.5 py-2 text-xs text-gray-800 outline-none transition-colors focus:border-violet-400 focus:bg-white">
+              <option value="">Semua Tahun</option><option v-for="tahun in tahunAcaraKhas" :key="tahun" :value="String(tahun)">{{ tahun }}</option>
+            </select>
+          </div>
+          <button v-if="adaFilterSenaraiAcara" type="button" @click="resetFilterSenaraiAcara" class="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-[10px] font-bold text-rose-600 transition-colors hover:bg-rose-100">Reset</button>
+          <div class="ml-auto whitespace-nowrap pb-2 text-[10px] text-gray-400 lg:pb-0"><strong class="text-gray-700">{{ senaraiAcaraKhasDitapis.length }}</strong> daripada {{ senaraiAcaraKhas.length }} acara</div>
+        </div>
+      </div>
+
       <!-- Loading -->
       <div v-if="loadingAcaraKhas" class="flex items-center justify-center py-16 text-gray-400">
         <div class="w-6 h-6 rounded-full border-2 border-violet-200 border-t-violet-500 animate-spin mr-2"></div>
@@ -1529,9 +1557,15 @@
         <p class="text-[11px] mt-1">Klik "Acara Baharu" untuk mulakan.</p>
       </div>
 
+      <div v-else-if="!senaraiAcaraKhasDitapis.length" class="px-5 py-14 text-center text-gray-400">
+        <svg class="mx-auto mb-3 h-9 w-9 opacity-40" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35m1.35-5.65a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+        <p class="text-[12px] font-bold text-gray-500">Tiada acara sepadan dengan penapis.</p>
+        <button type="button" class="mt-2 text-[10px] font-bold text-violet-600 hover:text-violet-800" @click="resetFilterSenaraiAcara">Kosongkan penapis</button>
+      </div>
+
       <!-- Grid kad acara -->
       <div v-else class="p-5 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <div v-for="acara in senaraiAcaraKhas" :key="acara.id"
+        <div v-for="acara in senaraiAcaraKhasDitapis" :key="acara.id"
           class="border rounded-xl overflow-hidden cursor-pointer transition-all"
           :class="acaraKhasDipilih?.id === acara.id
             ? 'border-violet-400 ring-2 ring-violet-200 shadow-md'
@@ -1651,11 +1685,29 @@
             </div>
           </div>
 
+          <!-- Tab pecahan acara khas -->
+          <div class="mb-4 flex overflow-x-auto rounded-xl border border-gray-200 bg-white p-1">
+            <button v-for="tab in tabAcara" :key="tab.id" type="button" @click="tabAcaraAktif = tab.id"
+              :class="['flex min-w-max flex-1 items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-[11px] font-bold transition-colors',
+                tabAcaraAktif === tab.id ? tab.aktif : 'text-gray-500 hover:bg-gray-50 hover:text-gray-700']">
+              {{ tab.label }}
+              <span :class="['rounded-full px-1.5 py-0.5 text-[9px] font-black', tabAcaraAktif === tab.id ? 'bg-white/70' : 'bg-gray-100 text-gray-500']">{{ tab.bilangan() }}</span>
+            </button>
+          </div>
+
           <!-- Sumbangan MAKSWIP dikutip -->
-          <div v-if="penyataAcara.sumbangan?.length" class="mb-5">
+          <div v-if="tabAcaraAktif === 'penyumbang'" class="mb-5">
             <p class="text-[11px] font-bold text-gray-600 uppercase tracking-wider mb-2">
-              Kutipan Sumbangan ({{ penyataAcara.sumbangan.length }} penyumbang)
+              Kutipan Sumbangan ({{ sumbanganAcaraFiltered.length }} rekod)
             </p>
+            <div class="mb-3 grid grid-cols-1 gap-2 rounded-xl border border-amber-100 bg-amber-50/40 p-3 sm:grid-cols-2 xl:grid-cols-4">
+              <input v-model="filtPenyumbang.carian" type="search" placeholder="Cari penyumbang atau PIC..." class="rounded-lg border border-amber-200 bg-white px-3 py-2 text-xs outline-none focus:border-amber-400" />
+              <select v-model="filtPenyumbang.pakej" class="rounded-lg border border-amber-200 bg-white px-3 py-2 text-xs outline-none focus:border-amber-400">
+                <option value="">Semua Pakej</option><option v-for="pakej in pakejDalamAcara" :key="pakej" :value="pakej">{{ pakej }}</option>
+              </select>
+              <input v-model="filtPenyumbang.tarikhMula" type="date" title="Tarikh mula" class="rounded-lg border border-amber-200 bg-white px-3 py-2 text-xs outline-none focus:border-amber-400" />
+              <div class="flex gap-2"><input v-model="filtPenyumbang.tarikhAkhir" type="date" title="Tarikh akhir" class="min-w-0 flex-1 rounded-lg border border-amber-200 bg-white px-3 py-2 text-xs outline-none focus:border-amber-400" /><button v-if="adaFilterPenyumbang" type="button" class="rounded-lg px-2 text-[10px] font-bold text-amber-700 hover:bg-amber-100" @click="resetFilterPenyumbang">Reset</button></div>
+            </div>
             <div class="overflow-x-auto rounded-xl border border-amber-200 shadow-sm">
               <table class="w-full text-[11px]">
                 <thead class="bg-amber-50 border-b border-amber-200">
@@ -1668,7 +1720,7 @@
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-amber-50">
-                  <tr v-for="s in penyataAcara.sumbangan" :key="s.id" class="hover:bg-amber-50/40">
+                  <tr v-for="s in sumbanganAcaraFiltered" :key="s.id" class="hover:bg-amber-50/40">
                     <td class="px-3 py-2 text-gray-500 font-mono">{{ s.tarikh }}</td>
                     <td class="px-3 py-2 text-gray-700 font-medium">{{ s.nama_syarikat }}</td>
                     <td class="px-3 py-2 text-gray-500">
@@ -1680,12 +1732,13 @@
                     <td class="px-3 py-2 text-gray-600 text-[10px]">{{ s.nama_pic || '—' }}</td>
                     <td class="px-3 py-2 text-right font-bold text-amber-700 tabular-nums">{{ fmtRM(s.amaun) }}</td>
                   </tr>
+                  <tr v-if="!sumbanganAcaraFiltered.length"><td colspan="5" class="px-3 py-8 text-center text-[11px] text-gray-400">Tiada penyumbang sepadan dengan penapis.</td></tr>
                 </tbody>
                 <tfoot class="bg-amber-50 border-t border-amber-200">
                   <tr>
                     <td colspan="4" class="px-3 py-2 font-bold text-amber-700 text-right">Jumlah Dikutip</td>
                     <td class="px-3 py-2 text-right font-black text-amber-700 tabular-nums">
-                      RM {{ fmtRM(penyataAcara.ringkasan.sumbangan_kasar) }}
+                      RM {{ fmtRM(jumlahSumbanganDitapis) }}
                     </td>
                   </tr>
                 </tfoot>
@@ -1694,10 +1747,15 @@
           </div>
 
           <!-- Tuntutan MAKSWIP (penerimaan sebenar) -->
-          <div v-if="penyataAcara.tuntutan?.length" class="mb-5">
+          <div v-if="tabAcaraAktif === 'makswip'" class="mb-5">
             <p class="text-[11px] font-bold text-gray-600 uppercase tracking-wider mb-2">
-              Penerimaan dari MAKSWIP ({{ penyataAcara.tuntutan.length }} tuntutan)
+              Penerimaan dari MAKSWIP ({{ tuntutanAcaraFiltered.length }} rekod)
             </p>
+            <div class="mb-3 grid grid-cols-1 gap-2 rounded-xl border border-sky-100 bg-sky-50/40 p-3 sm:grid-cols-3">
+              <input v-model="filtMakswip.carian" type="search" placeholder="Cari nota tuntutan..." class="rounded-lg border border-sky-200 bg-white px-3 py-2 text-xs outline-none focus:border-sky-400" />
+              <input v-model="filtMakswip.tarikhMula" type="date" title="Tarikh mula" class="rounded-lg border border-sky-200 bg-white px-3 py-2 text-xs outline-none focus:border-sky-400" />
+              <div class="flex gap-2"><input v-model="filtMakswip.tarikhAkhir" type="date" title="Tarikh akhir" class="min-w-0 flex-1 rounded-lg border border-sky-200 bg-white px-3 py-2 text-xs outline-none focus:border-sky-400" /><button v-if="adaFilterMakswip" type="button" class="rounded-lg px-2 text-[10px] font-bold text-sky-700 hover:bg-sky-100" @click="resetFilterMakswip">Reset</button></div>
+            </div>
             <div class="overflow-x-auto rounded-xl border border-sky-200 shadow-sm">
               <table class="w-full text-[11px]">
                 <thead class="bg-sky-50 border-b border-sky-200">
@@ -1709,7 +1767,7 @@
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-sky-50">
-                  <tr v-for="t in penyataAcara.tuntutan" :key="t.id" class="hover:bg-sky-50/40">
+                  <tr v-for="t in tuntutanAcaraFiltered" :key="t.id" class="hover:bg-sky-50/40">
                     <td class="px-3 py-2 text-gray-500 font-mono">{{ t.tarikh_tuntutan }}</td>
                     <td class="px-3 py-2 text-right font-black text-sky-700 tabular-nums">{{ fmtRM(t.jumlah_bersih) }}</td>
                     <td class="px-3 py-2 text-gray-500 text-[10px]">{{ t.nota || '—' }}</td>
@@ -1721,12 +1779,13 @@
                       <span v-else class="text-[9px] text-gray-300">—</span>
                     </td>
                   </tr>
+                  <tr v-if="!tuntutanAcaraFiltered.length"><td colspan="4" class="px-3 py-8 text-center text-[11px] text-gray-400">Tiada penerimaan MAKSWIP sepadan dengan penapis.</td></tr>
                 </tbody>
                 <tfoot class="bg-sky-50 border-t border-sky-200">
                   <tr>
                     <td class="px-3 py-2 font-bold text-sky-700 text-right">Jumlah Bersih Diterima</td>
                     <td class="px-3 py-2 text-right font-black text-sky-700 tabular-nums">
-                      RM {{ fmtRM(penyataAcara.ringkasan.jumlah_diterima_makswip) }}
+                      RM {{ fmtRM(jumlahMakswipDitapis) }}
                     </td>
                     <td colspan="2"></td>
                   </tr>
@@ -1734,14 +1793,13 @@
               </table>
             </div>
           </div>
-          <div v-else-if="penyataAcara.sumbangan?.length" class="mb-5 bg-amber-50 border border-amber-100 rounded-xl px-4 py-3">
-            <p class="text-[11px] text-amber-700">
-              <strong>Belum ada tuntutan MAKSWIP</strong> untuk acara ini. Kutipan dari penyumbang belum lagi dituntut daripada MAKSWIP.
-            </p>
-          </div>
-
           <!-- Filter transaksi acara -->
-          <div v-if="penyataAcara.transaksi.length" class="mb-3 flex flex-wrap items-end gap-2">
+          <div v-if="tabAcaraAktif === 'perbelanjaan' && perbelanjaanAcara.length" class="mb-3 flex flex-wrap items-end gap-2">
+            <div class="flex-[2] min-w-[180px]">
+              <label class="block text-[9px] font-bold text-gray-500 uppercase tracking-wider mb-1">Carian</label>
+              <input v-model="filtAcara.carian" type="search" placeholder="Cari nota, penerima atau rujukan..."
+                class="w-full bg-gray-50 border border-gray-200 text-gray-800 rounded-lg px-2.5 py-1.5 text-xs focus:outline-none focus:border-rose-400" />
+            </div>
             <div class="flex-1 min-w-[130px]">
               <label class="block text-[9px] font-bold text-gray-500 uppercase tracking-wider mb-1">Kategori</label>
               <select v-model="filtAcara.kategori"
@@ -1760,13 +1818,13 @@
               <input v-model="filtAcara.tarikhAkhir" type="date"
                 class="bg-gray-50 border border-gray-200 text-gray-800 rounded-lg px-2.5 py-1.5 text-xs focus:outline-none focus:border-violet-400"/>
             </div>
-            <button v-if="filtAcara.kategori || filtAcara.tarikhMula || filtAcara.tarikhAkhir"
-              @click="filtAcara = { kategori: '', tarikhMula: '', tarikhAkhir: '' }"
+            <button v-if="filtAcara.carian || filtAcara.kategori || filtAcara.tarikhMula || filtAcara.tarikhAkhir"
+              @click="filtAcara = { carian: '', kategori: '', tarikhMula: '', tarikhAkhir: '' }"
               class="text-[10px] text-gray-400 hover:text-gray-600 px-2 py-1.5 rounded-lg hover:bg-gray-100 transition-colors">
               Reset
             </button>
             <!-- Mini KPI apabila filter aktif -->
-            <div v-if="filtAcara.kategori || filtAcara.tarikhMula || filtAcara.tarikhAkhir"
+            <div v-if="filtAcara.carian || filtAcara.kategori || filtAcara.tarikhMula || filtAcara.tarikhAkhir"
               class="ml-auto flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-lg px-3 py-1.5">
               <span class="text-[10px] text-gray-500">{{ transaksiAcaraFiltered.length }} rekod</span>
               <span class="text-[10px] font-bold text-emerald-600 tabular-nums">+RM {{ fmtRM(filtAcaraRingkasan.masuk) }}</span>
@@ -1778,7 +1836,7 @@
           </div>
 
           <!-- Jadual transaksi -->
-          <div v-if="penyataAcara.transaksi.length" class="overflow-x-auto rounded-xl border border-gray-200 shadow-sm">
+          <div v-if="tabAcaraAktif === 'perbelanjaan' && perbelanjaanAcara.length" class="overflow-x-auto rounded-xl border border-gray-200 shadow-sm">
             <table class="w-full text-[11px]">
               <thead class="bg-gray-50 border-b border-gray-200">
                 <tr>
@@ -1826,8 +1884,8 @@
               </tfoot>
             </table>
           </div>
-          <p v-else class="text-center text-[12px] text-gray-400 py-8">
-            Tiada transaksi direkodkan untuk acara ini lagi.
+          <p v-else-if="tabAcaraAktif === 'perbelanjaan'" class="text-center text-[12px] text-gray-400 py-8">
+            Tiada perbelanjaan direkodkan untuk acara ini lagi.
           </p>
         </template>
       </div>
@@ -1835,16 +1893,6 @@
     </div>
 
     <!-- ── Full-Screen Form Modal ── -->
-    <ModalBorangKewangan
-      v-if="showBorang"
-      :senaraiAhli="senaraiAhli"
-      :senaraAcara="acaraSumbangan"
-      :senaraiAcaraKhas="senaraiAcaraKhas.filter(a => a.status === 'AKTIF')"
-      :jenisAwal="borangJenisAwal"
-      @tutup="showBorang = false"
-      @berjaya="onTransaksiBerjaya"
-    />
-
     <!-- ==================== PDF VIEWER ==================== -->
     <Teleport to="body">
       <Transition name="fade">
@@ -2060,7 +2108,6 @@ import { ref, computed, onMounted, nextTick, watch } from 'vue';
 import { Chart, registerables } from 'chart.js';
 import api from '../../services/api';
 import { headerResitHTML, footerResitHTML } from '../../config/kelab';
-import ModalBorangKewangan from '../../components/kewangan/ModalBorangKewangan.vue';
 import VuePdfEmbed from 'vue-pdf-embed';
 import { useToast } from '../../composables/useToast';
 import { useAuthStore } from '../../stores/auth';
@@ -2133,9 +2180,6 @@ let chartInstance      = null;
 let debounceTimer      = null;
 
 // Borang modal
-const showBorang       = ref(false);
-const borangJenisAwal  = ref('masuk');
-
 // Laporan state
 const laporanTarikh    = ref(new Date().toISOString().split('T')[0]);
 const laporanBulan     = ref(new Date().getMonth() + 1);
@@ -2298,33 +2342,114 @@ const loadingAcaraKhas  = ref(false);
 const acaraKhasDipilih  = ref(null);
 const penyataAcara      = ref(null);
 const loadingPenyata    = ref(false);
+const filtSenaraiAcara  = ref({ carian: '', status: '', tahun: '' });
+
+const tahunDaripadaAcara = acara => {
+  const tarikh = acara.tarikh_mula || acara.tarikh_cipta || '';
+  const tahun = parseInt(String(tarikh).slice(0, 4));
+  return Number.isFinite(tahun) ? tahun : null;
+};
+
+const tahunAcaraKhas = computed(() =>
+  [...new Set(senaraiAcaraKhas.value.map(tahunDaripadaAcara).filter(Boolean))].sort((a, b) => b - a)
+);
+
+const adaFilterSenaraiAcara = computed(() =>
+  Boolean(filtSenaraiAcara.value.carian.trim() || filtSenaraiAcara.value.status || filtSenaraiAcara.value.tahun)
+);
+
+const senaraiAcaraKhasDitapis = computed(() => {
+  const carian = filtSenaraiAcara.value.carian.trim().toLowerCase();
+  return senaraiAcaraKhas.value.filter(acara => {
+    if (carian && !`${acara.nama || ''} ${acara.deskripsi || ''}`.toLowerCase().includes(carian)) return false;
+    if (filtSenaraiAcara.value.status && acara.status !== filtSenaraiAcara.value.status) return false;
+    if (filtSenaraiAcara.value.tahun && String(tahunDaripadaAcara(acara) || '') !== String(filtSenaraiAcara.value.tahun)) return false;
+    return true;
+  });
+});
+
+const resetFilterSenaraiAcara = () => {
+  filtSenaraiAcara.value = { carian: '', status: '', tahun: '' };
+};
 
 // Filter transaksi dalam penyata acara khas — dideklarasi selepas penyataAcara
-const filtAcara = ref({ kategori: '', tarikhMula: '', tarikhAkhir: '' });
+const tabAcaraAktif = ref('penyumbang');
+const filtPenyumbang = ref({ carian: '', pakej: '', tarikhMula: '', tarikhAkhir: '' });
+const filtMakswip = ref({ carian: '', tarikhMula: '', tarikhAkhir: '' });
+const filtAcara = ref({ carian: '', kategori: '', tarikhMula: '', tarikhAkhir: '' });
+
+const tabAcara = [
+  { id: 'penyumbang', label: 'Penyumbang', aktif: 'bg-amber-100 text-amber-800', bilangan: () => penyataAcara.value?.sumbangan?.length || 0 },
+  { id: 'makswip', label: 'Diterima dari MAKSWIP', aktif: 'bg-sky-100 text-sky-800', bilangan: () => penyataAcara.value?.tuntutan?.length || 0 },
+  { id: 'perbelanjaan', label: 'Perbelanjaan', aktif: 'bg-rose-100 text-rose-800', bilangan: () => perbelanjaanAcara.value.length },
+];
+
+const tarikhPaparanKeIso = nilai => {
+  if (!nilai) return '';
+  if (/^\d{4}-\d{2}-\d{2}/.test(nilai)) return nilai.slice(0, 10);
+  const [hari, bulan, tahun] = String(nilai).split('-');
+  return tahun && bulan && hari ? `${tahun}-${bulan}-${hari}` : '';
+};
+
+const pakejDalamAcara = computed(() =>
+  [...new Set((penyataAcara.value?.sumbangan || []).map(item => item.nama_pakej).filter(Boolean))].sort()
+);
+const adaFilterPenyumbang = computed(() => Object.values(filtPenyumbang.value).some(Boolean));
+const sumbanganAcaraFiltered = computed(() => {
+  const f = filtPenyumbang.value;
+  const q = f.carian.trim().toLowerCase();
+  return (penyataAcara.value?.sumbangan || []).filter(item => {
+    const tarikh = tarikhPaparanKeIso(item.tarikh);
+    if (q && !`${item.nama_syarikat || ''} ${item.nama_pic || ''} ${item.nota || ''}`.toLowerCase().includes(q)) return false;
+    if (f.pakej && item.nama_pakej !== f.pakej) return false;
+    if (f.tarikhMula && tarikh < f.tarikhMula) return false;
+    if (f.tarikhAkhir && tarikh > f.tarikhAkhir) return false;
+    return true;
+  });
+});
+const jumlahSumbanganDitapis = computed(() => sumbanganAcaraFiltered.value.reduce((jumlah, item) => jumlah + parseFloat(item.amaun || 0), 0));
+const resetFilterPenyumbang = () => { filtPenyumbang.value = { carian: '', pakej: '', tarikhMula: '', tarikhAkhir: '' }; };
+
+const adaFilterMakswip = computed(() => Object.values(filtMakswip.value).some(Boolean));
+const tuntutanAcaraFiltered = computed(() => {
+  const f = filtMakswip.value;
+  const q = f.carian.trim().toLowerCase();
+  return (penyataAcara.value?.tuntutan || []).filter(item => {
+    const tarikh = tarikhPaparanKeIso(item.tarikh_tuntutan);
+    if (q && !`${item.nota || ''} ${item.nama_acara || ''}`.toLowerCase().includes(q)) return false;
+    if (f.tarikhMula && tarikh < f.tarikhMula) return false;
+    if (f.tarikhAkhir && tarikh > f.tarikhAkhir) return false;
+    return true;
+  });
+});
+const jumlahMakswipDitapis = computed(() => tuntutanAcaraFiltered.value.reduce((jumlah, item) => jumlah + parseFloat(item.jumlah_bersih || 0), 0));
+const resetFilterMakswip = () => { filtMakswip.value = { carian: '', tarikhMula: '', tarikhAkhir: '' }; };
+
+const perbelanjaanAcara = computed(() =>
+  (penyataAcara.value?.transaksi || []).filter(item => item.jenis_aliran === 'KELUAR')
+);
 const kategoriDalamAcara = computed(() => {
-  if (!penyataAcara.value?.transaksi) return [];
-  const kods = [...new Set(penyataAcara.value.transaksi.map(t => t.kategori))];
+  const kods = [...new Set(perbelanjaanAcara.value.map(t => t.kategori))];
   return kods.map(k => ({ kod: k, nama: labelKat(k) })).sort((a, b) => a.nama.localeCompare(b.nama));
 });
 const transaksiAcaraFiltered = computed(() => {
-  if (!penyataAcara.value?.transaksi) return [];
-  const { kategori, tarikhMula, tarikhAkhir } = filtAcara.value;
-  return penyataAcara.value.transaksi.filter(t => {
+  const { carian, kategori, tarikhMula, tarikhAkhir } = filtAcara.value;
+  const q = carian.trim().toLowerCase();
+  return perbelanjaanAcara.value.filter(t => {
+    if (q && !`${t.nota || ''} ${t.penerima_bayaran || ''} ${t.nama_ahli || ''} ${t.rujukan || ''}`.toLowerCase().includes(q)) return false;
     if (kategori && t.kategori !== kategori) return false;
-    if (tarikhMula || tarikhAkhir) {
-      const p = t.tarikh.split('-');
-      const iso = `${p[2]}-${p[1]}-${p[0]}`;
-      if (tarikhMula && iso < tarikhMula) return false;
-      if (tarikhAkhir && iso > tarikhAkhir) return false;
-    }
+    const iso = t.tarikh_raw || tarikhPaparanKeIso(t.tarikh);
+    if (tarikhMula && iso < tarikhMula) return false;
+    if (tarikhAkhir && iso > tarikhAkhir) return false;
     return true;
   });
 });
 const filtAcaraRingkasan = computed(() => {
-  const masuk  = transaksiAcaraFiltered.value.filter(t => t.jenis_aliran === 'MASUK').reduce((s, t) => s + parseFloat(t.amaun), 0);
-  const keluar = transaksiAcaraFiltered.value.filter(t => t.jenis_aliran === 'KELUAR').reduce((s, t) => s + parseFloat(t.amaun), 0);
+  const masuk  = 0;
+  const keluar = transaksiAcaraFiltered.value.reduce((s, t) => s + parseFloat(t.amaun), 0);
   return { masuk, keluar, baki: masuk - keluar };
 });
+const jumlahPerbelanjaanDitapis = computed(() => filtAcaraRingkasan.value.keluar);
 
 const muatAcaraKhas = async () => {
   loadingAcaraKhas.value = true;
@@ -2338,7 +2463,10 @@ const bukaAcara = async (acara) => {
   acaraKhasDipilih.value = acara;
   penyataAcara.value = null;
   loadingPenyata.value = true;
-  filtAcara.value = { kategori: '', tarikhMula: '', tarikhAkhir: '' };
+  tabAcaraAktif.value = 'penyumbang';
+  resetFilterPenyumbang();
+  resetFilterMakswip();
+  filtAcara.value = { carian: '', kategori: '', tarikhMula: '', tarikhAkhir: '' };
   try {
     const { data } = await api.get(`/admin/kewangan/acara-khas/${acara.id}/penyata`);
     penyataAcara.value = data;
@@ -2588,11 +2716,6 @@ const rm  = (v) => 'RM ' + parseFloat(v || 0).toFixed(2).replace(/\B(?=(\d{3})+(
 const num = (v) => parseFloat(v || 0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 
 // ── Actions ──
-const bukaTambahBorang = (jenis) => {
-  borangJenisAwal.value = jenis;
-  showBorang.value = true;
-};
-
 const setFilterJenis = (val) => {
   filterJenis.value = val;
   halamanSemasa.value = 1;
@@ -2620,16 +2743,6 @@ const onTahunBertukar = async () => {
   if (tabAktif.value === 'sumbangan') await muatSumbangan();
   if (tabAktif.value === 'produk') await muatProdukLaris();
   if (tabAktif.value === 'acara') await muatAcaraKhas();
-};
-
-const onTransaksiBerjaya = async (jenis) => {
-  showBorang.value = false;
-  if (jenis === 'sumbangan') {
-    await muatSumbangan();
-  } else {
-    await muatData();
-    await muatTransaksi();
-  }
 };
 
 // ── Edit & Padam Transaksi ──

@@ -106,6 +106,21 @@ const routes = [
         component: () => import('../views/admin/DashboardKewangan.vue')
       },
       {
+        path: 'pendapatan',
+        name: 'AdminPendapatan',
+        component: () => import('../views/admin/PengurusanPendapatanView.vue')
+      },
+      {
+        path: 'perbelanjaan',
+        name: 'AdminPerbelanjaan',
+        component: () => import('../views/admin/PengurusanPerbelanjaanView.vue')
+      },
+      {
+        path: 'dashboard-kewangan',
+        name: 'AdminDashboardKewangan',
+        component: () => import('../views/admin/DashboardKewanganTerperinciView.vue')
+      },
+      {
         path: 'kedai',
         name: 'AdminKedai',
         component: () => import('../views/admin/PengurusanKedai.vue')
