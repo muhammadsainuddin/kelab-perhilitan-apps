@@ -1,20 +1,49 @@
 <template>
   <div class="space-y-5 font-sans text-gray-900 pb-10">
 
-    <!-- ── HEADER ── -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-      <div>
-        <h2 class="text-gray-900 font-bold text-xl">Selamat datang, {{ adminName }}</h2>
-        <p class="text-gray-400 text-xs mt-0.5">{{ tarikhHari }}</p>
+    <!-- ── HERO RINGKASAN ── -->
+    <section class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#073b30] via-[#0F4C3A] to-[#177357] text-white shadow-xl shadow-emerald-950/10">
+      <div class="absolute -right-20 -top-28 h-72 w-72 rounded-full bg-white/5"></div>
+      <div class="absolute -bottom-28 right-1/3 h-56 w-56 rounded-full bg-emerald-300/10"></div>
+      <div class="relative px-5 py-6 md:px-7 md:py-7">
+        <div class="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+          <div>
+            <div class="mb-3 flex flex-wrap items-center gap-2">
+              <span class="rounded-full border border-white/15 bg-white/10 px-2.5 py-1 text-[9px] font-black uppercase tracking-[0.2em] text-emerald-100">Dashboard Induk</span>
+              <span class="text-[10px] font-semibold text-emerald-100/65">{{ tarikhHari }}</span>
+            </div>
+            <h2 class="text-2xl font-black tracking-tight md:text-3xl">Selamat datang, {{ adminName }}</h2>
+            <p class="mt-2 max-w-xl text-xs leading-relaxed text-emerald-100/75">Pantau keahlian, kewangan dan tugasan pentadbiran kelab daripada satu paparan.</p>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <router-link to="/admin/dashboard-kewangan" class="rounded-xl border border-white/15 bg-white/10 px-3.5 py-2.5 text-[10px] font-black text-white transition hover:bg-white/20">Dashboard Kewangan</router-link>
+            <button @click="muatSemua" :disabled="sedangMemuat"
+              class="flex items-center gap-2 rounded-xl bg-white px-3.5 py-2.5 text-[10px] font-black text-[#0F4C3A] shadow-sm transition hover:bg-emerald-50 disabled:opacity-60">
+              <svg :class="['h-3.5 w-3.5', sedangMemuat && 'animate-spin']" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+              Muat Semula
+            </button>
+          </div>
+        </div>
+
+        <div class="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <div class="rounded-2xl border border-white/10 bg-white/10 p-4 backdrop-blur-sm">
+            <p class="text-[9px] font-black uppercase tracking-wider text-emerald-100/60">Kadar Bayaran Ahli</p>
+            <div class="mt-1.5 flex items-end justify-between gap-3"><p class="text-xl font-black tabular-nums">{{ kadarBayaran }}%</p><p class="text-[9px] text-emerald-100/60">{{ stat.jumlah_aktif }}/{{ stat.jumlah_staff }} ahli</p></div>
+            <div class="mt-2 h-1.5 overflow-hidden rounded-full bg-black/15"><div class="h-full rounded-full bg-emerald-300 transition-all duration-700" :style="{ width: `${kadarBayaran}%` }"></div></div>
+          </div>
+          <div class="rounded-2xl border border-white/10 bg-white/10 p-4 backdrop-blur-sm">
+            <p class="text-[9px] font-black uppercase tracking-wider text-emerald-100/60">Baki Tahun {{ tahunSemasa }}</p>
+            <p class="mt-1.5 text-xl font-black tabular-nums">RM {{ formatRM(kewangan.baki) }}</p>
+            <p class="mt-1 text-[9px] text-emerald-100/60">Masuk ditolak perbelanjaan</p>
+          </div>
+          <div class="rounded-2xl border border-amber-200/20 bg-amber-300/10 p-4 backdrop-blur-sm">
+            <p class="text-[9px] font-black uppercase tracking-wider text-amber-100/70">Tindakan Menunggu</p>
+            <div class="mt-1.5 flex items-end justify-between gap-3"><p class="text-xl font-black tabular-nums">{{ jumlahPerluTindakan }}</p><p class="text-[9px] text-amber-100/65">permohonan & tiket</p></div>
+            <p class="mt-1 text-[9px] text-amber-100/60">Tidak termasuk tunggakan yuran</p>
+          </div>
+        </div>
       </div>
-      <button @click="muatSemua" :disabled="loading"
-        class="flex items-center gap-1.5 text-xs bg-white hover:bg-gray-50 text-gray-600 font-semibold px-3.5 py-2 rounded-xl transition-all border border-gray-200 shadow-sm disabled:opacity-50 w-fit">
-        <svg :class="['w-3.5 h-3.5', loading && 'animate-spin']" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-        </svg>
-        Muat Semula
-      </button>
-    </div>
+    </section>
 
     <!-- ── ROW 1: KPI CARDS ATAS (Ahli & Pentadbiran) ── -->
     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -99,6 +128,24 @@
         <p class="text-gray-400 text-[10px]">tiket baru →</p>
       </router-link>
     </div>
+
+    <!-- TINDAKAN UTAMA -->
+    <section class="rounded-2xl border border-gray-200 bg-white p-3 shadow-sm">
+      <div class="flex flex-col gap-3 lg:flex-row lg:items-center">
+        <div class="shrink-0 px-1 lg:w-40">
+          <p class="text-[9px] font-black uppercase tracking-[0.18em] text-[#0F4C3A]">Tindakan Pantas</p>
+          <p class="mt-1 text-[10px] leading-relaxed text-gray-400">Kerja pentadbiran yang kerap digunakan.</p>
+        </div>
+        <div class="grid flex-1 grid-cols-2 gap-2 md:grid-cols-4">
+          <router-link v-for="aksi in aksiUtama" :key="aksi.to" :to="aksi.to" class="group flex items-center gap-3 rounded-xl border border-gray-100 bg-gray-50 px-3 py-3 transition-all hover:-translate-y-0.5 hover:border-emerald-200 hover:bg-white hover:shadow-sm">
+            <span :class="['flex h-9 w-9 shrink-0 items-center justify-center rounded-xl', aksi.warna]">
+              <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" :d="aksi.ikon"/></svg>
+            </span>
+            <span class="min-w-0"><span class="block truncate text-[11px] font-black text-gray-800 group-hover:text-[#0F4C3A]">{{ aksi.label }}</span><span class="mt-0.5 block truncate text-[9px] text-gray-400">{{ aksi.sub }}</span></span>
+          </router-link>
+        </div>
+      </div>
+    </section>
 
     <!-- RANKING KEAHLIAN MENGIKUT STRUKTUR PENEMPATAN -->
     <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -240,8 +287,8 @@
             <h3 class="text-sm font-bold text-gray-900">Laporan Kewangan {{ tahunSemasa }}</h3>
             <p class="text-[10px] text-gray-400 mt-0.5">Ringkasan aliran masuk & keluar mengikut bulan</p>
           </div>
-          <router-link to="/admin/kewangan" class="text-[10px] font-bold text-[#0F4C3A] bg-[#0F4C3A]/10 hover:bg-[#0F4C3A]/20 px-2.5 py-1.5 rounded-lg transition-colors">
-            Buku Penuh →
+          <router-link to="/admin/dashboard-kewangan" class="text-[10px] font-bold text-[#0F4C3A] bg-[#0F4C3A]/10 hover:bg-[#0F4C3A]/20 px-2.5 py-1.5 rounded-lg transition-colors">
+            Analisis Penuh →
           </router-link>
         </div>
 
@@ -263,36 +310,17 @@
           <div v-else class="h-8 bg-gray-100 rounded-xl animate-pulse"></div>
 
           <!-- Carta Aktiviti Bulanan -->
-          <div v-if="!loadingKewangan && kewangan.bulanan">
-            <p class="text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-3 flex items-center gap-3">
-              Aktiviti Bulanan
-              <span class="flex items-center gap-1.5 normal-case font-normal">
-                <span class="w-2.5 h-2.5 rounded-sm bg-emerald-400 inline-block"></span><span>Masuk</span>
-                <span class="w-2.5 h-2.5 rounded-sm bg-rose-300 inline-block ml-1"></span><span>Keluar</span>
-              </span>
-            </p>
-            <div class="flex items-end gap-1" style="height:80px">
-              <div v-for="(b, i) in kewangan.bulanan" :key="i"
-                class="flex-1 flex items-end gap-px"
-                :title="`${namaBulan[i]}: Masuk RM${formatRM(b.masuk)} | Keluar RM${formatRM(b.keluar)}`">
-                <!-- Masuk bar -->
-                <div class="flex-1 bg-emerald-400 rounded-t-sm transition-all duration-500 min-h-0.5 hover:bg-emerald-500"
-                  :style="{ height: maxBulanan > 0 ? Math.max(3, (b.masuk / maxBulanan) * 68) + 'px' : '3px' }">
-                </div>
-                <!-- Keluar bar -->
-                <div class="flex-1 bg-rose-300 rounded-t-sm transition-all duration-500 min-h-0.5 hover:bg-rose-400"
-                  :style="{ height: maxBulanan > 0 ? Math.max(3, (b.keluar / maxBulanan) * 68) + 'px' : '3px' }">
-                </div>
+          <div v-if="!loadingKewangan && kewangan.bulanan" class="rounded-2xl border border-gray-100 bg-gray-50/40 p-4">
+            <div class="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <div><p class="text-[9px] font-black uppercase tracking-wider text-gray-400">Trend Bulanan</p><p class="mt-0.5 text-xs font-black text-gray-800">Aliran kewangan {{ tahunSemasa }}</p></div>
+              <div class="flex flex-wrap gap-2 text-[9px] font-bold">
+                <span class="rounded-lg bg-emerald-50 px-2 py-1 text-emerald-700">{{ namaBulan[bulanSemasa] }} masuk RM {{ formatRM(rekodBulanIni.masuk) }}</span>
+                <span class="rounded-lg bg-rose-50 px-2 py-1 text-rose-700">Keluar RM {{ formatRM(rekodBulanIni.keluar) }}</span>
               </div>
             </div>
-            <!-- Month labels -->
-            <div class="flex gap-1 mt-1">
-              <div v-for="(b, i) in kewangan.bulanan" :key="i" class="flex-1 text-center">
-                <span class="text-[7px] text-gray-300 font-bold">{{ namaBulan[i] }}</span>
-              </div>
-            </div>
+            <div class="relative h-56"><canvas ref="cartaKewanganRef" aria-label="Carta aliran kewangan bulanan"></canvas></div>
           </div>
-          <div v-else-if="loadingKewangan" class="h-24 bg-gray-100 rounded-xl animate-pulse"></div>
+          <div v-else-if="loadingKewangan" class="h-64 rounded-2xl bg-gray-100 animate-pulse"></div>
 
           <!-- Breakdown Kategori -->
           <div>
@@ -530,9 +558,12 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, nextTick, onBeforeUnmount, onMounted, watch } from 'vue';
+import { Chart, registerables } from 'chart.js';
 import { useAuthStore } from '../../stores/auth';
 import api from '../../services/api';
+
+Chart.register(...registerables);
 
 const authStore = useAuthStore();
 const adminName   = computed(() => authStore.user?.name || 'Admin');
@@ -543,11 +574,20 @@ const tarikhHari = new Intl.DateTimeFormat('ms-MY', {
 }).format(new Date());
 
 const namaBulan = ['Jan','Feb','Mac','Apr','Mei','Jun','Jul','Ogs','Sep','Okt','Nov','Dis'];
+const bulanSemasa = new Date().getMonth();
+const aksiUtama = [
+  { to: '/admin/ahli', label: 'Pengurusan Ahli', sub: 'Daftar dan kemas kini', warna: 'bg-emerald-100 text-emerald-700', ikon: 'M18 9v3m0 0v3m0-3h3m-3 0h-3M13 7a4 4 0 11-8 0 4 4 0 018 0zM3 21a6 6 0 0112 0' },
+  { to: '/admin/pendapatan', label: 'Rekod Pendapatan', sub: 'Kunci penerimaan baharu', warna: 'bg-sky-100 text-sky-700', ikon: 'M12 4v16m8-8H4m13-5l3 5-3 5' },
+  { to: '/admin/perbelanjaan', label: 'Rekod Perbelanjaan', sub: 'Kunci pembayaran baharu', warna: 'bg-rose-100 text-rose-700', ikon: 'M12 20V4m-5 5l5-5 5 5' },
+  { to: '/admin/dashboard-kewangan', label: 'Analisis Kewangan', sub: 'Graf dan pecahan penuh', warna: 'bg-violet-100 text-violet-700', ikon: 'M4 19V9m5 10V5m5 14v-7m5 7V3' },
+];
 
 // ── State ──
 const loading         = ref(true);
 const loadingKewangan = ref(true);
 const loadingResit    = ref(true);
+const cartaKewanganRef = ref(null);
+let cartaKewangan = null;
 
 const stat = ref({
   jumlah_aktif: 0, jumlah_staff: 0, jumlah_tunggakan: 0,
@@ -584,15 +624,20 @@ const formatRM = (v) => {
     : n.toFixed(2);
 };
 
+const sedangMemuat = computed(() => loading.value || loadingKewangan.value || loadingResit.value);
+const kadarBayaran = computed(() => stat.value.jumlah_staff > 0
+  ? Math.round((stat.value.jumlah_aktif / stat.value.jumlah_staff) * 100)
+  : 0);
+const jumlahPerluTindakan = computed(() =>
+  stat.value.kebajikan_perlu_proses + stat.value.berhenti_menunggu + stat.value.tiket_baru + stat.value.tiket_dalam_proses
+);
+const rekodBulanIni = computed(() => kewangan.value.bulanan?.[bulanSemasa] || { masuk: 0, keluar: 0 });
+
 const nisbahMasuk  = computed(() => {
   const total = kewangan.value.jumlah_masuk + kewangan.value.jumlah_keluar;
   return total > 0 ? Math.round((kewangan.value.jumlah_masuk / total) * 100) : 50;
 });
 const nisbahKeluar = computed(() => 100 - nisbahMasuk.value);
-
-const maxBulanan = computed(() =>
-  Math.max(...(kewangan.value.bulanan || []).map(b => Math.max(b.masuk, b.keluar)), 1)
-);
 
 const labelKategoriRanking = computed(() =>
   kategoriRankingPilihan.find(item => item.kunci === kategoriRanking.value)?.label || 'Lokasi'
@@ -683,6 +728,73 @@ const aksesLaju = computed(() => [
   { to: '/admin/kedai',     label: 'Marketplace',          sub: 'Produk & pesanan ahli',   emoji: '🛍️', bg: 'bg-indigo-50 border-indigo-100', badge: null },
 ]);
 
+const musnahkanCartaKewangan = () => {
+  if (cartaKewangan) {
+    cartaKewangan.destroy();
+    cartaKewangan = null;
+  }
+};
+
+const renderCartaKewangan = () => {
+  musnahkanCartaKewangan();
+  if (!cartaKewanganRef.value) return;
+  const dataBulanan = kewangan.value.bulanan || [];
+  cartaKewangan = new Chart(cartaKewanganRef.value, {
+    type: 'line',
+    data: {
+      labels: namaBulan,
+      datasets: [
+        {
+          label: 'Pendapatan',
+          data: dataBulanan.map(item => Number(item.masuk || 0)),
+          borderColor: '#059669',
+          backgroundColor: 'rgba(5, 150, 105, 0.10)',
+          pointBackgroundColor: '#059669',
+          pointRadius: 3,
+          pointHoverRadius: 5,
+          borderWidth: 2.5,
+          tension: 0.35,
+          fill: true,
+        },
+        {
+          label: 'Perbelanjaan',
+          data: dataBulanan.map(item => Number(item.keluar || 0)),
+          borderColor: '#e11d48',
+          backgroundColor: 'rgba(225, 29, 72, 0.07)',
+          pointBackgroundColor: '#e11d48',
+          pointRadius: 3,
+          pointHoverRadius: 5,
+          borderWidth: 2.5,
+          tension: 0.35,
+          fill: true,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { intersect: false, mode: 'index' },
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { usePointStyle: true, pointStyle: 'circle', boxWidth: 7, boxHeight: 7, padding: 16, color: '#6b7280', font: { size: 9, weight: 'bold' } },
+        },
+        tooltip: {
+          backgroundColor: '#111827',
+          padding: 10,
+          titleFont: { size: 11, weight: 'bold' },
+          bodyFont: { size: 10, weight: 'bold' },
+          callbacks: { label: konteks => `${konteks.dataset.label}: RM ${formatRM(konteks.parsed.y)}` },
+        },
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { color: '#9ca3af', font: { size: 9, weight: 'bold' } }, border: { display: false } },
+        y: { beginAtZero: true, grid: { color: '#e5e7eb' }, ticks: { color: '#9ca3af', font: { size: 9 }, callback: nilai => `RM ${Number(nilai).toLocaleString('ms-MY', { notation: 'compact', maximumFractionDigits: 1 })}` }, border: { display: false } },
+      },
+    },
+  });
+};
+
 // ── API Calls ──
 const muatStatistik = async () => {
   loading.value = true;
@@ -740,11 +852,16 @@ const muatStatistik = async () => {
 
 const muatKewangan = async () => {
   loadingKewangan.value = true;
+  musnahkanCartaKewangan();
   try {
     const { data } = await api.get(`/admin/kewangan/statistik?tahun=${tahunSemasa}`);
     if (data.success) kewangan.value = data.data;
   } catch (e) { console.error('[DASHBOARD] kewangan:', e.message); }
-  finally { loadingKewangan.value = false; }
+  finally {
+    loadingKewangan.value = false;
+    await nextTick();
+    renderCartaKewangan();
+  }
 };
 
 const muatResit = async () => {
@@ -778,4 +895,5 @@ const muatSemua = () => {
 };
 
 onMounted(muatSemua);
+onBeforeUnmount(musnahkanCartaKewangan);
 </script>

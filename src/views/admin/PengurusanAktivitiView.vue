@@ -4,7 +4,7 @@
 
     <!-- TOOLBAR: Stat Cards + Butang Tambah -->
     <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full lg:max-w-xl">
+      <div class="grid grid-cols-2 xl:grid-cols-4 gap-3 w-full lg:max-w-3xl">
         <div class="bg-white rounded-2xl border border-gray-100 px-4 py-3.5 shadow-sm flex items-center gap-3">
           <div class="w-9 h-9 rounded-xl bg-gray-100 flex items-center justify-center shrink-0">
             <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -32,8 +32,17 @@
             </svg>
           </div>
           <div>
-            <p class="text-[10px] font-bold uppercase tracking-wider text-gray-400 leading-none">Atlet</p>
-            <p class="text-xl font-black text-gray-900 mt-0.5">{{ jumlahPeserta }}</p>
+            <p class="text-[10px] font-bold uppercase tracking-wider text-gray-400 leading-none">Pendaftaran</p>
+            <p class="text-xl font-black text-gray-900 mt-0.5">{{ jumlahPendaftaran }}</p>
+          </div>
+        </div>
+        <div class="bg-white rounded-2xl border border-gray-100 px-4 py-3.5 shadow-sm flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-violet-50 flex items-center justify-center shrink-0">
+            <svg class="w-4 h-4 text-violet-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M9 20H4v-2a3 3 0 015.356-1.857M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          </div>
+          <div>
+            <p class="text-[10px] font-bold uppercase tracking-wider text-gray-400 leading-none">Jumlah Orang</p>
+            <p class="text-xl font-black text-violet-600 mt-0.5">{{ jumlahOrang }}</p>
           </div>
         </div>
       </div>
@@ -121,7 +130,7 @@
             <tr class="bg-gray-50 border-b border-gray-200 text-[11px] font-bold text-gray-400 uppercase tracking-wider">
               <th class="px-5 py-3 pl-6">Acara</th>
               <th class="px-4 py-3">Tarikh</th>
-              <th class="px-4 py-3 text-center">Atlet</th>
+              <th class="px-4 py-3 text-center">Pendaftaran / Orang</th>
               <th class="px-4 py-3 text-center">Status</th>
               <th class="px-4 py-3 pr-6 text-right">Aksi</th>
             </tr>
@@ -171,14 +180,15 @@
               <td class="px-4 py-3.5 text-center" @click.stop>
                 <button @click="paparkanPeserta(acara)"
                   class="inline-flex flex-col items-center gap-1 px-3 py-1.5 rounded-lg hover:bg-gray-100 transition-colors">
+                  <span class="text-[10px] font-bold leading-none text-gray-500">{{ acara.jumlah_pendaftaran || 0 }} daftar</span>
                   <span class="text-sm font-black leading-none"
-                    :class="acara.had_peserta && Number(acara.jumlah_peserta) >= Number(acara.had_peserta) ? 'text-rose-600' : 'text-gray-800'">
-                    {{ acara.jumlah_peserta || 0 }}<span v-if="acara.had_peserta" class="text-[11px] font-medium text-gray-400"> / {{ acara.had_peserta }}</span>
+                    :class="acara.had_peserta && Number(acara.jumlah_orang) >= Number(acara.had_peserta) ? 'text-rose-600' : 'text-gray-800'">
+                    {{ acara.jumlah_orang || 0 }} orang<span v-if="acara.had_peserta" class="text-[11px] font-medium text-gray-400"> / {{ acara.had_peserta }}</span>
                   </span>
                   <div v-if="acara.had_peserta" class="w-14 h-1 bg-gray-100 rounded-full overflow-hidden">
                     <div class="h-full rounded-full"
-                      :class="Number(acara.jumlah_peserta) >= Number(acara.had_peserta) ? 'bg-rose-500' : 'bg-emerald-500'"
-                      :style="`width:${Math.min(100, Math.round((acara.jumlah_peserta / acara.had_peserta) * 100))}%`"/>
+                      :class="Number(acara.jumlah_orang) >= Number(acara.had_peserta) ? 'bg-rose-500' : 'bg-emerald-500'"
+                      :style="`width:${Math.min(100, Math.round((acara.jumlah_orang / acara.had_peserta) * 100))}%`"/>
                   </div>
                 </button>
               </td>
@@ -331,8 +341,8 @@
               <div class="flex-1 overflow-y-auto custom-scrollbar">
                 <div class="p-5 space-y-5">
 
-                  <!-- STAT CARDS: Tarikh | Peserta | Tutup Daftar -->
-                  <div class="grid grid-cols-3 gap-3">
+                  <!-- STAT CARDS: Tarikh | Pendaftaran | Orang | Tutup Daftar -->
+                  <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
                     <!-- Tarikh -->
                     <div class="bg-gray-50 border border-gray-100 rounded-2xl p-3 text-center">
                       <div class="w-7 h-7 rounded-xl bg-white border border-gray-200 flex items-center justify-center mx-auto mb-2">
@@ -344,25 +354,33 @@
                       <p class="text-[11px] font-black text-gray-800 leading-snug">{{ formatTarikh(acaraDipilihDetail.tarikh_acara) }}</p>
                       <p v-if="acaraDipilihDetail.tarikh_tamat" class="text-[9px] text-gray-400 mt-0.5">hingga {{ formatTarikh(acaraDipilihDetail.tarikh_tamat) }}</p>
                     </div>
-                    <!-- Peserta -->
+                    <!-- Pendaftaran -->
+                    <div class="bg-gray-50 border border-gray-100 rounded-2xl p-3 text-center">
+                      <div class="w-7 h-7 rounded-xl bg-white border border-gray-200 flex items-center justify-center mx-auto mb-2">
+                        <svg class="w-3.5 h-3.5 text-indigo-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5l5 5v11a2 2 0 01-2 2z"/></svg>
+                      </div>
+                      <p class="text-[9px] font-black text-gray-400 uppercase tracking-wider leading-none mb-1.5">Pendaftaran</p>
+                      <p class="text-sm font-black text-indigo-700 leading-none">{{ acaraDipilihDetail.jumlah_pendaftaran || 0 }}</p>
+                    </div>
+                    <!-- Jumlah Orang -->
                     <div class="bg-gray-50 border border-gray-100 rounded-2xl p-3 text-center">
                       <div class="w-7 h-7 rounded-xl bg-white border border-gray-200 flex items-center justify-center mx-auto mb-2">
                         <svg class="w-3.5 h-3.5 text-[#0F4C3A]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                           <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
                         </svg>
                       </div>
-                      <p class="text-[9px] font-black text-gray-400 uppercase tracking-wider leading-none mb-1.5">Peserta</p>
+                      <p class="text-[9px] font-black text-gray-400 uppercase tracking-wider leading-none mb-1.5">Jumlah Orang</p>
                       <p class="text-sm font-black leading-none"
-                        :class="acaraDipilihDetail.had_peserta && Number(acaraDipilihDetail.jumlah_peserta) >= Number(acaraDipilihDetail.had_peserta) ? 'text-rose-600' : 'text-gray-800'">
-                        {{ acaraDipilihDetail.jumlah_peserta || 0 }}
+                        :class="acaraDipilihDetail.had_peserta && Number(acaraDipilihDetail.jumlah_orang) >= Number(acaraDipilihDetail.had_peserta) ? 'text-rose-600' : 'text-gray-800'">
+                        {{ acaraDipilihDetail.jumlah_orang || 0 }}
                         <span v-if="acaraDipilihDetail.had_peserta" class="text-[10px] text-gray-400 font-medium"> / {{ acaraDipilihDetail.had_peserta }}</span>
                       </p>
                       <div v-if="acaraDipilihDetail.had_peserta" class="mt-2 w-full h-1 bg-gray-200 rounded-full overflow-hidden">
                         <div class="h-full rounded-full transition-all"
-                          :class="Number(acaraDipilihDetail.jumlah_peserta) >= Number(acaraDipilihDetail.had_peserta) ? 'bg-rose-500' : 'bg-emerald-500'"
-                          :style="`width:${Math.min(100, Math.round(((acaraDipilihDetail.jumlah_peserta || 0) / acaraDipilihDetail.had_peserta) * 100))}%`"/>
+                          :class="Number(acaraDipilihDetail.jumlah_orang) >= Number(acaraDipilihDetail.had_peserta) ? 'bg-rose-500' : 'bg-emerald-500'"
+                          :style="`width:${Math.min(100, Math.round(((acaraDipilihDetail.jumlah_orang || 0) / acaraDipilihDetail.had_peserta) * 100))}%`"/>
                       </div>
-                      <p v-if="acaraDipilihDetail.had_peserta && Number(acaraDipilihDetail.jumlah_peserta) >= Number(acaraDipilihDetail.had_peserta)"
+                      <p v-if="acaraDipilihDetail.had_peserta && Number(acaraDipilihDetail.jumlah_orang) >= Number(acaraDipilihDetail.had_peserta)"
                         class="text-[8px] font-black text-rose-500 uppercase tracking-wider mt-1">PENUH</p>
                     </div>
                     <!-- Tutup Daftar -->
@@ -540,7 +558,8 @@ const idAcaraKontinjen = ref(null);
 // STATISTIK
 const jumlahAcara = computed(() => senaraiAcara.value.length);
 const jumlahAktif = computed(() => senaraiAcara.value.filter(a => a.status === 'AKTIF').length);
-const jumlahPeserta = computed(() => senaraiAcara.value.reduce((t, a) => t + (Number(a.jumlah_peserta) || 0), 0));
+const jumlahPendaftaran = computed(() => senaraiAcara.value.reduce((t, a) => t + (Number(a.jumlah_pendaftaran) || 0), 0));
+const jumlahOrang = computed(() => senaraiAcara.value.reduce((t, a) => t + (Number(a.jumlah_orang) || 0), 0));
 
 // ACARA TAPIS (search + filter)
 const acaraTapis = computed(() => {

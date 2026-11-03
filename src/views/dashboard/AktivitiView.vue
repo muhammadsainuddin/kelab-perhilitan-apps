@@ -334,23 +334,23 @@
                     : 'background: #f0fdf4; border: 1px solid rgba(74,222,128,0.25);'">
                   <p class="text-[7.5px] font-black uppercase tracking-[0.16em] mb-1.5"
                     :style="acaraTerpilih.acara_penuh ? 'color:#dc2626' : 'color:#166534'">
-                    Kapasiti Atlet
+                    Kapasiti Orang
                   </p>
                   <div class="flex items-center justify-between gap-3">
                     <div class="flex-1 h-2 rounded-full overflow-hidden" style="background:#e5e7eb;">
                       <div class="h-full rounded-full transition-all"
-                        :style="`width:${Math.min(100, Math.round((Number(acaraTerpilih.jumlah_peserta)||0)/Number(acaraTerpilih.had_peserta)*100))}%; background:${acaraTerpilih.acara_penuh?'#ef4444':'#22c55e'}`"></div>
+                        :style="`width:${Math.min(100, Math.round((Number(acaraTerpilih.jumlah_orang)||0)/Number(acaraTerpilih.had_peserta)*100))}%; background:${acaraTerpilih.acara_penuh?'#ef4444':'#22c55e'}`"></div>
                     </div>
                     <p class="text-[13px] font-black tabular-nums shrink-0"
                       :style="acaraTerpilih.acara_penuh ? 'color:#dc2626' : 'color:#166534'">
-                      {{ acaraTerpilih.jumlah_peserta || 0 }} / {{ acaraTerpilih.had_peserta }}
+                      {{ acaraTerpilih.jumlah_orang || 0 }} / {{ acaraTerpilih.had_peserta }} orang
                     </p>
                   </div>
                   <p v-if="acaraTerpilih.acara_penuh" class="text-[10px] font-bold mt-1" style="color:#dc2626;">
                     Pendaftaran telah penuh
                   </p>
                   <p v-else class="text-[10px] font-medium mt-1" style="color:#166534;">
-                    {{ Number(acaraTerpilih.had_peserta) - (Number(acaraTerpilih.jumlah_peserta)||0) }} slot masih tersedia
+                    {{ Number(acaraTerpilih.had_peserta) - (Number(acaraTerpilih.jumlah_orang)||0) }} slot masih tersedia · {{ acaraTerpilih.jumlah_pendaftaran || 0 }} pendaftaran
                   </p>
                 </div>
               </div>
@@ -578,6 +578,15 @@
                 </div>
                 <div class="space-y-1.5">
                   <label class="text-[10px] font-black uppercase tracking-wider" style="color: #64748B;">
+                    Jumlah Orang Dalam Pendaftaran *
+                  </label>
+                  <input v-model.number="modal.bilanganOrang" type="number" min="1" :max="bakiTempatModal || undefined"
+                    class="w-full text-xs font-bold rounded-2xl px-4 py-3 outline-none transition-all"
+                    style="background: #F8FAFC; border: 1.5px solid #E2E8F0; color: #0F172A;" />
+                  <p class="text-[9px] font-medium" style="color:#94a3b8;">Masukkan jumlah semua orang di bawah pendaftaran ini, termasuk anda.</p>
+                </div>
+                <div class="space-y-1.5">
+                  <label class="text-[10px] font-black uppercase tracking-wider" style="color: #64748B;">
                     Nota Kepada Urusetia
                   </label>
                   <textarea v-model="modal.catatan" rows="3"
@@ -643,7 +652,7 @@ const gotoDetailSlide = (idx) => {
   sliderDetailRef.value.scrollTo({ left: idx * sliderDetailRef.value.offsetWidth, behavior: 'smooth' });
 };
 
-const modal = ref({ show: false, acara: null, kategori: '', catatan: '', sukanDipilih: [], benarkanPelbagai: false });
+const modal = ref({ show: false, acara: null, kategori: '', catatan: '', sukanDipilih: [], bilanganOrang: 1, benarkanPelbagai: false });
 const modalGaleri = ref({ show: false, images: [], currentIndex: 0 });
 const modalGoogleForm = ref({ show: false, link: '', namaAcara: '' });
 
@@ -656,9 +665,16 @@ const sukanTersedia = computed(() => {
 });
 
 // Sah untuk hantar: ada pilihan sukan, atau (fallback) ada teks kategori
-const bolehHantar = computed(() =>
-  sukanTersedia.value.length > 0 ? modal.value.sukanDipilih.length > 0 : !!modal.value.kategori
-);
+const bakiTempatModal = computed(() => {
+  if (!modal.value.acara?.had_peserta) return null;
+  return Math.max(0, Number(modal.value.acara.had_peserta) - Number(modal.value.acara.jumlah_orang || modal.value.acara.jumlah_peserta || 0));
+});
+const bolehHantar = computed(() => {
+  const pilihanSah = sukanTersedia.value.length > 0 ? modal.value.sukanDipilih.length > 0 : !!modal.value.kategori;
+  const bilanganSah = Number.isInteger(Number(modal.value.bilanganOrang)) && Number(modal.value.bilanganOrang) >= 1
+    && (bakiTempatModal.value === null || (bakiTempatModal.value > 0 && Number(modal.value.bilanganOrang) <= bakiTempatModal.value));
+  return pilihanSah && bilanganSah;
+});
 
 const safeParseJSON = (data) => {
   if (!data) return [];
@@ -757,6 +773,7 @@ const bukaDaftar = (acara) => {
     kategori: '',
     catatan: '',
     sukanDipilih: [],
+    bilanganOrang: 1,
     benarkanPelbagai: acara?.benarkan_pelbagai_sukan === 1 || acara?.benarkan_pelbagai_sukan === true
   };
 };
@@ -770,7 +787,8 @@ const hantarPendaftaran = async () => {
       // kategori = rumusan ringkas: senarai sukan dipilih atau teks bebas
       kategori: sukanDipilih.length > 0 ? sukanDipilih.join(', ') : modal.value.kategori,
       catatan: modal.value.catatan,
-      sukan_dipilih: sukanDipilih.length > 0 ? sukanDipilih : null
+      sukan_dipilih: sukanDipilih.length > 0 ? sukanDipilih : null,
+      bilangan_orang: Number(modal.value.bilanganOrang) || 1
     });
     toast.sukses(res.data.message || 'Pendaftaran berjaya!');
     const acaraYangDaftar = modal.value.acara;

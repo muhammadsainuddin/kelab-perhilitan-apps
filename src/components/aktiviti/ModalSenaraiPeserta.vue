@@ -16,11 +16,11 @@
             </div>
             <span class="text-[10px] font-black tabular-nums"
               :class="isPenuh ? 'text-rose-600' : 'text-gray-500'">
-              {{ senarai.length }} / {{ hadPeserta }}
+              {{ jumlahOrang }} / {{ hadPeserta }} orang · {{ jumlahPendaftaran }} pendaftaran
               <span v-if="isPenuh" class="ml-1 bg-rose-100 text-rose-700 px-1.5 py-0.5 rounded-full text-[9px] font-black">PENUH</span>
             </span>
           </div>
-          <p v-else class="text-[10px] text-gray-400 mt-0.5">{{ senarai.length }} atlet</p>
+          <p v-else class="text-[10px] text-gray-400 mt-0.5">{{ jumlahPendaftaran }} pendaftaran · {{ jumlahOrang }} orang</p>
         </div>
         <div class="flex items-center gap-1.5 shrink-0">
           <button @click="bukaModalTambah"
@@ -121,7 +121,7 @@
         <!-- Kiraan hasil ditapis -->
         <div class="flex items-center justify-between text-[10px]">
           <span class="font-medium text-gray-500">
-            Menunjukkan <span class="font-black text-gray-800">{{ senaraiTertapis.length }}</span> daripada <span class="font-black text-gray-800">{{ senarai.length }}</span> atlet
+            Menunjukkan <span class="font-black text-gray-800">{{ senaraiTertapis.length }}</span> daripada <span class="font-black text-gray-800">{{ jumlahPendaftaran }}</span> pendaftaran · {{ jumlahOrangTertapis }} orang
           </span>
           <div class="flex gap-3 font-bold">
             <span class="text-blue-600">♂ {{ kiraBilangan('Lelaki') }}</span>
@@ -167,6 +167,7 @@
               <tr>
                 <th class="px-4 py-3">No.</th>
                 <th class="px-4 py-3">Nama Penuh</th>
+                <th class="px-4 py-3 text-center">Bil. Orang</th>
                 <th class="px-4 py-3">No. KP</th>
                 <th class="px-4 py-3 text-center">Jantina</th>
                 <th class="px-4 py-3 text-center">Umur</th>
@@ -188,6 +189,10 @@
                   <div class="text-[10px] text-gray-400 mt-0.5">
                     {{ p.no_ahli ? 'Ahli: ' + p.no_ahli : 'Bukan Ahli' }}
                   </div>
+                </td>
+                <td class="px-4 py-3 text-center">
+                  <input type="number" min="1" :value="p.bilangan_orang || 1" @change="kemaskiniBilanganOrang(p, $event)"
+                    class="w-16 rounded-lg border border-violet-200 bg-violet-50 px-2 py-1 text-center font-black text-violet-700 outline-none focus:ring-2 focus:ring-violet-300">
                 </td>
                 <td class="px-4 py-3 font-mono text-gray-700 tracking-wide">{{ p.no_kp }}</td>
                 <td class="px-4 py-3 text-center">
@@ -368,6 +373,13 @@
               </div>
             </div>
 
+            <div v-if="modalTambah.ahliDipilih">
+              <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-wide mb-1.5">Jumlah Orang Dalam Pendaftaran</label>
+              <input v-model.number="modalTambah.bilanganOrang" type="number" min="1" :max="bakiTempat || undefined"
+                class="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500">
+              <p class="mt-1 text-[9px] text-gray-400">Termasuk ahli yang membuat pendaftaran ini.</p>
+            </div>
+
             <div v-if="senaraiSukan && senaraiSukan.length > 0 && modalTambah.ahliDipilih">
               <label class="block text-[10px] font-bold text-gray-500 uppercase tracking-wide mb-1.5">Sukan Yang Disertai</label>
               <div class="flex flex-wrap gap-1.5">
@@ -393,7 +405,7 @@
               Batal
             </button>
             <button @click="hantarTambahPeserta"
-              :disabled="!modalTambah.ahliDipilih || modalTambah.menyimpan"
+              :disabled="!modalTambah.ahliDipilih || modalTambah.menyimpan || Number(modalTambah.bilanganOrang) < 1 || (bakiTempat !== null && Number(modalTambah.bilanganOrang) > bakiTempat)"
               class="flex-2 py-3 rounded-xl text-xs font-black uppercase tracking-wide bg-[#0F4C3A] text-white hover:bg-[#0c3d2e] disabled:opacity-50 flex items-center justify-center gap-2 transition-colors">
               <svg v-if="modalTambah.menyimpan" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
@@ -616,14 +628,18 @@ const senaraiTertapis = computed(() => {
 const kiraBilangan = (jantina) => senaraiTertapis.value.filter(p => p.jantina === jantina).length;
 
 // ── Stat keseluruhan ──
-const isPenuh = computed(() => props.hadPeserta !== null && props.senarai.length >= props.hadPeserta);
-const peratusIsian = computed(() => props.hadPeserta ? Math.round((props.senarai.length / props.hadPeserta) * 100) : 0);
+const jumlahPendaftaran = computed(() => props.senarai.length);
+const jumlahOrang = computed(() => props.senarai.reduce((jumlah, p) => jumlah + Number(p.bilangan_orang || 1), 0));
+const jumlahOrangTertapis = computed(() => senaraiTertapis.value.reduce((jumlah, p) => jumlah + Number(p.bilangan_orang || 1), 0));
+const bakiTempat = computed(() => props.hadPeserta === null ? null : Math.max(0, props.hadPeserta - jumlahOrang.value));
+const isPenuh = computed(() => props.hadPeserta !== null && jumlahOrang.value >= props.hadPeserta);
+const peratusIsian = computed(() => props.hadPeserta ? Math.round((jumlahOrang.value / props.hadPeserta) * 100) : 0);
 const jumlahBelumBayar = computed(() => props.senarai.filter(p => !p.is_paid).length);
 
 // ── Modal tambah peserta ──
 const modalTambah = ref({
   show: false, carian: '', hasilCarian: [], ahliDipilih: null,
-  sukanDipilih: [], memuatCarian: false, menyimpan: false, ralat: ''
+  sukanDipilih: [], bilanganOrang: 1, memuatCarian: false, menyimpan: false, ralat: ''
 });
 
 let cariTimer = null;
@@ -631,7 +647,7 @@ let cariTimer = null;
 const bukaModalTambah = () => {
   modalTambah.value = {
     show: true, carian: '', hasilCarian: [], ahliDipilih: null,
-    sukanDipilih: [], memuatCarian: false, menyimpan: false, ralat: ''
+    sukanDipilih: [], bilanganOrang: 1, memuatCarian: false, menyimpan: false, ralat: ''
   };
 };
 
@@ -668,7 +684,8 @@ const hantarTambahPeserta = async () => {
     const res = await api.post('/acara/admin/tambah-peserta', {
       acara_id: props.acaraId,
       no_kp: modalTambah.value.ahliDipilih.no_kp,
-      sukan_dipilih: modalTambah.value.sukanDipilih.length > 0 ? modalTambah.value.sukanDipilih : null
+      sukan_dipilih: modalTambah.value.sukanDipilih.length > 0 ? modalTambah.value.sukanDipilih : null,
+      bilangan_orang: Number(modalTambah.value.bilanganOrang) || 1
     });
     if (res.data.success) {
       modalTambah.value.show = false;
@@ -678,6 +695,26 @@ const hantarTambahPeserta = async () => {
     modalTambah.value.ralat = err.response?.data?.message || 'Gagal mendaftarkan peserta.';
   } finally {
     modalTambah.value.menyimpan = false;
+  }
+};
+
+const kemaskiniBilanganOrang = async (peserta, event) => {
+  const input = event.target;
+  const nilaiLama = Number(peserta.bilangan_orang || 1);
+  const nilaiBaharu = parseInt(input.value);
+  if (!Number.isInteger(nilaiBaharu) || nilaiBaharu < 1) {
+    input.value = nilaiLama;
+    return toast.ralat('Bilangan orang mestilah sekurang-kurangnya 1.');
+  }
+  try {
+    const res = await api.put(`/acara/admin/bilangan-orang/${peserta.id}`, { bilangan_orang: nilaiBaharu });
+    if (res.data.success) {
+      toast.sukses(res.data.message);
+      emit('pesertaDitambah');
+    }
+  } catch (err) {
+    input.value = nilaiLama;
+    toast.ralat(err.response?.data?.message || 'Gagal mengemaskini bilangan orang.');
   }
 };
 
@@ -823,6 +860,7 @@ const cetak = () => {
         <small style="font-family:monospace;color:#555">${p.no_kp}</small>
         &nbsp;<span style="${jantinaStyle}">${jantina}</span>
       </td>
+      <td style="text-align:center"><strong>${Number(p.bilangan_orang || 1)}</strong></td>
       <td style="text-align:center">${hitungUmur(p.no_kp)}</td>
       <td style="text-align:center">${p.gred_sspa || '—'}</td>
       <td>${p.penempatan || '—'}</td>
@@ -839,8 +877,8 @@ const cetak = () => {
   }).join('');
 
   const hadInfo = props.hadPeserta
-    ? `<strong>HAD ATLET:</strong> ${props.senarai.length} / ${props.hadPeserta} orang`
-    : `<strong>JUMLAH ATLET:</strong> ${props.senarai.length} ATLET`;
+    ? `<strong>PENDAFTARAN:</strong> ${props.senarai.length} &nbsp;|&nbsp; <strong>JUMLAH ORANG:</strong> ${jumlahOrang.value} / ${props.hadPeserta}`
+    : `<strong>PENDAFTARAN:</strong> ${props.senarai.length} &nbsp;|&nbsp; <strong>JUMLAH ORANG:</strong> ${jumlahOrang.value}`;
 
   const html = `<!DOCTYPE html><html><head><meta charset="utf-8">
 <title>Senarai Peserta — ${props.namaAcara}</title>
@@ -882,7 +920,7 @@ ${aktifFilter.length ? `<div class="filter-strip"><strong>Penapis aktif:</strong
 </div>
 <table>
   <thead><tr>
-    <th>No.</th><th>Nama Penuh</th><th>Umur</th><th>Gred</th>
+    <th>No.</th><th>Nama Penuh</th><th>Bil. Orang</th><th>Umur</th><th>Gred</th>
     <th>Penempatan</th><th>Saiz</th><th>Sukan</th><th>Pengangkutan</th><th>Status Yuran</th>
   </tr></thead>
   <tbody>${rows}</tbody>
