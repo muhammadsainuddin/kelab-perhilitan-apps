@@ -319,26 +319,15 @@
 
               <form @submit.prevent="hantarPermohonan" class="space-y-4">
                 <div class="space-y-1.5">
-                  <label class="text-[10px] font-black uppercase tracking-wider" style="color: #64748B;">Kategori Sumbangan *</label>
+                  <label class="text-[10px] font-black uppercase tracking-wider" style="color: #64748B;">Kategori Bantuan *</label>
                   <select v-model="form.jenis_bantuan" required
                     class="w-full text-xs font-bold rounded-2xl px-4 py-3 outline-none transition-all"
                     style="background: #F8FAFC; border: 1.5px solid #E2E8F0; color: #0F172A;">
                     <option value="" disabled>— Pilih Kategori —</option>
-                    <optgroup label="Khairat Kematian">
-                      <option value="Khairat Kematian">Khairat Kematian — RM1,000</option>
-                    </optgroup>
-                    <optgroup label="Kemalangan">
-                      <option value="Kemalangan - Rawatan Luar (Tanpa Wad)">Kemalangan: Rawatan Luar (Tanpa Wad) — RM100</option>
-                      <option value="Kemalangan - Dimasukkan Wad">Kemalangan: Dimasukkan Wad — RM100</option>
-                    </optgroup>
-                    <optgroup label="Bencana">
-                      <option value="Bencana Alam - Banjir">Bencana: Banjir — RM300</option>
-                      <option value="Bencana Alam - Kebakaran">Bencana: Kebakaran — RM300</option>
-                      <option value="Bencana Alam - Lain-lain">Bencana: Lain-lain (nyatakan dalam butiran)</option>
-                    </optgroup>
-                    <optgroup label="Lain-lain">
-                      <option value="Kes Kritikal / Luar Jangka">Kes Kritikal / Luar Jangka (nyatakan jenis)</option>
-                      <option value="Persaraan">Persaraan — RM400</option>
+                    <optgroup v-for="kumpulan in KUMPULAN_BANTUAN" :key="kumpulan.label" :label="kumpulan.label">
+                      <option v-for="pilihan in kumpulan.pilihan" :key="pilihan.nilai" :value="pilihan.nilai">
+                        {{ labelPilihanBantuan(pilihan, kadarMap) }}
+                      </option>
                     </optgroup>
                   </select>
                 </div>
@@ -403,6 +392,7 @@ import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import api from '../../services/api';
 import { useToast } from '../../composables/useToast';
+import { KUMPULAN_BANTUAN, labelPilihanBantuan } from '../../config/bantuan';
 
 const uploadBase = import.meta.env.VITE_UPLOAD_URL || 'http://localhost:5002';
 
@@ -418,6 +408,7 @@ const showModal = ref(false);
 const form = ref({ jenis_bantuan: '', keterangan: '' });
 const failTerpilih = ref(null);
 const formMessage = ref({ type: '', text: '' });
+const kadarMap = ref({});
 
 // FIX: Guna is_paid sahaja — konsisten dengan UtamaView dan dikira oleh backend
 const isAhliAktif = computed(() => !!profil.value.is_paid);
@@ -439,6 +430,17 @@ const fetchSejarahBantuan = async () => {
   } finally {
     loadingSejarah.value = false;
   }
+};
+
+const muatKadarBantuan = async () => {
+  try {
+    const { data } = await api.get('/bantuan/kadar');
+    if (data.success) {
+      kadarMap.value = Object.fromEntries(
+        data.data.map(kadar => [kadar.kunci, parseFloat(kadar.amaun)])
+      );
+    }
+  } catch { /* guna kadar lalai dalam konfigurasi */ }
 };
 
 const handleFileUpload = (e) => {
@@ -498,6 +500,7 @@ const hantarPermohonan = async () => {
 onMounted(() => {
   fetchProfil();
   fetchSejarahBantuan();
+  muatKadarBantuan();
 });
 </script>
 

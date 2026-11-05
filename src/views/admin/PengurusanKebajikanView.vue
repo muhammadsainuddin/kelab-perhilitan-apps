@@ -780,19 +780,19 @@
     <Teleport to="body">
       <Transition name="modal">
         <div v-if="showModalBagiPihak"
-          class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center px-4"
+          class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center px-2 sm:px-4"
           @click.self="showModalBagiPihak = false">
           <div class="bg-white border border-gray-200 rounded-2xl w-full max-w-2xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden">
 
             <!-- Header -->
-            <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-rose-50 shrink-0">
-              <div class="flex items-center gap-3">
+            <div class="flex items-center justify-between gap-3 px-4 sm:px-6 py-4 border-b border-gray-100 bg-rose-50 shrink-0">
+              <div class="flex items-center gap-3 min-w-0">
                 <div class="w-8 h-8 rounded-lg bg-rose-100 flex items-center justify-center shrink-0">
                   <svg class="w-4 h-4 text-rose-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                   </svg>
                 </div>
-                <div>
+                <div class="min-w-0">
                   <p class="font-bold text-rose-900 text-sm">Permohonan Bantuan Bagi Pihak Waris</p>
                   <p class="text-[10px] text-rose-600">Diisi oleh AJK Negeri / Ketua PTJ bagi pihak ahli yang telah meninggal dunia</p>
                 </div>
@@ -806,7 +806,7 @@
             </div>
 
             <!-- Body -->
-            <div class="flex-1 overflow-y-auto p-6 space-y-5">
+            <div class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5">
 
               <!-- Pilih ahli (si mati) -->
               <div class="space-y-1.5">
@@ -816,7 +816,7 @@
                 <div class="relative">
                   <input v-model="cariAhli" type="text"
                     placeholder="Taip nama atau No. K/P untuk cari..."
-                    class="w-full text-[12px] bg-gray-50 border border-gray-200 rounded-lg px-3 py-2.5 pr-8 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-400 transition-all"
+                    class="w-full h-10 text-[12px] bg-gray-50 border border-gray-200 rounded-lg pl-3 pr-9 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-400 transition-all"
                     @input="pilihSimati = null; formWaris.no_akaun_waris = ''; formWaris.nama_bank_waris = ''; formWaris.nama_waris = ''" />
                   <svg v-if="!pilihSimati" class="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35m0 0A7 7 0 105.65 5.65a7 7 0 0011 11z"/>
@@ -852,17 +852,22 @@
               <!-- Jenis Bantuan -->
               <div class="space-y-1.5">
                 <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">
-                  Jenis Bantuan <span class="text-rose-500">*</span>
+                  Kategori Bantuan <span class="text-rose-500">*</span>
                 </label>
-                <select v-model="formBagiPihak.jenis_bantuan"
-                  class="w-full text-[12px] bg-gray-50 border border-gray-200 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-400 transition-all">
-                  <option value="Khairat Kematian">Khairat Kematian</option>
-                  <option value="Kemalangan - Rawatan Luar (Tanpa Wad)">Kemalangan - Rawatan Luar (Tanpa Wad)</option>
-                  <option value="Kemalangan - Dimasukkan Wad">Kemalangan - Dimasukkan Wad</option>
-                  <option value="Bencana Alam - Banjir">Bencana Alam - Banjir</option>
-                  <option value="Bencana Alam - Kebakaran">Bencana Alam - Kebakaran</option>
-                  <option value="Persaraan">Persaraan</option>
-                </select>
+                <div class="relative">
+                  <select v-model="formBagiPihak.jenis_bantuan"
+                    class="w-full h-10 appearance-none text-[12px] bg-gray-50 border border-gray-200 rounded-lg pl-3 pr-10 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-400 transition-all cursor-pointer">
+                    <option value="" disabled>— Pilih Kategori —</option>
+                    <optgroup v-for="kumpulan in KUMPULAN_BANTUAN" :key="kumpulan.label" :label="kumpulan.label">
+                      <option v-for="pilihan in kumpulan.pilihan" :key="pilihan.nilai" :value="pilihan.nilai">
+                        {{ labelPilihanBantuan(pilihan, kadarMap) }}
+                      </option>
+                    </optgroup>
+                  </select>
+                  <svg class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+                  </svg>
+                </div>
               </div>
 
               <!-- Keterangan -->
@@ -882,55 +887,61 @@
                   <div class="flex-1 h-px bg-rose-100"></div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-3">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <!-- Nama Waris -->
-                  <div class="space-y-1">
+                  <div class="space-y-1 min-w-0">
                     <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">
                       Nama Penuh Waris <span class="text-rose-500">*</span>
                     </label>
                     <input v-model="formWaris.nama_waris" type="text" placeholder="Nama penuh waris"
-                      class="w-full text-[12px] bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-400 transition-all" />
+                      class="w-full h-10 text-[12px] bg-gray-50 border border-gray-200 rounded-lg px-3 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-400 transition-all" />
                   </div>
 
                   <!-- Hubungan -->
-                  <div class="space-y-1">
+                  <div class="space-y-1 min-w-0">
                     <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">
                       Hubungan Dengan Arwah <span class="text-rose-500">*</span>
                     </label>
-                    <select v-model="formWaris.hubungan_waris"
-                      class="w-full text-[12px] bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-400 transition-all">
-                      <option value="">-- Pilih --</option>
-                      <option>Suami / Isteri</option>
-                      <option>Anak</option>
-                      <option>Ibu / Bapa</option>
-                      <option>Adik-beradik</option>
-                      <option>Lain-lain</option>
-                    </select>
+                    <div class="relative">
+                      <select v-model="formWaris.hubungan_waris"
+                        class="w-full h-10 appearance-none text-[12px] bg-gray-50 border border-gray-200 rounded-lg pl-3 pr-10 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-400 transition-all cursor-pointer">
+                        <option value="">-- Pilih --</option>
+                        <option>Suami / Isteri</option>
+                        <option>Anak</option>
+                        <option>Ibu / Bapa</option>
+                        <option>Adik-beradik</option>
+                        <option>Lain-lain</option>
+                      </select>
+                      <svg class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+                      </svg>
+                    </div>
                   </div>
 
                   <!-- No K/P Waris -->
-                  <div class="space-y-1">
+                  <div class="space-y-1 min-w-0">
                     <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">No. K/P Waris</label>
                     <input v-model="formWaris.no_kp_waris" type="text" placeholder="000000-00-0000"
-                      class="w-full text-[12px] bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-400 font-mono transition-all" />
+                      class="w-full h-10 text-[12px] bg-gray-50 border border-gray-200 rounded-lg px-3 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-400 font-mono transition-all" />
                   </div>
 
                   <!-- No Akaun -->
-                  <div class="space-y-1">
+                  <div class="space-y-1 min-w-0">
                     <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">
                       No. Akaun Bank <span class="text-rose-500">*</span>
                     </label>
                     <input v-model="formWaris.no_akaun_waris" type="text" placeholder="Contoh: 1234567890"
-                      class="w-full text-[12px] bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-400 font-mono transition-all" />
+                      class="w-full h-10 text-[12px] bg-gray-50 border border-gray-200 rounded-lg px-3 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-400 font-mono transition-all" />
                   </div>
 
                   <!-- Nama Bank -->
-                  <div class="col-span-2 space-y-1">
+                  <div class="sm:col-span-2 space-y-1 min-w-0">
                     <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">
                       Nama Bank <span class="text-rose-500">*</span>
                     </label>
-                    <select v-model="formWaris.nama_bank_waris"
-                      class="w-full text-[12px] bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-400 transition-all">
+                    <div class="relative">
+                      <select v-model="formWaris.nama_bank_waris"
+                        class="w-full h-10 appearance-none text-[12px] bg-gray-50 border border-gray-200 rounded-lg pl-3 pr-10 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-400 transition-all cursor-pointer">
                       <option value="">-- Pilih Bank --</option>
                       <option>Maybank</option>
                       <option>CIMB Bank</option>
@@ -949,7 +960,11 @@
                       <option>HSBC Bank</option>
                       <option>Agrobank</option>
                       <option>Lain-lain</option>
-                    </select>
+                      </select>
+                      <svg class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+                      </svg>
+                    </div>
                   </div>
                 </div>
 
@@ -976,7 +991,7 @@
             </div>
 
             <!-- Footer -->
-            <div class="px-6 py-4 border-t border-gray-100 bg-gray-50/60 shrink-0">
+            <div class="px-4 sm:px-6 py-4 border-t border-gray-100 bg-gray-50/60 shrink-0">
               <div v-if="ralatBagiPihak" class="mb-3 text-[11px] text-rose-600 bg-rose-50 border border-rose-200 rounded-lg px-3 py-2 font-semibold">
                 {{ ralatBagiPihak }}
               </div>
@@ -1001,21 +1016,21 @@
     <Teleport to="body">
       <Transition name="modal">
         <div v-if="showModalEdit"
-          class="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm flex items-center justify-center px-4"
+          class="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm flex items-center justify-center px-2 sm:px-4"
           @click.self="showModalEdit = false">
           <div class="bg-white border border-gray-200 rounded-2xl w-full max-w-2xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden">
 
             <!-- Header -->
-            <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-amber-50/60 shrink-0">
-              <div class="flex items-center gap-3">
+            <div class="flex items-center justify-between gap-3 px-4 sm:px-6 py-4 border-b border-gray-100 bg-amber-50/60 shrink-0">
+              <div class="flex items-center gap-3 min-w-0">
                 <div class="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center shrink-0">
                   <svg class="w-4 h-4 text-amber-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z"/>
                   </svg>
                 </div>
-                <div>
+                <div class="min-w-0">
                   <p class="font-bold text-gray-900 text-sm">Edit Permohonan Kebajikan</p>
-                  <p class="text-[10px] text-gray-400 font-mono">ID #{{ dipilih?.id }} · {{ dipilih?.nama_pegawai }}</p>
+                  <p class="text-[10px] text-gray-400 font-mono truncate">ID #{{ dipilih?.id }} · {{ dipilih?.nama_pegawai }}</p>
                 </div>
               </div>
               <button @click="showModalEdit = false"
@@ -1027,22 +1042,27 @@
             </div>
 
             <!-- Body -->
-            <div class="flex-1 overflow-y-auto p-6 space-y-5">
+            <div class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5">
 
               <!-- Jenis Bantuan -->
               <div class="space-y-1.5">
                 <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">
-                  Jenis Bantuan <span class="text-rose-500">*</span>
+                  Kategori Bantuan <span class="text-rose-500">*</span>
                 </label>
-                <select v-model="formEdit.jenis_bantuan"
-                  class="w-full text-[12px] bg-gray-50 border border-gray-200 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all">
-                  <option value="Khairat Kematian">Khairat Kematian</option>
-                  <option value="Kemalangan - Rawatan Luar (Tanpa Wad)">Kemalangan - Rawatan Luar (Tanpa Wad)</option>
-                  <option value="Kemalangan - Dimasukkan Wad">Kemalangan - Dimasukkan Wad</option>
-                  <option value="Bencana Alam - Banjir">Bencana Alam - Banjir</option>
-                  <option value="Bencana Alam - Kebakaran">Bencana Alam - Kebakaran</option>
-                  <option value="Persaraan">Persaraan</option>
-                </select>
+                <div class="relative">
+                  <select v-model="formEdit.jenis_bantuan"
+                    class="w-full h-10 appearance-none text-[12px] bg-gray-50 border border-gray-200 rounded-lg pl-3 pr-10 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 transition-all cursor-pointer">
+                    <option value="" disabled>— Pilih Kategori —</option>
+                    <optgroup v-for="kumpulan in KUMPULAN_BANTUAN" :key="kumpulan.label" :label="kumpulan.label">
+                      <option v-for="pilihan in kumpulan.pilihan" :key="pilihan.nilai" :value="pilihan.nilai">
+                        {{ labelPilihanBantuan(pilihan, kadarMap) }}
+                      </option>
+                    </optgroup>
+                  </select>
+                  <svg class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+                  </svg>
+                </div>
               </div>
 
               <!-- Keterangan -->
@@ -1061,65 +1081,75 @@
                   <p class="text-[9px] font-bold text-rose-500 uppercase tracking-wider px-2">Maklumat Waris</p>
                   <div class="flex-1 h-px bg-rose-100"></div>
                 </div>
-                <div class="grid grid-cols-2 gap-3">
-                  <div class="space-y-1">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div class="space-y-1 min-w-0">
                     <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">
                       Nama Waris <span class="text-rose-500">*</span>
                     </label>
                     <input v-model="formEditWaris.nama_waris" type="text" placeholder="Nama penuh waris"
-                      class="w-full text-[12px] bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-400 transition-all" />
+                      class="w-full h-10 text-[12px] bg-gray-50 border border-gray-200 rounded-lg px-3 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-400 transition-all" />
                   </div>
-                  <div class="space-y-1">
+                  <div class="space-y-1 min-w-0">
                     <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">
                       Hubungan <span class="text-rose-500">*</span>
                     </label>
-                    <select v-model="formEditWaris.hubungan_waris"
-                      class="w-full text-[12px] bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-400 transition-all">
-                      <option value="">-- Pilih --</option>
-                      <option>Suami / Isteri</option>
-                      <option>Anak</option>
-                      <option>Ibu / Bapa</option>
-                      <option>Adik-beradik</option>
-                      <option>Lain-lain</option>
-                    </select>
+                    <div class="relative">
+                      <select v-model="formEditWaris.hubungan_waris"
+                        class="w-full h-10 appearance-none text-[12px] bg-gray-50 border border-gray-200 rounded-lg pl-3 pr-10 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-400 transition-all cursor-pointer">
+                        <option value="">-- Pilih --</option>
+                        <option>Suami / Isteri</option>
+                        <option>Anak</option>
+                        <option>Ibu / Bapa</option>
+                        <option>Adik-beradik</option>
+                        <option>Lain-lain</option>
+                      </select>
+                      <svg class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+                      </svg>
+                    </div>
                   </div>
-                  <div class="space-y-1">
+                  <div class="space-y-1 min-w-0">
                     <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">No. K/P Waris</label>
                     <input v-model="formEditWaris.no_kp_waris" type="text" placeholder="000000-00-0000"
-                      class="w-full text-[12px] bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-400 font-mono transition-all" />
+                      class="w-full h-10 text-[12px] bg-gray-50 border border-gray-200 rounded-lg px-3 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-400 font-mono transition-all" />
                   </div>
-                  <div class="space-y-1">
+                  <div class="space-y-1 min-w-0">
                     <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">
                       No. Akaun Bank <span class="text-rose-500">*</span>
                     </label>
                     <input v-model="formEditWaris.no_akaun_waris" type="text" placeholder="Contoh: 1234567890"
-                      class="w-full text-[12px] bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-400 font-mono transition-all" />
+                      class="w-full h-10 text-[12px] bg-gray-50 border border-gray-200 rounded-lg px-3 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-400 font-mono transition-all" />
                   </div>
-                  <div class="col-span-2 space-y-1">
+                  <div class="sm:col-span-2 space-y-1 min-w-0">
                     <label class="text-[10px] font-bold text-gray-500 uppercase tracking-wider">
                       Nama Bank <span class="text-rose-500">*</span>
                     </label>
-                    <select v-model="formEditWaris.nama_bank_waris"
-                      class="w-full text-[12px] bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-400 transition-all">
-                      <option value="">-- Pilih Bank --</option>
-                      <option>Maybank</option>
-                      <option>CIMB Bank</option>
-                      <option>Public Bank</option>
-                      <option>RHB Bank</option>
-                      <option>Hong Leong Bank</option>
-                      <option>AmBank</option>
-                      <option>Bank Islam</option>
-                      <option>Bank Rakyat</option>
-                      <option>Bank Muamalat</option>
-                      <option>BSN (Bank Simpanan Nasional)</option>
-                      <option>Affin Bank</option>
-                      <option>Alliance Bank</option>
-                      <option>OCBC Bank</option>
-                      <option>Standard Chartered</option>
-                      <option>HSBC Bank</option>
-                      <option>Agrobank</option>
-                      <option>Lain-lain</option>
-                    </select>
+                    <div class="relative">
+                      <select v-model="formEditWaris.nama_bank_waris"
+                        class="w-full h-10 appearance-none text-[12px] bg-gray-50 border border-gray-200 rounded-lg pl-3 pr-10 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-400 transition-all cursor-pointer">
+                        <option value="">-- Pilih Bank --</option>
+                        <option>Maybank</option>
+                        <option>CIMB Bank</option>
+                        <option>Public Bank</option>
+                        <option>RHB Bank</option>
+                        <option>Hong Leong Bank</option>
+                        <option>AmBank</option>
+                        <option>Bank Islam</option>
+                        <option>Bank Rakyat</option>
+                        <option>Bank Muamalat</option>
+                        <option>BSN (Bank Simpanan Nasional)</option>
+                        <option>Affin Bank</option>
+                        <option>Alliance Bank</option>
+                        <option>OCBC Bank</option>
+                        <option>Standard Chartered</option>
+                        <option>HSBC Bank</option>
+                        <option>Agrobank</option>
+                        <option>Lain-lain</option>
+                      </select>
+                      <svg class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+                      </svg>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1184,7 +1214,7 @@
             </div>
 
             <!-- Footer -->
-            <div class="px-6 py-4 border-t border-gray-100 bg-gray-50/60 shrink-0">
+            <div class="px-4 sm:px-6 py-4 border-t border-gray-100 bg-gray-50/60 shrink-0">
               <div class="flex items-center justify-between gap-3">
                 <button @click="showModalEdit = false"
                   class="px-4 py-2 text-gray-600 bg-white border border-gray-200 rounded-lg text-[11px] font-semibold hover:bg-gray-50 transition-colors">
@@ -1279,6 +1309,7 @@ import { ref, computed, onMounted } from 'vue';
 import api from '../../services/api';
 import VuePdfEmbed from 'vue-pdf-embed';
 import { useToast } from '../../composables/useToast';
+import { KUMPULAN_BANTUAN, PETA_KUNCI_BANTUAN, labelPilihanBantuan } from '../../config/bantuan';
 
 const toast = useToast();
 const apiBase = (import.meta.env.VITE_API_URL || 'http://localhost:5002/api').replace('/api', '');
@@ -1323,14 +1354,7 @@ const editNilai = ref('');
 const simpanLoading = ref(false);
 
 // Peta jenis_bantuan → kunci kadar_bantuan (sama dengan backend PETA_KUNCI)
-const PETA_KUNCI = {
-  'Khairat Kematian':                      'khairat_kematian',
-  'Kemalangan - Rawatan Luar (Tanpa Wad)': 'kemalangan_rawatan_luar',
-  'Kemalangan - Dimasukkan Wad':           'kemalangan_wad',
-  'Bencana Alam - Banjir':                 'bencana_banjir',
-  'Bencana Alam - Kebakaran':              'bencana_kebakaran',
-  'Persaraan':                             'persaraan',
-};
+const PETA_KUNCI = PETA_KUNCI_BANTUAN;
 
 // Lookup amaun dinamik dari kadarBantuan yang diambil dari API
 const kadarMap = computed(() => {
@@ -1600,7 +1624,7 @@ const failBagiPihak = ref([]);
 const inputDokumenBagiPihak = ref(null);
 
 const formBagiPihak = ref({
-  jenis_bantuan: 'Khairat Kematian',
+  jenis_bantuan: '',
   keterangan: '',
 });
 
@@ -1639,7 +1663,7 @@ const bukaModalBagiPihak = async () => {
   cariAhli.value = '';
   failBagiPihak.value = [];
   ralatBagiPihak.value = '';
-  formBagiPihak.value = { jenis_bantuan: 'Khairat Kematian', keterangan: '' };
+  formBagiPihak.value = { jenis_bantuan: '', keterangan: '' };
   formWaris.value = { nama_waris: '', no_kp_waris: '', hubungan_waris: '', no_akaun_waris: '', nama_bank_waris: '' };
   showModalBagiPihak.value = true;
   if (senaraiAhliRingkas.value.length === 0) {
@@ -1654,6 +1678,8 @@ const hantarBagiPihak = async () => {
   ralatBagiPihak.value = '';
   if (!pilihSimati.value)
     return (ralatBagiPihak.value = 'Sila pilih ahli (arwah) terlebih dahulu.');
+  if (!formBagiPihak.value.jenis_bantuan)
+    return (ralatBagiPihak.value = 'Kategori bantuan wajib dipilih.');
   if (!formWaris.value.nama_waris.trim())
     return (ralatBagiPihak.value = 'Nama waris wajib diisi.');
   if (!formWaris.value.hubungan_waris)

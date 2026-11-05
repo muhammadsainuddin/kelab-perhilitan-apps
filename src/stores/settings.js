@@ -7,8 +7,8 @@ export const useSettingsStore = defineStore('settings', () => {
     const dimuat  = ref(false);
     const loading = ref(false);
 
-    const muatTetapan = async () => {
-        if (dimuat.value || loading.value) return;
+    const muatTetapan = async (paksa = false) => {
+        if ((dimuat.value && !paksa) || loading.value) return;
         loading.value = true;
         try {
             const res = await api.get('/settings');
@@ -19,9 +19,16 @@ export const useSettingsStore = defineStore('settings', () => {
             tetapan.value = map;
             dimuat.value  = true;
         } catch {
-            // fail-open — semua modul dianggap aktif jika gagal
-            tetapan.value = { modul_kedai: true, modul_bantuan: true, modul_acara: true };
-            dimuat.value  = true;
+            // Muatan pertama kekal fail-open; refresh gagal mengekalkan status terakhir.
+            if (!dimuat.value) {
+                tetapan.value = {
+                    modul_kedai: true,
+                    modul_bantuan: true,
+                    modul_acara: true,
+                    toyyibpay_enabled: true,
+                };
+                dimuat.value = true;
+            }
         } finally {
             loading.value = false;
         }

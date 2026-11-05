@@ -44,6 +44,23 @@
     <!-- KANDUNGAN -->
     <main ref="mainEl"
       class="flex-1 overflow-y-auto px-5 pt-6 pb-32 custom-scrollbar relative z-10 w-full max-w-lg mx-auto">
+      <div v-if="settingsStore.dimuat && !toyyibpayAktif"
+        class="mb-4 rounded-2xl px-4 py-3 flex items-start gap-3"
+        style="background: #FFF7ED; border: 1px solid #FED7AA;">
+        <div class="w-8 h-8 rounded-xl flex items-center justify-center shrink-0"
+          style="background: #FFEDD5; color: #C2410C;">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"/>
+          </svg>
+        </div>
+        <div>
+          <p class="text-[11px] font-black" style="color: #9A3412;">ToyyibPay Ditutup</p>
+          <p class="text-[10px] font-medium mt-0.5 leading-relaxed" style="color: #C2410C;">
+            Pembayaran FPX tidak tersedia buat sementara waktu. Sila cuba semula kemudian atau gunakan kaedah bayaran lain.
+          </p>
+        </div>
+      </div>
+
       <router-view v-slot="{ Component }">
         <Transition name="page" mode="out-in">
           <component :is="Component" />
@@ -60,15 +77,27 @@
 </template>
 
 <script setup>
-import { ref, onBeforeUnmount } from 'vue';
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
 import { useRouter } from 'vue-router';
+import { useSettingsStore } from '../../stores/settings';
 import UserTabbar from '../../components/UserTabbar.vue';
 import LoadingBar  from '../../components/LoadingBar.vue';
 import ToastNotifikasi from '../../components/ToastNotifikasi.vue';
 
 const router    = useRouter();
+const settingsStore = useSettingsStore();
 const mainEl    = ref(null);
 const isLoading = ref(false);
+const toyyibpayAktif = computed(() => settingsStore.modulAktif('toyyibpay_enabled'));
+let settingsInterval = null;
+
+const segarSemulaTetapan = () => settingsStore.muatTetapan(true);
+
+onMounted(() => {
+  settingsStore.muatTetapan();
+  settingsInterval = setInterval(segarSemulaTetapan, 30000);
+  window.addEventListener('focus', segarSemulaTetapan);
+});
 
 const MIN_MS = 420; // minimum tempoh loading ditunjukkan (ms)
 
@@ -102,6 +131,8 @@ onBeforeUnmount(() => {
   unBefore();
   unAfter();
   clearTimeout(doneTimer);
+  clearInterval(settingsInterval);
+  window.removeEventListener('focus', segarSemulaTetapan);
 });
 </script>
 

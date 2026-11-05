@@ -233,7 +233,7 @@
     <div class="space-y-3">
       <p class="text-xs font-black uppercase tracking-widest text-gray-400 px-1">Konfigurasi Pembayaran FPX</p>
       <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
-        <div class="flex items-start gap-4 mb-5">
+        <div class="flex items-start gap-4">
           <div class="w-11 h-11 rounded-xl flex items-center justify-center shrink-0"
             style="background: rgba(251,191,36,0.1);">
             <svg class="w-6 h-6" style="color: #92660C;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -241,35 +241,65 @@
                 d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
             </svg>
           </div>
-          <div>
-            <h2 class="text-sm font-black text-gray-900">Kategori Kod FPX — Sumbangan</h2>
+          <div class="flex-1 min-w-0">
+            <div class="flex flex-wrap items-center gap-2">
+              <h2 class="text-sm font-black text-gray-900">ToyyibPay</h2>
+              <span class="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wide border"
+                :class="toyyibpayAktif
+                  ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                  : 'bg-red-50 text-red-600 border-red-200'">
+                {{ toyyibpayAktif ? 'ON' : 'OFF' }}
+              </span>
+            </div>
             <p class="text-xs text-gray-500 mt-0.5 leading-relaxed">
-              Kod kategori dari ToyyibPay untuk bil sumbangan ahli. Dapatkan kod ini dari dashboard ToyyibPay anda
-              di bawah seksyen <em>Category</em>. Kosongkan untuk menggunakan kategori yuran lalai.
+              Kawal semua pembayaran ToyyibPay untuk yuran, kedai dan sumbangan ahli.
             </p>
           </div>
+
+          <button @click="togolToyyibpay" :disabled="togglingToyyibpay"
+            class="relative inline-flex items-center shrink-0 w-12 h-6 rounded-full transition-all duration-300 focus:outline-none disabled:cursor-wait"
+            :class="toyyibpayAktif ? 'bg-[#0F4C3A]' : 'bg-gray-200'"
+            :aria-label="toyyibpayAktif ? 'Tutup ToyyibPay' : 'Aktifkan ToyyibPay'">
+            <span class="inline-block w-5 h-5 bg-white rounded-full shadow transition-transform duration-300 mx-0.5"
+              :class="toyyibpayAktif ? 'translate-x-6' : 'translate-x-0'"></span>
+          </button>
         </div>
 
-        <div class="flex gap-3">
-          <div class="flex-1">
-            <label class="text-xs font-bold text-gray-600 mb-1 block">Kod Kategori</label>
-            <input v-model="categoryCodeSumbangan" type="text"
-              placeholder="Contoh: ABCD1234"
-              class="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-amber-400/30 focus:border-amber-400"
-              :disabled="menyimpanFpx" />
-          </div>
-          <div class="flex items-end">
-            <button @click="simpanCategoryCode" :disabled="menyimpanFpx"
-              class="px-5 py-2.5 rounded-xl text-xs font-black text-white transition-all"
-              style="background: #0F4C3A;" :class="menyimpanFpx ? 'opacity-60' : 'hover:opacity-90'">
-              {{ menyimpanFpx ? 'Menyimpan...' : 'Simpan' }}
-            </button>
-          </div>
+        <div v-if="!toyyibpayAktif" class="flex items-start gap-2 px-3 py-2.5 mt-4 rounded-xl bg-red-50 border border-red-200">
+          <svg class="w-4 h-4 text-red-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+          </svg>
+          <p class="text-[10px] font-semibold text-red-700 leading-relaxed">
+            ToyyibPay ditutup. Aplikasi ahli akan memaparkan makluman dan menyekat pembayaran baharu. Transaksi yang telah dimulakan masih boleh disahkan melalui callback.
+          </p>
         </div>
 
-        <p v-if="fpxSimpanMesej" class="mt-2 text-xs font-bold" :class="fpxSimpanOk ? 'text-emerald-700' : 'text-red-600'">
-          {{ fpxSimpanMesej }}
-        </p>
+        <div class="mt-5 pt-5 border-t border-gray-100">
+          <h3 class="text-xs font-black text-gray-800">Kod Kategori FPX — Sumbangan</h3>
+          <p class="text-[11px] text-gray-500 mt-1 mb-3 leading-relaxed">
+            Kod kategori dari dashboard ToyyibPay. Kosongkan untuk menggunakan kategori yuran lalai.
+          </p>
+          <div class="flex gap-3">
+            <div class="flex-1">
+              <label class="text-xs font-bold text-gray-600 mb-1 block">Kod Kategori</label>
+              <input v-model="categoryCodeSumbangan" type="text"
+                placeholder="Contoh: ABCD1234"
+                class="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-amber-400/30 focus:border-amber-400"
+                :disabled="menyimpanFpx" />
+            </div>
+            <div class="flex items-end">
+              <button @click="simpanCategoryCode" :disabled="menyimpanFpx"
+                class="px-5 py-2.5 rounded-xl text-xs font-black text-white transition-all"
+                style="background: #0F4C3A;" :class="menyimpanFpx ? 'opacity-60' : 'hover:opacity-90'">
+                {{ menyimpanFpx ? 'Menyimpan...' : 'Simpan' }}
+              </button>
+            </div>
+          </div>
+
+          <p v-if="fpxSimpanMesej" class="mt-2 text-xs font-bold" :class="fpxSimpanOk ? 'text-emerald-700' : 'text-red-600'">
+            {{ fpxSimpanMesej }}
+          </p>
+        </div>
       </div>
     </div>
 
@@ -594,6 +624,25 @@ const mesejOk  = ref(true);
 
 const maintenanceAktif    = computed(() => !!settingsStore.tetapan['maintenance_mode']);
 const togglingMaintenance = ref(false);
+const toyyibpayAktif      = computed(() => settingsStore.modulAktif('toyyibpay_enabled'));
+const togglingToyyibpay   = ref(false);
+
+const togolToyyibpay = async () => {
+  if (togglingToyyibpay.value) return;
+  const nilaiBaru = toyyibpayAktif.value ? 0 : 1;
+  if (nilaiBaru === 0 && !confirm('Tutup ToyyibPay? Semua pembayaran baharu melalui FPX akan disekat.')) return;
+
+  togglingToyyibpay.value = true;
+  try {
+    await api.put('/settings/toyyibpay_enabled', { nilai: nilaiBaru });
+    settingsStore.setTetapan('toyyibpay_enabled', nilaiBaru);
+    tunjukMesej(nilaiBaru ? 'ToyyibPay telah diaktifkan.' : 'ToyyibPay ditutup.', true);
+  } catch (e) {
+    tunjukMesej(e.response?.data?.mesej || 'Gagal mengemaskini ToyyibPay.', false);
+  } finally {
+    togglingToyyibpay.value = false;
+  }
+};
 
 const togolMaintenance = async () => {
   if (togglingMaintenance.value) return;

@@ -137,8 +137,9 @@
             </p>
             <div class="flex gap-2 w-full justify-end mt-1">
               <button v-if="p.status_pesanan === 'PENDING' && !p.is_percuma" @click="bayarFPX(p.billCode)"
-                      class="px-5 py-2.5 bg-[#08151D] hover:bg-[#0E303D] text-[#87BCB5] text-xs font-bold rounded-xl shadow-md transition-colors">
-                Bayar FPX
+                      :disabled="!toyyibpayAktif"
+                      class="px-5 py-2.5 bg-[#08151D] hover:bg-[#0E303D] text-[#87BCB5] text-xs font-bold rounded-xl shadow-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                {{ toyyibpayAktif ? 'Bayar FPX' : 'ToyyibPay Ditutup' }}
               </button>
               
               <button @click="bukaTempahan(p)" class="px-5 py-2.5 bg-white hover:bg-gray-100 text-gray-700 text-xs font-bold rounded-xl transition-colors border border-gray-200 shadow-sm">
@@ -641,13 +642,14 @@
                 </p>
               </Transition>
 
-              <button @click="tempah" :disabled="memproses || !isAhliAktif || stokSemasaItem<=0"
+              <button @click="tempah" :disabled="memproses || !isAhliAktif || stokSemasaItem<=0 || (!pilihan?.is_percuma && !toyyibpayAktif)"
                 class="w-full bg-[#08151D] hover:bg-[#0F4C3A] text-white font-bold uppercase tracking-widest text-xs py-4 rounded-2xl transition-all shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
                 <span v-if="memproses"><svg class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/></svg></span>
                 <span v-if="memproses">Memproses...</span>
                 <span v-else-if="!isAhliAktif">Yuran Tertunggak</span>
                 <span v-else-if="stokSemasaItem<=0">Kehabisan Stok</span>
                 <span v-else-if="pilihan?.is_percuma">Tempah Percuma</span>
+                <span v-else-if="!toyyibpayAktif">ToyyibPay Ditutup</span>
                 <span v-else-if="pilihan?.is_preorder">Preorder (FPX)</span>
                 <span v-else>Teruskan Pembayaran (FPX)</span>
               </button>
@@ -740,10 +742,13 @@ import { useRouter } from 'vue-router';
 import api from '../../services/api';
 import { cetakResitPesananKedai } from '../../config/kelab';
 import { useToast } from '../../composables/useToast';
+import { useSettingsStore } from '../../stores/settings';
 
 const toast   = useToast();
 const router  = useRouter();
+const settingsStore = useSettingsStore();
 const apiBase = (import.meta.env.VITE_API_URL || 'http://localhost:5002/api').replace('/api', '');
+const toyyibpayAktif = computed(() => settingsStore.modulAktif('toyyibpay_enabled'));
 
 const tabUtama = ref('produk');
 const statusPesananAktif = ref('');
@@ -895,6 +900,7 @@ const muatPesananSaya = async () => {
 };
 
 const bayarFPX = (billCode) => {
+  if (!toyyibpayAktif.value) { toast.amaran('ToyyibPay ditutup sementara. Sila cuba semula kemudian.'); return; }
   if (!billCode) { toast.amaran('Pautan bayaran tiada. Sila hubungi admin.'); return; }
   const toyyibpayBase = import.meta.env.VITE_TOYYIBPAY_URL || 'https://toyyibpay.com';
   window.location.href = `${toyyibpayBase}/${billCode}`;
@@ -958,6 +964,10 @@ const slideNext = () => { slideAktif.value = (slideAktif.value + 1) % senaraiGam
 const tempah = async () => {
   ralat.value = '';
   if (!isAhliAktif.value) { router.push('/dashboard/yuran'); return; }
+  if (!pilihan.value?.is_percuma && !toyyibpayAktif.value) {
+    ralat.value = 'ToyyibPay ditutup sementara. Pembayaran baharu tidak dapat dibuat.';
+    return;
+  }
 
   if (!pilihan.value.is_variasi && senaraiSaiz.value.length && !saizDipilih.value) { ralat.value = 'Sila pilih saiz dahulu.'; return; }
   if (pilihan.value.is_variasi && !variasiDipilih.value) { ralat.value = 'Sila pilih pakej/variasi dahulu.'; return; }
@@ -1077,6 +1087,7 @@ const padamProdukSaya = async (id) => {
 };
 
 onMounted(() => {
+  settingsStore.muatTetapan();
   fetchProfil();
   fetchProduk();
   fetchStatusPenjual();

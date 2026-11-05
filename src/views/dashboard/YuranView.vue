@@ -92,7 +92,7 @@
       </div>
 
       <!-- Butang Cuba Semula — muncul selepas 15 minit -->
-      <button v-if="bolehCubaSemula" @click="bayarYuran" :disabled="isProcessing"
+      <button v-if="bolehCubaSemula" @click="bayarYuran" :disabled="isProcessing || !toyyibpayAktif"
         class="w-full mt-3 py-3 rounded-2xl text-[11px] font-black uppercase tracking-wider flex items-center justify-center gap-2 transition-all active:scale-[0.98] disabled:opacity-60"
         style="background: #92400e; color: #FEF3C7;">
         <span v-if="isProcessing" class="animate-pulse">Menghubungi Bank...</span>
@@ -100,7 +100,7 @@
           <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"/>
           </svg>
-          <span>Cuba Bayar Semula</span>
+          <span>{{ toyyibpayAktif ? 'Cuba Bayar Semula' : 'ToyyibPay Ditutup' }}</span>
         </template>
       </button>
     </div>
@@ -137,12 +137,12 @@
           <span class="text-[24px] font-black leading-none font-mono" style="color: #0F172A;">RM {{ jumlahPerluBayar.toFixed(2) }}</span>
         </div>
 
-        <button @click="bayarYuran" :disabled="isProcessing || jumlahPerluBayar <= 0"
+        <button @click="bayarYuran" :disabled="isProcessing || jumlahPerluBayar <= 0 || !toyyibpayAktif"
           class="w-full py-4 rounded-2xl text-[11px] font-black uppercase tracking-wider flex items-center justify-center gap-2.5 transition-all active:scale-[0.98] disabled:opacity-60"
           style="background: #081C15; color: #95D5B2;">
           <span v-if="isProcessing" class="animate-pulse">Menghubungi Bank...</span>
           <template v-else>
-            <span>Bayar via ToyyibPay</span>
+            <span>{{ toyyibpayAktif ? 'Bayar via ToyyibPay' : 'ToyyibPay Ditutup' }}</span>
             <span class="flex items-center px-2 py-0.5 rounded shadow-sm" style="background: white;">
               <span class="font-black italic text-[9px] text-rose-600">F</span>
               <span class="font-black italic text-[9px] text-blue-800">P</span>
@@ -428,8 +428,10 @@ import { Capacitor } from '@capacitor/core';
 import api from '../../services/api';
 import { KELAB, cetakResitTransaksi, buatHtmlResit, headerResitHTML, footerResitHTML } from '../../config/kelab';
 import { useToast } from '../../composables/useToast';
+import { useSettingsStore } from '../../stores/settings';
 
 const toast  = useToast();
+const settingsStore = useSettingsStore();
 const profil = ref({});
 const showResitModal = ref(false);
 const resitHtml = ref('');
@@ -448,6 +450,7 @@ const tahunSemasa    = new Date().getFullYear();
 let autoPollInterval = null;
 let jamCountdown     = null;
 const waktuSekarang  = ref(Date.now());
+const toyyibpayAktif = computed(() => settingsStore.modulAktif('toyyibpay_enabled'));
 
 const pendingTx = computed(() => sejarahBayaran.value.find(tx => tx.status === 'PENDING'));
 
@@ -685,6 +688,10 @@ const hentikanJamCountdown = () => {
 };
 
 const bayarYuran = async () => {
+  if (!toyyibpayAktif.value) {
+    toast.amaran('ToyyibPay ditutup sementara. Sila cuba semula kemudian.');
+    return;
+  }
   isProcessing.value = true;
   try {
     const response = await api.post('/bayaran/cipta-bil', {
@@ -701,6 +708,7 @@ const bayarYuran = async () => {
 };
 
 onMounted(async () => {
+  await settingsStore.muatTetapan();
   await fetchProfil();
   if (profil.value.pilihan_potongan === 'Potongan Biro angkasa') fetchResitBA();
   fetchSejarah();

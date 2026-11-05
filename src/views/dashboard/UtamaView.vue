@@ -699,7 +699,7 @@
             </div>
 
             <!-- Tab kaedah (hanya tunjuk FPX jika kempen benarkan) -->
-            <div v-if="kempenDonateDipilih?.allow_fpx" class="px-6 mb-4">
+            <div v-if="kempenDonateDipilih?.allow_fpx && toyyibpayAktif" class="px-6 mb-4">
               <div class="flex gap-1.5 bg-gray-100 rounded-2xl p-1">
                 <button @click="donateKaedah = 'MANUAL'"
                   :class="['flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wide transition-all',
@@ -711,6 +711,13 @@
                            donateKaedah === 'FPX' ? 'bg-white shadow text-gray-900' : 'text-gray-500']">
                   FPX Online
                 </button>
+              </div>
+            </div>
+
+            <div v-else-if="kempenDonateDipilih?.allow_fpx && !toyyibpayAktif" class="px-6 mb-4">
+              <div class="px-3 py-2.5 rounded-xl text-[10px] font-bold leading-relaxed"
+                style="background: #FFF7ED; color: #9A3412; border: 1px solid #FED7AA;">
+                ToyyibPay ditutup sementara. Sila gunakan pindahan bank untuk sumbangan ini.
               </div>
             </div>
 
@@ -766,7 +773,7 @@
                 {{ menghantarDonate ? 'Merekodkan...' : 'Rekod Sumbangan' }}
               </button>
               <button v-else
-                @click="hantarSumbanganFPX" :disabled="menghantarDonate"
+                @click="hantarSumbanganFPX" :disabled="menghantarDonate || !toyyibpayAktif"
                 class="w-full py-3.5 rounded-2xl text-sm font-black uppercase tracking-wide transition-all active:scale-[0.98]"
                 style="background: #0F172A; color: white;" :class="menghantarDonate ? 'opacity-60' : ''">
                 {{ menghantarDonate ? 'Memproses...' : `Bayar RM${donateAmaun ? (parseFloat(donateAmaun)+1).toFixed(2) : '—'} via FPX →` }}
@@ -901,6 +908,7 @@ import { useSettingsStore } from '../../stores/settings';
 import { useNotifikasiStore } from '../../stores/notifikasi';
 
 const settingsStore = useSettingsStore();
+const toyyibpayAktif = computed(() => settingsStore.modulAktif('toyyibpay_enabled'));
 const uploadBase = import.meta.env.VITE_UPLOAD_URL || 'http://localhost:5002';
 const router = useRouter();
 
@@ -1030,6 +1038,11 @@ const hantarSumbangan = async () => {
 
 const hantarSumbanganFPX = async () => {
   donateRalat.value = '';
+  if (!toyyibpayAktif.value) {
+    donateKaedah.value = 'MANUAL';
+    donateRalat.value = 'ToyyibPay ditutup sementara. Sila gunakan pindahan bank.';
+    return;
+  }
   const amaun = parseFloat(donateAmaun.value);
   if (!amaun || amaun <= 0) { donateRalat.value = 'Sila masukkan amaun yang sah.'; return; }
   menghantarDonate.value = true;
